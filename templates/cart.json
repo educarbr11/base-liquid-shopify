@@ -1,8 +1,8 @@
 {
   "sections": {
-    "carrinho": {
-      "type": "carrinho"
+    "main": {
+      "type": "main-cart"
     }
   },
-  "order": ["carrinho"]
+  "order": ["main"]
 }

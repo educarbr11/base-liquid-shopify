@@ -1,3 +1,28 @@
+{%- comment -%}
+  ============================================================
+  alerta — notificação global (toast) de sucesso/erro
+  ============================================================
+
+  O QUE FAZ:
+  Renderiza o toast global fixo no canto da tela (HTML + CSS + JS) e expõe
+  as funções globais mostrarAlerta() e fecharAlerta() no window. Suporta
+  tipo positivo/negativo, auto-fechamento e fechar com ESC.
+
+  COMO USAR:
+  {% render 'alerta' %}   (inclua uma vez no layout, ex: theme.liquid)
+  No JS da loja, dispare:
+    mostrarAlerta('Produto adicionado!', 'positivo')
+    mostrarAlerta('Algo deu errado', 'negativo', 5000)
+
+  PARÂMETROS:
+  Nenhum — renderizado diretamente. A interação é via funções JS globais:
+  - mostrarAlerta(mensagem, tipo = 'positivo', duracao = 4000)
+  - fecharAlerta()
+
+  OBSERVAÇÕES:
+  duracao em ms; use 0 para não fechar sozinho. Usa as variáveis de cor
+  --cor-verde, --cor-marca e --cor-branco (definidas em css-variables).
+{%- endcomment -%}
 <div id="alerta" class="alerta-global">
   <div class="conteudo">
     <div class="icone"></div>

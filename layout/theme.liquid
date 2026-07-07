@@ -1,108 +1,80 @@
+{%- comment -%}
+  ============================================================
+  theme.liquid — Moldura (layout) de todas as paginas do tema
+  ============================================================
+
+  O QUE FAZ:
+  Este e o layout padrao que envolve TODA pagina da loja (home,
+  produto, colecao, carrinho, etc.). Define a estrutura HTML base.
+
+  NO <head> temos:
+  - Meta tags basicas, viewport e theme-color.
+  - SEO: <title> dinamico (com tags/pagina/nome da loja),
+    meta description, URL canonica.
+  - Favicon e apple-touch-icon (config settings.favicon).
+  - Open Graph / JSON-LD e demais tags via {% render 'meta-tags' %}.
+  - CSS: index.css (ponto de entrada) + css-variables (variaveis
+    do tema geradas pelas settings).
+  - Scripts: troca no-js -> js e carrega carrinho.js (defer).
+  - {{ content_for_header }}: scripts obrigatorios do Shopify.
+
+  NO <body> temos:
+  - Skip link de acessibilidade e snippets globais (alerta, carrinho).
+  - Section groups do topo (header-group) e rodape (footer-group),
+    editaveis pelo lojista no editor de temas.
+  - {{ content_for_layout }}: aqui entra o conteudo especifico de
+    cada template/pagina, dentro do <main id="MainContent">.
+{%- endcomment -%}
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}">
+<html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="{{ settings.color_accent }}">
+    <link rel="canonical" href="{{ canonical_url }}">
 
-    <!-- Title and Description -->
-    <title>{{ page_title }} | {{ shop.name }}</title>
-    <meta name="description" content="{{ page_description }}">
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+      <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
+    {%- endif -%}
 
-      <!-- SEO Meta Tags -->
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="max-image-preview">
-    <meta name="author" content="{{ shop.name }}">
+    <title>
+      {{ page_title }}
+      {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
+      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
 
-      <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{{ page_title }}">
-    <meta property="og:description" content="{{ page_description }}">
-    <meta property="og:type" content="website">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:url" content="{{ canonical_url | default: shop.url }}">
-    <meta property="og:site_name" content="{{ shop.name }}">
-    <meta property="og:locale" content="{{ request.locale.iso_code }}">
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
 
-      <!-- Theme Colors -->
-    <meta name="theme-color" content="#FF0034">
-    <meta name="msapplication-TileColor" content="#FF0034">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-      <!-- Application Meta Tags -->
-    <meta name="application-name" content="{{ shop.name }}">
-    <meta name="apple-mobile-web-app-title" content="{{ shop.name }}">
-
-      <!-- Favicons -->
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="{{ 'favicon.ico' | asset_url }}">
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="{{ 'favicon-16x16.png' | asset_url }}">
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="{{ 'favicon-32x32.png' | asset_url }}">
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="{{ 'apple-touch-icon.png' | asset_url }}">
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="{{ 'android-chrome-192x192.png' | asset_url }}">
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="512x512"
-      href="{{ 'android-chrome-512x512.png' | asset_url }}">
-    <link rel="manifest" href="{{ 'site.webmanifest' | asset_url }}">
+    {% render 'meta-tags' %}
 
     {{ 'index.css' | asset_url | stylesheet_tag }}
+    {% render 'css-variables' %}
 
-    <style > :root
-    {
-      --cor-branco: #ffffff;
-      --cor-preto: #000000;
+    <script>document.documentElement.className = document.documentElement.className.replace('no-js', 'js');</script>
+    <script src="{{ 'carrinho.js' | asset_url }}" defer="defer"></script>
 
-      --cor-gelo: #F2F3F8;
-      --cor-cinza: #C2C2C2;
-      --cor-marca: #FF0033;
-      --cor-verde: #1CB744;
-      --cor-verde-claro: #E8F8EC;
+    {{ content_for_header }}
+  </head>
 
-      --f0: clamp(0.5rem, 1vw, 0.7rem);
-      --f1: clamp(0.7rem, 1vw, 0.9rem);
-      --f2: clamp(0.9rem, 1vw, 1.1rem);
-      --f3: clamp(1.1rem, 1vw, 1.3rem);
-      --f4: clamp(1.3rem, 1vw, 1.5rem);
-      --f5: clamp(1.5rem, 1vw, 1.8rem);
-      --f6: clamp(1.8rem, 1vw, 2.2rem);
-      --f7: clamp(2.2rem, 1vw, 2.5rem);
-      --f8: clamp(3rem, 1vw, 4rem);
-    }
-  </style>
+  <body class="template-{{ request.page_type | handle }}">
+    <a class="skip-to-content-link visually-hidden" href="#MainContent">
+      {{ 'accessibility.skip_to_text' | t }}
+    </a>
 
-  {{ content_for_header }}
-</head>
-<body>
-  {% render 'alerta' %}
-  {% render 'carrinho' %}
-  {% section 'nav' %}
+    {% render 'alerta' %}
+    {% render 'carrinho' %}
 
-  <main>
-    {% if request.path contains '/policies/' %}
-      {% section 'documento' %}
-    {% else %}
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
       {{ content_for_layout }}
-    {% endif %}
-  </main>
+    </main>
 
-  {% section 'footer' %}
-
-</body></html>
+    {% sections 'footer-group' %}
+  </body>
+</html>

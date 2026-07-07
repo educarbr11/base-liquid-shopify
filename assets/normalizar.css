@@ -1,3 +1,21 @@
+/*
+  ============================================================
+  normalizar.css — Reset e normalizacao entre navegadores
+  ============================================================
+
+  O QUE FAZ:
+  Zera margens, paddings e bordas padrao (reset com box-sizing:
+  border-box em tudo), normaliza comportamento de elementos
+  (botoes, inputs, links, imagens) e esconde scrollbars.
+  Tambem define cor de selecao de texto, rolagem suave e estados
+  de autofill usando as variaveis de cor do tema.
+
+  OBSERVACOES:
+  Depende das variaveis CSS (--cor-branco, --color-accent, etc.)
+  definidas em snippets/css-variables.liquid.
+  Evita highlight de toque no mobile e desativa aparencia nativa
+  de controles de formulario para permitir estilizacao custom.
+*/
 * {
   box-sizing: border-box;
   margin: 0;
@@ -33,8 +51,12 @@ body.bloquear {
   overflow: hidden;
 }
 ::selection {
-  color: var(--cor-branco);
-  background-color: var(--cor-marca);
+  color: var(--color-accent-text, #ffffff);
+  background-color: var(--color-accent, #ff0033);
+}
+::-moz-selection {
+  color: var(--color-accent-text, #ffffff);
+  background-color: var(--color-accent, #ff0033);
 }
 a,
 img,

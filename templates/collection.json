@@ -1,11 +1,11 @@
 {
   "sections": {
-    "headerCollection": {
-      "type": "headerCollection"
+    "banner": {
+      "type": "collection-banner"
     },
-    "produtos": {
-      "type": "produtos"
+    "product-grid": {
+      "type": "main-collection"
     }
   },
-  "order": ["headerCollection", "produtos"]
+  "order": ["banner", "product-grid"]
 }
