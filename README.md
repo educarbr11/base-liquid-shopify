@@ -226,7 +226,7 @@ shopify theme check        # lint oficial (0 offenses = ok)
 shopify theme push --store SUA-LOJA.myshopify.com --unpublished
 ```
 
-> `theme check` pega erros de sintaxe e boas práticas, mas **não** garante que o
+> `theme check` pega erros de sintaxe e boas práticas, mas **não** garante que o change
 > tema sobe: alguns erros só aparecem no `push` real (ex: objeto Liquid usado em
 > contexto inválido). Sempre teste com um `push` de rascunho.
 
