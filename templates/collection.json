@@ -1,11 +1,34 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "banner": {
-      "type": "collection-banner"
+      "type": "collection-banner",
+      "settings": {
+        "background_image": "shopify://shop_images/Frame_245.png",
+        "show_description": false
+      }
     },
     "product-grid": {
-      "type": "main-collection"
+      "type": "main-collection",
+      "settings": {
+        "collection_icon": "shopify://shop_images/noto-v1_snail.svg",
+        "products_per_page": 12,
+        "columns_desktop": 3,
+        "enable_sorting": true,
+        "enable_filtering": true
+      }
     }
   },
-  "order": ["banner", "product-grid"]
+  "order": [
+    "banner",
+    "product-grid"
+  ]
 }
