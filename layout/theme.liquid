@@ -69,12 +69,14 @@
     {% render 'alerta' %}
     {% render 'carrinho' %}
 
-    {% sections 'header-group' %}
+    <div class="site-wrapper">
+      {% sections 'header-group' %}
 
-    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {{ content_for_layout }}
-    </main>
+      <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+        {{ content_for_layout }}
+      </main>
 
-    {% sections 'footer-group' %}
+      {% sections 'footer-group' %}
+    </div>
   </body>
 </html>

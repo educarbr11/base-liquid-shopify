@@ -76,6 +76,33 @@ summary:focus-visible,
   box-sizing: border-box;
 }
 
+/* Site layout — sidebar + content */
+.site-wrapper {
+  margin-left: 260px;
+  padding-top: 70px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.content-for-layout {
+  flex: 1;
+}
+
+/* Notebook optimizations */
+@media screen and (max-width: 1366px) {
+  .site-wrapper {
+    margin-left: 240px;
+  }
+}
+
+/* Tablet & Mobile margin removal */
+@media screen and (max-width: 1024px) {
+  .site-wrapper {
+    margin-left: 0;
+    padding-top: 60px;
+  }
+}
+
 /* Shared button */
 .button,
 button.button {
@@ -159,40 +186,7 @@ textarea.field__input {
   }
 }
 
-/* Product card */
-.card-product__link { text-decoration: none; color: inherit; display: block; }
-.card-product__media {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: var(--media-radius, 8px);
-  background-color: var(--color-background-contrast, #f2f3f8);
-}
-.card-product__image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.card-product__image--secondary { opacity: 0; transition: opacity 0.25s ease; }
-.card-product:hover .card-product__image--secondary { opacity: 1; }
-.card-product__badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 3px 8px;
-  font-size: var(--f0, 0.7rem);
-  text-transform: uppercase;
-  color: var(--color-accent-text, #fff);
-  background-color: var(--color-sale, #1cb744);
-  border-radius: 4px;
-}
-.card-product__badge--sold-out { background-color: var(--color-border, #c2c2c2); color: var(--color-text, #000); }
-.card-product__info { padding: 12px 4px; }
-.card-product__vendor { display: block; font-size: var(--f0); opacity: 0.6; margin-bottom: 4px; }
-.card-product__title { font-size: var(--f2); font-weight: normal; margin-bottom: 6px; }
-.price--card { font-size: var(--f2); }
+/* Product card styles — now in featured-collection.liquid */
 
 /* Rich text content (RTE) shared styles */
 .rte a { color: var(--color-accent); }

@@ -1,70 +1,258 @@
 {%- comment -%}
   ============================================================
-  FEATURED COLLECTION — vitrine de produtos de uma coleção
+  FEATURED COLLECTION — vitrine de produtos com scroll
   ============================================================
-
-  O QUE FAZ:
-  Exibe um título + grade de produtos de UMA coleção escolhida, com
-  quantidade e número de colunas configuráveis. Mostra link "ver
-  tudo" quando a coleção tem mais produtos do que o limite exibido.
-
-  ONDE É USADA:
-  Seção reutilizável (tem preset) — comum na home.
-
-  PRINCIPAIS PARTES:
-  - collection = collections[section.settings.collection]
-  - render 'card-product': card de cada produto
-  - Placeholders (product-1 + título fake) quando coleção vazia
-  - Settings: heading, collection, products_to_show, columns_desktop,
-    show_view_all
-  - Colunas via --grid-columns inline (style no wrapper)
-
-  OBSERVAÇÕES:
-  show_view_all só aparece se total_products > limit exibido.
+  Exibe título decorado + grid/scroll horizontal de produtos com
+  botão ADICIONAR. Heading com ícone e linha decorativa.
 {%- endcomment -%}
 {%- liquid
   assign collection = collections[section.settings.collection]
   assign limit = section.settings.products_to_show | plus: 0
   assign total_products = collection.all_products_count | plus: 0
 -%}
-<div class="featured-collection page-width" data-section-id="{{ section.id }}" style="--grid-columns: {{ section.settings.columns_desktop }};">
+<div class="featured-collection" data-section-id="{{ section.id }}">
   <div class="featured-collection__header">
     {%- if section.settings.heading != blank -%}
-      <h2 class="featured-collection__heading">{{ section.settings.heading | escape }}</h2>
+      <h2 class="featured-collection__heading">
+        <span class="featured-collection__icon">📚</span>
+        <span>{{ section.settings.heading | escape }}</span>
+      </h2>
     {%- endif -%}
     {%- if section.settings.show_view_all and total_products > limit -%}
-      <a href="{{ collection.url }}" class="featured-collection__view-all button button--secondary"
+      <a href="{{ collection.url }}" class="featured-collection__view-all"
          aria-label="{{ 'sections.featured_collection.view_all_label' | t: collection_name: collection.title }}">
-        {{ 'sections.featured_collection.view_all' | t }}
+        Ver tudo →
       </a>
     {%- endif -%}
   </div>
 
   {%- if collection.products.size > 0 -%}
-    <ul class="product-grid" role="list">
+    <div class="featured-collection__scroll">
       {%- for product in collection.products limit: limit -%}
-        <li>{% render 'card-product', card_product: product %}</li>
+        <div class="featured-collection__item">
+          {% render 'card-product', card_product: product %}
+        </div>
       {%- endfor -%}
-    </ul>
+    </div>
   {%- else -%}
-    <ul class="product-grid" role="list">
+    <div class="featured-collection__scroll">
       {%- for i in (1..limit) -%}
-        <li>
+        <div class="featured-collection__item">
           <div class="card-product">
-            <div class="card-product__media">{{ 'product-1' | placeholder_svg_tag: 'card-product__image placeholder-svg' }}</div>
-            <div class="card-product__info"><h3 class="card-product__title">{{ 'onboarding.product_title' | t }}</h3></div>
+            <div class="card-product__link">
+              <div class="card-product__media" style="padding-bottom:100%;">
+                <div class="card-product__placeholder-img">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                </div>
+              </div>
+              <div class="card-product__info">
+                <h3 class="card-product__title">{{ 'onboarding.product_title' | t }}</h3>
+                <div class="card-product__price-row">
+                  <span class="price--card">R$ 234,90</span>
+                </div>
+              </div>
+            </div>
+            <div class="card-product__add-form">
+              <button type="button" class="card-product__add-btn" disabled>
+                <span>ADICIONAR</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+              </button>
+            </div>
           </div>
-        </li>
+        </div>
       {%- endfor -%}
-    </ul>
+    </div>
   {%- endif -%}
 </div>
 
 <style>
-  .featured-collection { padding-top: var(--spacing-sections); padding-bottom: var(--spacing-sections); }
-  .featured-collection__header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-  .featured-collection__heading { font-size: var(--f6); }
-  .product-grid { --grid-columns: 4; }
+  .featured-collection {
+    padding: 36px 24px;
+  }
+  .featured-collection__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #E8A817;
+    flex-wrap: wrap;
+  }
+  .featured-collection__heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+  .featured-collection__icon {
+    font-size: 1.3em;
+  }
+  .featured-collection__view-all {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #E8A817;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .featured-collection__view-all:hover {
+    color: #d69b14;
+    text-decoration: underline;
+  }
+
+  /* Scroll horizontal container */
+  .featured-collection__scroll {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.15) transparent;
+  }
+  .featured-collection__scroll::-webkit-scrollbar { height: 6px; }
+  .featured-collection__scroll::-webkit-scrollbar-track { background: transparent; }
+  .featured-collection__scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+  .featured-collection__item {
+    flex: 0 0 220px;
+    scroll-snap-align: start;
+  }
+
+  /* Card styles in featured collection context */
+  .card-product {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.06);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-product:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+  .card-product__link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .card-product__media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: #f0f1f5;
+    border-radius: 12px 12px 0 0;
+  }
+  .card-product__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card-product__image--secondary { opacity: 0; transition: opacity 0.25s ease; }
+  .card-product:hover .card-product__image--secondary { opacity: 1; }
+  .card-product__placeholder-img {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f1f5;
+  }
+  .card-product__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 8px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #fff;
+    background-color: #1cb744;
+    border-radius: 6px;
+    font-weight: 700;
+    z-index: 2;
+  }
+  .card-product__badge--sold-out { background-color: #999; color: #fff; }
+  .card-product__info {
+    padding: 12px 14px 8px;
+    flex: 1;
+  }
+  .card-product__vendor {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.5;
+    margin-bottom: 4px;
+  }
+  .card-product__title {
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin: 0 0 6px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-product__price-row {
+    margin-bottom: 2px;
+  }
+  .price--card {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #E8A817;
+  }
+
+  /* Add to cart button */
+  .card-product__add-form {
+    padding: 0 14px 14px;
+  }
+  .card-product__add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    background: #E8A817;
+    color: #0B1D3A;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+  .card-product__add-btn:hover {
+    background: #d69b14;
+  }
+  .card-product__add-btn:active {
+    transform: scale(0.98);
+  }
+  .card-product__add-btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media screen and (max-width: 1000px) {
+    .featured-collection {
+      padding: 24px 16px;
+    }
+    .featured-collection__item {
+      flex: 0 0 180px;
+    }
+  }
 </style>
 
 {% schema %}
@@ -72,7 +260,7 @@
   "name": "t:sections.featured_collection.name",
   "tag": "section",
   "settings": [
-    { "type": "text", "id": "heading", "default": "Featured collection", "label": "t:sections.featured_collection.settings.heading.label" },
+    { "type": "text", "id": "heading", "default": "COLEÇÃO PRÉ-ESCOLA DIGITAL", "label": "t:sections.featured_collection.settings.heading.label" },
     { "type": "collection", "id": "collection", "label": "t:sections.featured_collection.settings.collection.label" },
     { "type": "range", "id": "products_to_show", "min": 2, "max": 12, "step": 1, "default": 4, "label": "t:sections.featured_collection.settings.products_to_show.label" },
     { "type": "range", "id": "columns_desktop", "min": 2, "max": 5, "step": 1, "default": 4, "label": "t:sections.featured_collection.settings.columns_desktop.label" },

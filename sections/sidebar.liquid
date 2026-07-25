@@ -1,0 +1,260 @@
+{%- comment -%}
+  ============================================================
+  SIDEBAR — navegação lateral fixa
+  ============================================================
+
+  O QUE FAZ:
+  Sidebar lateral fixa à esquerda com: logo, menu de navegação
+  principal (Início, Categorias, Lançamentos) e links de coleções.
+  No mobile vira drawer aberto via botão hambúrguer.
+{%- endcomment -%}
+<aside class="sidebar" id="Sidebar-{{ section.id }}" data-section-id="{{ section.id }}">
+  <div class="sidebar__inner">
+    {%- comment -%} Logo {%- endcomment -%}
+    <div class="sidebar__logo">
+      <a href="{{ routes.root_url }}" class="sidebar__logo-link">
+        {%- if settings.logo != blank -%}
+          {%- assign logo_alt = shop.name | escape -%}
+          {{
+            settings.logo
+            | image_url: width: 300
+            | image_tag:
+              class: 'sidebar__logo-image',
+              widths: '100, 150, 200, 300',
+              width: 120,
+              height: 120 | divided_by: settings.logo.aspect_ratio,
+              alt: logo_alt
+          }}
+        {%- else -%}
+          <span class="sidebar__logo-text">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+
+    {%- comment -%} Menu Principal {%- endcomment -%}
+    <nav class="sidebar__nav" aria-label="Menu principal">
+      <ul class="sidebar__menu" role="list">
+        {%- for link in section.settings.menu.links -%}
+          <li class="sidebar__menu-item">
+            <a href="{{ link.url }}" class="sidebar__menu-link {% if link.active or link.child_active %}sidebar__menu-link--active{% endif %}">
+              <span class="sidebar__menu-bullet">●</span>
+              {{ link.title | escape }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    {%- comment -%} Coleções {%- endcomment -%}
+    {%- if section.settings.collections_menu.links.size > 0 -%}
+      <div class="sidebar__collections">
+        <h3 class="sidebar__collections-title">COLEÇÕES</h3>
+        <ul class="sidebar__collections-list" role="list">
+          {%- for link in section.settings.collections_menu.links -%}
+            {%- assign col_handle = link.url | split: '/collections/' | last | split: '?' | first -%}
+            {%- assign col = collections[col_handle] -%}
+            <li class="sidebar__collections-item">
+              <a href="{{ link.url }}" class="sidebar__collections-link {% if link.active %}sidebar__collections-link--active{% endif %}">
+                <span class="sidebar__collections-bullet">●</span>
+                <span class="sidebar__collections-name">{{ link.title | escape }}</span>
+                {%- if col and col.all_products_count > 0 -%}
+                  <span class="sidebar__collections-count">{{ col.all_products_count }}</span>
+                {%- endif -%}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+  </div>
+</aside>
+
+<style>
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #0B1D3A;
+    color: #ffffff;
+    z-index: 250;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
+  }
+  @media screen and (max-width: 1366px) {
+    .sidebar { width: 240px; }
+  }
+  .sidebar__inner {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+  }
+  /* Logo */
+  .sidebar__logo-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #ffffff;
+  }
+  .sidebar__logo-image {
+    display: block;
+    max-width: 100px;
+    height: auto;
+  }
+  .sidebar__logo-text {
+    font-family: var(--font-heading-family);
+    font-size: var(--f4);
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  /* Menu principal */
+  .sidebar__menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sidebar__menu-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-family: var(--font-body-family);
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .sidebar__menu-link:hover {
+    background: rgba(255,255,255,0.08);
+    color: #ffffff;
+  }
+  .sidebar__menu-link--active {
+    background: #E8A817;
+    color: #0B1D3A;
+    font-weight: 700;
+  }
+  .sidebar__menu-link--active:hover {
+    background: #d69b14;
+    color: #0B1D3A;
+  }
+  .sidebar__menu-bullet {
+    font-size: 8px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  /* Coleções */
+  .sidebar__collections {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 18px;
+  }
+  .sidebar__collections-title {
+    font-family: var(--font-heading-family);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.45);
+    margin: 0 0 10px 14px;
+  }
+  .sidebar__collections-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sidebar__collections-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+  }
+  .sidebar__collections-link:hover {
+    background: rgba(255,255,255,0.06);
+    color: #ffffff;
+  }
+  .sidebar__collections-link--active {
+    background: #E8A817;
+    color: #0B1D3A;
+    font-weight: 600;
+  }
+  .sidebar__collections-bullet {
+    font-size: 7px;
+    flex-shrink: 0;
+  }
+  .sidebar__collections-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidebar__collections-count {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .sidebar__collections-link--active .sidebar__collections-count {
+    background: rgba(11,29,58,0.15);
+    color: #0B1D3A;
+  }
+
+  /* Mobile & Tablet Drawer */
+  @media screen and (max-width: 1024px) {
+    .sidebar {
+      top: 0;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 250;
+      width: 280px;
+    }
+    .sidebar.sidebar--open {
+      transform: translateX(0);
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Sidebar",
+  "class": "section-sidebar",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "Menu principal"
+    },
+    {
+      "type": "link_list",
+      "id": "collections_menu",
+      "label": "Menu de coleções"
+    }
+  ]
+}
+{% endschema %}

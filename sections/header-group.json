@@ -2,9 +2,12 @@
   "type": "header",
   "name": "t:section_groups.header.name",
   "sections": {
-    "nav": {
-      "type": "nav"
+    "sidebar": {
+      "type": "sidebar"
+    },
+    "topbar": {
+      "type": "topbar"
     }
   },
-  "order": ["nav"]
+  "order": ["sidebar", "topbar"]
 }

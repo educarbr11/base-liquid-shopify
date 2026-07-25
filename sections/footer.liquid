@@ -1,40 +1,12 @@
 {%- comment -%}
   ============================================================
-  FOOTER — rodapé do site
+  FOOTER — rodapé escuro do site
   ============================================================
-
-  O QUE FAZ:
-  Renderiza o rodapé da loja em duas faixas: a superior com blocks
-  configuráveis (marca, menu, texto e newsletter) e a inferior com
-  seletor de localização, ícones de pagamento, redes sociais e o
-  copyright/crédito.
-
-  ONDE É USADA:
-  No layout (layout/theme.liquid), como footer presente em todas
-  as páginas. É uma section de grupo/footer do tema.
-
-  PRINCIPAIS PARTES:
-  - footer__top: loop de section.blocks (case block.type) montando
-    cada bloco — 'brand' (logo ou nome + texto), 'menu' (heading +
-    link_list), 'text' (heading + richtext) e 'newsletter' (heading
-    + snippet 'newsletter-form').
-  - footer__bottom: seletor de localização (snippet
-    'localization-form'), ícones de pagamento gerados de
-    shop.enabled_payment_types, redes sociais (Instagram/Facebook/
-    LinkedIn a partir dos settings globais social_*_link) e o
-    copyright com o crédito da base (link lecdt.com).
-
-  OBSERVAÇÕES:
-  - Ícones de pagamento saem automaticamente das formas de
-    pagamento habilitadas na loja (payment_type_svg_tag).
-  - Toggles no schema: show_social, show_payment_icons e
-    enable_localization.
-  - Links de redes sociais vêm dos settings globais do tema
-    (settings.social_*_link), não do schema desta section.
-  - Ícones de redes vêm do snippet 'icon'.
+  Footer dark com: Logo+Contato, Nossos Links, Envio e pagamento.
+  Design consistente com sidebar (dark blue #0B1D3A).
 {%- endcomment -%}
 <footer class="footer" data-section-id="{{ section.id }}">
-  <div class="footer__top page-width">
+  <div class="footer__top">
     {%- for block in section.blocks -%}
       {%- case block.type -%}
         {%- when 'brand' -%}
@@ -56,6 +28,18 @@
             {%- if block.settings.text != blank -%}
               <div class="footer__text rte">{{ block.settings.text }}</div>
             {%- endif -%}
+
+            <div class="footer__contact">
+              <h3 class="footer__contact-title">Contato</h3>
+              <div class="footer__contact-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+                <span>Whats App</span>
+              </div>
+              <div class="footer__contact-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                <span>Call Us</span>
+              </div>
+            </div>
           </div>
 
         {%- when 'menu' -%}
@@ -66,7 +50,12 @@
             {%- if block.settings.menu != blank -%}
               <ul class="footer__menu" role="list">
                 {%- for link in block.settings.menu.links -%}
-                  <li><a href="{{ link.url }}" class="footer__link">{{ link.title | escape }}</a></li>
+                  <li>
+                    <a href="{{ link.url }}" class="footer__link">
+                      <span class="footer__link-bullet">›</span>
+                      {{ link.title | escape }}
+                    </a>
+                  </li>
                 {%- endfor -%}
               </ul>
             {%- endif -%}
@@ -93,15 +82,8 @@
     {%- endfor -%}
   </div>
 
-  <div class="footer__bottom page-width">
+  <div class="footer__bottom">
     <div class="footer__bottom-left">
-      {%- if section.settings.enable_localization -%}
-        {% render 'localization-form',
-          section_id: section.id,
-          show_country: true,
-          show_language: true
-        %}
-      {%- endif -%}
       {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
         <ul class="footer__payment" role="list" aria-label="{{ 'sections.footer.payment' | t }}">
           {%- for type in shop.enabled_payment_types -%}
@@ -111,7 +93,7 @@
       {%- endif -%}
     </div>
 
-    <div class="footer__bottom-right">
+    <div class="footer__bottom-center">
       {%- if section.settings.show_social -%}
         <ul class="footer__social" role="list">
           {%- if settings.social_instagram_link != blank -%}
@@ -125,11 +107,11 @@
           {%- endif -%}
         </ul>
       {%- endif -%}
+    </div>
+
+    <div class="footer__bottom-right">
       <p class="footer__copyright">
-        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ 'sections.footer.rights' | t }}
-        <span class="footer__credit">
-          {{ 'sections.footer.base_by_html' | t: link: 'https://lecdt.com' }}
-        </span>
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }} – Todos os Direitos reservados
       </p>
     </div>
   </div>
@@ -137,46 +119,146 @@
 
 <style>
   .footer {
-    background-color: var(--color-background-contrast);
-    color: var(--color-text-contrast);
-    margin-top: var(--spacing-sections);
+    background: #0B1D3A;
+    color: #ffffff;
+    margin-top: 0;
   }
   .footer__top {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 40px;
-    padding-top: 48px;
-    padding-bottom: 48px;
+    gap: 36px;
+    padding: 40px 32px;
   }
-  .footer__logo { display: block; height: auto; margin-bottom: 16px; }
-  .footer__brand-name { font-family: var(--font-heading-family); font-size: var(--f4); margin-bottom: 12px; }
-  .footer__heading { font-size: var(--f2); margin-bottom: 16px; }
-  .footer__menu { list-style: none; margin: 0; padding: 0; }
-  .footer__link { display: inline-block; padding: 6px 0; color: inherit; text-decoration: none; font-size: var(--f1); }
-  .footer__link:hover { text-decoration: underline; }
-  .footer__text { font-size: var(--f1); line-height: 1.6; }
+  .footer__logo {
+    display: block;
+    height: auto;
+    max-width: 120px;
+    margin-bottom: 16px;
+  }
+  .footer__brand-name {
+    font-family: var(--font-heading-family);
+    font-size: var(--f4);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  /* Contact */
+  .footer__contact {
+    margin-top: 16px;
+  }
+  .footer__contact-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+  .footer__contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 6px;
+  }
+  .footer__contact-item svg {
+    flex-shrink: 0;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .footer__heading {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .footer__menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .footer__link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 0;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.2s;
+  }
+  .footer__link:hover {
+    color: #E8A817;
+  }
+  .footer__link-bullet {
+    color: rgba(255,255,255,0.35);
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .footer__text {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+  }
+
   .footer__bottom {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 16px;
-    padding-top: 24px;
-    padding-bottom: 24px;
-    border-top: 1px solid var(--color-border);
+    padding: 20px 32px;
+    border-top: 1px solid rgba(255,255,255,0.1);
   }
   .footer__bottom-left,
-  .footer__bottom-right { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-  .footer__payment { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
-  .footer__payment-icon { width: 38px; height: 24px; }
-  .footer__social { display: flex; gap: 12px; list-style: none; margin: 0; padding: 0; }
-  .footer__social a { color: inherit; display: inline-flex; }
-  .footer__copyright { font-size: var(--f0); }
-  .footer__credit a { color: inherit; text-decoration: underline; }
-  .footer__credit a:hover { color: var(--color-accent); }
+  .footer__bottom-center,
+  .footer__bottom-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .footer__payment {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+  }
+  .footer__payment-icon {
+    width: 38px;
+    height: 24px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 2px;
+  }
+  .footer__social {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .footer__social a {
+    color: rgba(255,255,255,0.7);
+    display: inline-flex;
+    transition: color 0.2s;
+  }
+  .footer__social a:hover { color: #E8A817; }
+  .footer__copyright {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.5);
+    margin: 0;
+  }
 
   @media screen and (max-width: 1000px) {
-    .footer__bottom { flex-direction: column; align-items: flex-start; }
+    .footer__top {
+      padding: 32px 20px;
+      gap: 28px;
+    }
+    .footer__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px 20px;
+    }
   }
 </style>
 
@@ -197,7 +279,7 @@
       "type": "menu",
       "name": "t:sections.footer.blocks.menu.name",
       "settings": [
-        { "type": "text", "id": "heading", "default": "Quick links", "label": "t:sections.footer.blocks.menu.settings.heading.label" },
+        { "type": "text", "id": "heading", "default": "Nossos Links", "label": "t:sections.footer.blocks.menu.settings.heading.label" },
         { "type": "link_list", "id": "menu", "default": "footer", "label": "t:sections.footer.blocks.menu.settings.menu.label" }
       ]
     },
@@ -229,7 +311,7 @@
       "blocks": [
         { "type": "brand" },
         { "type": "menu" },
-        { "type": "newsletter" }
+        { "type": "text" }
       ]
     }
   ]
