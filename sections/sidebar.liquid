@@ -38,7 +38,11 @@
             <li class="sidebar__menu-item" {{ block.shopify_attributes }}>
               <a href="{{ block.settings.link | default: '#' }}" class="sidebar__menu-link {% if request.path == block.settings.link %}sidebar__menu-link--active{% endif %}">
                 <div class="sidebar__icon-box">
-                  {{ block.settings.icon }}
+                  {%- if block.settings.icon != blank -%}
+                    {{ block.settings.icon }}
+                  {%- elsif block.settings.icon_image != blank -%}
+                    <img src="{{ block.settings.icon_image | image_url: width: 60 }}" width="24" height="24" style="width:24px; height:24px; object-fit:contain;" alt="">
+                  {%- endif -%}
                 </div>
                 <span class="sidebar__menu-name">{{ block.settings.title | escape }}</span>
               </a>
@@ -61,7 +65,11 @@
             <li class="sidebar__collections-item" {{ block.shopify_attributes }}>
               <a href="{{ col.url | default: '#' }}" class="sidebar__collections-link {% if collection and collection.handle == col.handle %}sidebar__collections-link--active{% endif %}">
                 <div class="sidebar__icon-box">
-                  {{ block.settings.icon }}
+                  {%- if block.settings.icon != blank -%}
+                    {{ block.settings.icon }}
+                  {%- elsif block.settings.icon_image != blank -%}
+                    <img src="{{ block.settings.icon_image | image_url: width: 60 }}" width="24" height="24" style="width:24px; height:24px; object-fit:contain;" alt="">
+                  {%- endif -%}
                 </div>
                 <span class="sidebar__collections-name">{{ link_title | escape }}</span>
                 {%- if col and col.all_products_count >= 0 -%}
@@ -310,7 +318,8 @@
       "settings": [
         { "type": "text", "id": "title", "label": "Título", "default": "Link" },
         { "type": "url", "id": "link", "label": "Link" },
-        { "type": "html", "id": "icon", "label": "Ícone SVG" }
+        { "type": "html", "id": "icon", "label": "Ícone SVG (Recomendado)", "info": "Cole o código do SVG aqui para que as cores troquem automaticamente no hover." },
+        { "type": "image_picker", "id": "icon_image", "label": "Ou envie uma imagem (PNG/JPG)" }
       ]
     },
     {
@@ -319,7 +328,8 @@
       "settings": [
         { "type": "collection", "id": "collection", "label": "Coleção Vinculada" },
         { "type": "text", "id": "title", "label": "Título alternativo (opcional)", "info": "Se vazio, usa o nome da coleção." },
-        { "type": "html", "id": "icon", "label": "Ícone SVG" },
+        { "type": "html", "id": "icon", "label": "Ícone SVG (Recomendado)", "info": "Cole o código do SVG aqui para que as cores troquem automaticamente no hover." },
+        { "type": "image_picker", "id": "icon_image", "label": "Ou envie uma imagem (PNG/JPG)" },
         { "type": "text", "id": "fallback_count", "label": "Contagem Fictícia (se sem coleção)", "default": "0" }
       ]
     }
