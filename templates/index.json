@@ -11,34 +11,69 @@
   "sections": {
     "hero": {
       "type": "image-banner",
-      "blocks": {
-        "heading": { "type": "heading", "settings": { "heading": "LANÇAMENTO 2026 Rumo às estrelas" } },
-        "text": { "type": "text", "settings": { "text": "<p>De básico ao avançado, tudo que você precisa para conquistar medalhas.</p>" } },
-        "mini_1": { "type": "mini_card", "settings": { "title": "Rumo às estrelas" } },
-        "mini_2": { "type": "mini_card", "settings": { "title": "Rumo às estrelas" } },
-        "mini_3": { "type": "mini_card", "settings": { "title": "Rumo às estrelas" } }
-      },
-      "block_order": ["heading", "text", "mini_1", "mini_2", "mini_3"],
-      "settings": { "height": "medium", "text_alignment": "left" }
+      "settings": {
+        "image": "shopify://shop_images/hero_banner_2.jpg",
+        "height": "medium",
+        "text_alignment": "left"
+      }
     },
     "categories": {
       "type": "collection-list",
       "blocks": {
-        "cat_1": { "type": "featured_collection", "settings": {} },
-        "cat_2": { "type": "featured_collection", "settings": {} },
-        "cat_3": { "type": "featured_collection", "settings": {} }
+        "cat_1": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
+        "cat_2": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
+        "cat_3": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        }
       },
-      "block_order": ["cat_1", "cat_2", "cat_3"],
-      "settings": { "heading": "", "columns_desktop": 3 }
+      "block_order": [
+        "cat_1",
+        "cat_2",
+        "cat_3"
+      ],
+      "settings": {
+        "heading": "",
+        "columns_desktop": 3
+      }
     },
     "collection_pre_escola": {
       "type": "featured-collection",
-      "settings": { "heading": "COLEÇÃO PRÉ-ESCOLA DIGITAL", "products_to_show": 4, "columns_desktop": 4, "show_view_all": true }
+      "settings": {
+        "heading": "COLEÇÃO PRÉ-ESCOLA DIGITAL",
+        "collection": "",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true
+      }
     },
     "collection_edu_digital": {
       "type": "featured-collection",
-      "settings": { "heading": "COLEÇÃO EDU DIGITAL", "products_to_show": 4, "columns_desktop": 4, "show_view_all": true }
+      "settings": {
+        "heading": "COLEÇÃO EDU DIGITAL",
+        "collection": "",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true
+      }
     }
   },
-  "order": ["hero", "categories", "collection_pre_escola", "collection_edu_digital"]
+  "order": [
+    "hero",
+    "categories",
+    "collection_pre_escola",
+    "collection_edu_digital"
+  ]
 }
