@@ -1,37 +1,9 @@
 {%- comment -%}
   ============================================================
-  MAIN COLLECTION — grade de produtos de uma coleção
+  MAIN COLLECTION — grade de produtos com toolbar redesenhada
   ============================================================
-
-  O QUE FAZ:
-  Mostra a grade de produtos de uma coleção com ordenação,
-  filtros facetados e paginação nativos do Shopify. Tudo funciona
-  sem JavaScript, pois usa formulários GET.
-
-  ONDE É USADA:
-  No template de coleção (templates/collection.json), como section
-  principal que lista os produtos da coleção atual.
-
-  PRINCIPAIS PARTES:
-  - {% paginate %}: pagina collection.products conforme o setting
-    products_per_page.
-  - Toolbar de filtros (form GET): percorre collection.filters e
-    monta cada tipo (list/boolean com checkboxes e price_range com
-    inputs de mín/máx). Preserva o sort ativo via input hidden.
-  - Toolbar de ordenação (form GET): select com
-    collection.sort_options que faz submit no onchange; preserva
-    os filtros ativos via inputs hidden. Tem fallback <noscript>.
-  - Estado vazio (collection__empty) quando não há produtos.
-  - Grade: product-grid renderizando o snippet 'card-product'
-    para cada produto, seguida do snippet 'pagination'.
-
-  OBSERVAÇÕES:
-  - As colunas do desktop vêm do setting columns_desktop, aplicado
-    via variável CSS inline --grid-columns.
-  - Filtros e ordenação podem ser desligados pelos settings
-    enable_filtering e enable_sorting.
-  - Estilos ficam inline no <style>, escopados por
-    #shopify-section-{{ section.id }}.
+  Toolbar: ícone + "ENCONTRE SEU LIVRO" | busca | filtros
+  Grade de produtos com paginação.
 {%- endcomment -%}
 
 {%- paginate collection.products by section.settings.products_per_page -%}
@@ -40,25 +12,80 @@
     data-section-id="{{ section.id }}"
     style="--grid-columns: {{ section.settings.columns_desktop }};"
   >
-    {%- if section.settings.enable_sorting or section.settings.enable_filtering -%}
-      <div class="collection__toolbar">
-        {%- if section.settings.enable_filtering and collection.filters.size > 0 -%}
-          <form method="get" class="collection__filters" id="CollectionFilters-{{ section.id }}">
-            {%- comment -%} Preserve current sort when filtering {%- endcomment -%}
+
+    {%- comment -%} ── Toolbar redesenhada ── {%- endcomment -%}
+    <div class="collection__toolbar">
+      <div class="collection__toolbar-row">
+        {%- comment -%} Lado esquerdo: ícone + título {%- endcomment -%}
+        <div class="collection__toolbar-left">
+          <div class="collection__toolbar-icon">
+            {%- if section.settings.collection_icon != blank -%}
+              <img
+                src="{{ section.settings.collection_icon | image_url: width: 80 }}"
+                width="32" height="32"
+                alt=""
+                class="collection__toolbar-icon-img"
+              >
+            {%- else -%}
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+              </svg>
+            {%- endif -%}
+          </div>
+          <h2 class="collection__toolbar-title">ENCONTRE SEU LIVRO</h2>
+        </div>
+
+        {%- comment -%} Lado direito: busca + filtro {%- endcomment -%}
+        <div class="collection__toolbar-right">
+          <div class="collection__search-box">
+            <svg class="collection__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              type="text"
+              class="collection__search-input"
+              id="CollectionSearch-{{ section.id }}"
+              placeholder="Buscar nesta coleção"
+              autocomplete="off"
+            >
+          </div>
+
+          {%- if section.settings.enable_filtering and collection.filters.size > 0 -%}
+            <button
+              type="button"
+              class="collection__filter-toggle"
+              id="FilterToggle-{{ section.id }}"
+              aria-expanded="false"
+              aria-controls="CollectionFilters-{{ section.id }}"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <span>Filtros</span>
+            </button>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- comment -%} Painel de filtros (colapsa) {%- endcomment -%}
+      {%- if section.settings.enable_filtering and collection.filters.size > 0 -%}
+        <div class="collection__filters-panel" id="CollectionFilters-{{ section.id }}" hidden>
+          <form method="get" class="collection__filters-form">
             {%- if collection.sort_by != blank -%}
               <input type="hidden" name="sort_by" value="{{ collection.sort_by }}">
             {%- endif -%}
 
-            {%- for filter in collection.filters -%}
-              <details class="collection__filter">
-                <summary class="collection__filter-summary">{{ filter.label | escape }}</summary>
-                <div class="collection__filter-content">
+            <div class="collection__filters-grid">
+              {%- for filter in collection.filters -%}
+                <div class="collection__filter-group">
+                  <h4 class="collection__filter-label">{{ filter.label | escape }}</h4>
                   {%- case filter.type -%}
                     {%- when 'list', 'boolean' -%}
                       <ul class="collection__filter-values" role="list">
                         {%- for value in filter.values -%}
                           <li class="collection__filter-value">
-                            <label>
+                            <label class="collection__filter-check">
                               <input
                                 type="checkbox"
                                 name="{{ value.param_name }}"
@@ -76,11 +103,8 @@
                     {%- when 'price_range' -%}
                       <div class="collection__filter-price">
                         <div class="collection__filter-price-field">
-                          <label
-                            class="field__label"
-                            for="Filter-{{ filter.label | escape }}-min-{{ section.id }}"
-                          >
-                            {{ 'products.facets.from' | t }}
+                          <label class="field__label" for="Filter-{{ filter.label | escape }}-min-{{ section.id }}">
+                            De
                           </label>
                           <input
                             class="field__input"
@@ -94,11 +118,8 @@
                           >
                         </div>
                         <div class="collection__filter-price-field">
-                          <label
-                            class="field__label"
-                            for="Filter-{{ filter.label | escape }}-max-{{ section.id }}"
-                          >
-                            {{ 'products.facets.to' | t }}
+                          <label class="field__label" for="Filter-{{ filter.label | escape }}-max-{{ section.id }}">
+                            Até
                           </label>
                           <input
                             class="field__input"
@@ -114,90 +135,72 @@
                       </div>
                   {%- endcase -%}
                 </div>
-              </details>
-            {%- endfor -%}
+              {%- endfor -%}
+            </div>
 
             <div class="collection__filter-actions">
-              <button type="submit" class="button">{{ 'products.facets.apply' | t }}</button>
-              <a href="{{ collection.url }}" class="button button--secondary">
-                {{ 'products.facets.clear_all' | t }}
-              </a>
+              <button type="submit" class="button">Aplicar</button>
+              <a href="{{ collection.url }}" class="button button--secondary">Limpar filtros</a>
             </div>
           </form>
-        {%- endif -%}
+        </div>
+      {%- endif -%}
 
-        <div class="collection__toolbar-bar">
-          <span class="collection__count">
-            {{- 'products.facets.product_count_simple' | t: count: collection.products_count -}}
-          </span>
-
-          {%- if section.settings.enable_sorting -%}
-            <form method="get" class="collection__sort">
-              {%- comment -%} Preserve active filters when sorting {%- endcomment -%}
-              {%- for filter in collection.filters -%}
-                {%- for value in filter.values -%}
-                  {%- if value.active -%}
-                    <input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">
-                  {%- endif -%}
-                {%- endfor -%}
-                {%- if filter.type == 'price_range' -%}
-                  {%- if filter.min_value.value -%}
-                    <input
-                      type="hidden"
-                      name="{{ filter.min_value.param_name }}"
-                      value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
-                    >
-                  {%- endif -%}
-                  {%- if filter.max_value.value -%}
-                    <input
-                      type="hidden"
-                      name="{{ filter.max_value.param_name }}"
-                      value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
-                    >
-                  {%- endif -%}
+      {%- comment -%} Ordenação {%- endcomment -%}
+      {%- if section.settings.enable_sorting -%}
+        <div class="collection__sort-row">
+          <form method="get" class="collection__sort">
+            {%- for filter in collection.filters -%}
+              {%- for value in filter.values -%}
+                {%- if value.active -%}
+                  <input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">
                 {%- endif -%}
               {%- endfor -%}
+              {%- if filter.type == 'price_range' -%}
+                {%- if filter.min_value.value -%}
+                  <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">
+                {%- endif -%}
+                {%- if filter.max_value.value -%}
+                  <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
 
-              <label class="field__label collection__sort-label" for="SortBy-{{ section.id }}">
-                {{ 'products.facets.sort_by_label' | t }}
-              </label>
-              <select
-                name="sort_by"
-                id="SortBy-{{ section.id }}"
-                class="select__select"
-                onchange="this.form.submit()"
-              >
-                {%- for option in collection.sort_options -%}
-                  <option
-                    value="{{ option.value }}"
-                    {% if option.value == collection.sort_by %}selected{% endif %}
-                  >
-                    {{ option.name }}
-                  </option>
-                {%- endfor -%}
-              </select>
-              <noscript>
-                <button type="submit" class="button button--secondary">
-                  {{ 'products.facets.apply' | t }}
-                </button>
-              </noscript>
-            </form>
-          {%- endif -%}
+            <label class="field__label collection__sort-label" for="SortBy-{{ section.id }}">
+              Ordenar por
+            </label>
+            <select
+              name="sort_by"
+              id="SortBy-{{ section.id }}"
+              class="select__select"
+              onchange="this.form.submit()"
+            >
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>
+                  {{ option.name }}
+                </option>
+              {%- endfor -%}
+            </select>
+            <noscript>
+              <button type="submit" class="button button--secondary">Aplicar</button>
+            </noscript>
+          </form>
         </div>
-      </div>
-    {%- endif -%}
+      {%- endif -%}
+    </div>
 
+    {%- comment -%} ── Grade de produtos ── {%- endcomment -%}
     {%- if collection.products.size == 0 -%}
       <div class="collection__empty">
-        <p>{{ 'sections.main_collection.empty' | t }}</p>
+        <p>Nenhum produto encontrado nesta coleção.</p>
         <a href="{{ routes.all_products_collection_url }}" class="button button--secondary">
-          {{ 'sections.main_collection.use_fewer_filters' | t }}
+          Usar menos filtros ou limpar tudo
         </a>
       </div>
     {%- else -%}
-      <ul class="product-grid" role="list">
+      <ul class="product-grid" role="list" id="ProductGrid-{{ section.id }}">
         {%- for product in collection.products -%}
-          <li class="product-grid__item">
+          <li class="product-grid__item" data-product-title="{{ product.title | downcase | escape }}">
             {% render 'card-product', card_product: product %}
           </li>
         {%- endfor -%}
@@ -209,64 +212,169 @@
 {%- endpaginate -%}
 
 <style>
+  /* ── Toolbar ── */
   #shopify-section-{{ section.id }} .collection {
     margin-bottom: var(--spacing-sections, 40px);
+    padding-top: 24px;
   }
   #shopify-section-{{ section.id }} .collection__toolbar {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
   }
-  #shopify-section-{{ section.id }} .collection__filters {
+  #shopify-section-{{ section.id }} .collection__toolbar-row {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
     flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 12px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border, #c2c2c2);
   }
-  #shopify-section-{{ section.id }} .collection__filter {
-    position: relative;
+  #shopify-section-{{ section.id }} .collection__toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  #shopify-section-{{ section.id }} .collection__filter-summary {
+  #shopify-section-{{ section.id }} .collection__toolbar-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #E8A817;
+    flex-shrink: 0;
+  }
+  #shopify-section-{{ section.id }} .collection__toolbar-icon-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+  #shopify-section-{{ section.id }} .collection__toolbar-title {
+    font-family: var(--font-heading-family);
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #0B1D3A;
+    margin: 0;
+    white-space: nowrap;
+  }
+  #shopify-section-{{ section.id }} .collection__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Search box */
+  #shopify-section-{{ section.id }} .collection__search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1.5px solid #c2c2c2;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 40px;
+    width: 220px;
+    transition: border-color 0.2s;
+  }
+  #shopify-section-{{ section.id }} .collection__search-box:focus-within {
+    border-color: #0B1D3A;
+  }
+  #shopify-section-{{ section.id }} .collection__search-icon {
+    color: #888;
+    flex-shrink: 0;
+  }
+  #shopify-section-{{ section.id }} .collection__search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--font-body-family);
+    font-size: 0.9rem;
+    color: var(--color-text, #000);
+    width: 100%;
+    padding: 0;
+    height: 100%;
+  }
+  #shopify-section-{{ section.id }} .collection__search-input::placeholder {
+    color: #aaa;
+  }
+
+  /* Filter toggle button */
+  #shopify-section-{{ section.id }} .collection__filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 40px;
+    font-family: var(--font-body-family);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0B1D3A;
+    background: #ffffff;
+    border: 1.5px solid #c2c2c2;
+    border-radius: 8px;
     cursor: pointer;
-    padding: 8px 12px;
-    font-size: var(--f2);
-    border: 1px solid var(--color-border, #c2c2c2);
-    border-radius: var(--inputs-radius, 4px);
-    list-style: none;
-    user-select: none;
+    transition: all 0.2s;
+    white-space: nowrap;
   }
-  #shopify-section-{{ section.id }} .collection__filter-summary::-webkit-details-marker {
-    display: none;
+  #shopify-section-{{ section.id }} .collection__filter-toggle:hover {
+    border-color: #0B1D3A;
+    background: #f5f5f5;
   }
-  #shopify-section-{{ section.id }} .collection__filter-content {
-    margin-top: 8px;
-    padding: 12px;
-    border: 1px solid var(--color-border, #c2c2c2);
-    border-radius: var(--inputs-radius, 4px);
-    background-color: var(--color-background, #fff);
+  #shopify-section-{{ section.id }} .collection__filter-toggle[aria-expanded="true"] {
+    background: #0B1D3A;
+    color: #ffffff;
+    border-color: #0B1D3A;
+  }
+
+  /* Filters panel (collapsible) */
+  #shopify-section-{{ section.id }} .collection__filters-panel {
+    margin-top: 16px;
+    padding: 20px;
+    background: #f8f9fb;
+    border: 1px solid #e2e4e9;
+    border-radius: 12px;
+    animation: slideDown 0.25s ease;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  #shopify-section-{{ section.id }} .collection__filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+  #shopify-section-{{ section.id }} .collection__filter-label {
+    font-family: var(--font-heading-family);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #0B1D3A;
+    margin: 0 0 8px;
   }
   #shopify-section-{{ section.id }} .collection__filter-values {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 260px;
+    max-height: 200px;
     overflow-y: auto;
   }
-  #shopify-section-{{ section.id }} .collection__filter-value label {
+  #shopify-section-{{ section.id }} .collection__filter-check {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 4px 0;
-    font-size: var(--f2);
+    padding: 3px 0;
+    font-size: 0.875rem;
     cursor: pointer;
   }
   #shopify-section-{{ section.id }} .collection__filter-count {
-    opacity: 0.6;
-    font-size: var(--f1);
+    opacity: 0.5;
+    font-size: 0.8rem;
   }
   #shopify-section-{{ section.id }} .collection__filter-price {
     display: flex;
-    gap: 12px;
+    gap: 10px;
   }
   #shopify-section-{{ section.id }} .collection__filter-price-field {
     flex: 1;
@@ -274,19 +382,16 @@
   #shopify-section-{{ section.id }} .collection__filter-actions {
     display: flex;
     gap: 8px;
-    align-items: flex-end;
-  }
-  #shopify-section-{{ section.id }} .collection__toolbar-bar {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e4e9;
   }
-  #shopify-section-{{ section.id }} .collection__count {
-    font-size: var(--f2);
-    opacity: 0.8;
+
+  /* Sort row */
+  #shopify-section-{{ section.id }} .collection__sort-row {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
   }
   #shopify-section-{{ section.id }} .collection__sort {
     display: flex;
@@ -296,11 +401,16 @@
   #shopify-section-{{ section.id }} .collection__sort-label {
     margin-bottom: 0;
     white-space: nowrap;
+    font-size: 0.85rem;
   }
   #shopify-section-{{ section.id }} .collection__sort .select__select {
     width: auto;
-    min-width: 200px;
+    min-width: 180px;
+    height: 38px;
+    border-radius: 8px;
   }
+
+  /* Empty state */
   #shopify-section-{{ section.id }} .collection__empty {
     text-align: center;
     padding: 60px 0;
@@ -309,6 +419,8 @@
   #shopify-section-{{ section.id }} .collection__empty .button {
     margin-top: 20px;
   }
+
+  /* Pagination */
   #shopify-section-{{ section.id }} .pagination {
     margin-top: 40px;
   }
@@ -333,41 +445,113 @@
     color: var(--color-text, #000);
     text-decoration: none;
     border: 1px solid transparent;
-    border-radius: var(--inputs-radius, 4px);
+    border-radius: 8px;
   }
   #shopify-section-{{ section.id }} a.pagination__item:hover {
     border-color: var(--color-border, #c2c2c2);
   }
   #shopify-section-{{ section.id }} .pagination__item--current {
-    border-color: var(--color-accent, #000);
+    border-color: #0B1D3A;
     font-weight: bold;
+    color: #0B1D3A;
   }
-  @media screen and (max-width: 1000px) {
-    #shopify-section-{{ section.id }} .collection__toolbar-bar {
+
+  /* ── Responsive ── */
+  @media screen and (max-width: 768px) {
+    #shopify-section-{{ section.id }} .collection__toolbar-row {
       flex-direction: column;
       align-items: stretch;
+      gap: 12px;
+    }
+    #shopify-section-{{ section.id }} .collection__toolbar-right {
+      flex-direction: row;
+      gap: 8px;
+    }
+    #shopify-section-{{ section.id }} .collection__search-box {
+      width: 100%;
+      flex: 1;
+    }
+    #shopify-section-{{ section.id }} .collection__filters-grid {
+      grid-template-columns: 1fr;
+    }
+    #shopify-section-{{ section.id }} .collection__sort-row {
+      justify-content: stretch;
+    }
+    #shopify-section-{{ section.id }} .collection__sort {
+      width: 100%;
     }
     #shopify-section-{{ section.id }} .collection__sort .select__select {
       min-width: 0;
       flex: 1;
     }
   }
+
+  @media screen and (max-width: 480px) {
+    #shopify-section-{{ section.id }} .collection__toolbar-right {
+      flex-direction: column;
+    }
+    #shopify-section-{{ section.id }} .collection__filter-toggle {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 </style>
+
+<script>
+(function() {
+  var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+  if (!section) return;
+
+  /* ── Filtros toggle ── */
+  var filterBtn = document.getElementById('FilterToggle-{{ section.id }}');
+  var filterPanel = document.getElementById('CollectionFilters-{{ section.id }}');
+  if (filterBtn && filterPanel) {
+    filterBtn.addEventListener('click', function() {
+      var expanded = filterBtn.getAttribute('aria-expanded') === 'true';
+      filterBtn.setAttribute('aria-expanded', !expanded);
+      filterPanel.hidden = expanded;
+    });
+  }
+
+  /* ── Busca client-side ── */
+  var searchInput = document.getElementById('CollectionSearch-{{ section.id }}');
+  var grid = document.getElementById('ProductGrid-{{ section.id }}');
+  if (searchInput && grid) {
+    var items = grid.querySelectorAll('.product-grid__item');
+    searchInput.addEventListener('input', function() {
+      var term = this.value.toLowerCase().trim();
+      var visibleCount = 0;
+      items.forEach(function(item) {
+        var title = item.getAttribute('data-product-title') || '';
+        var match = !term || title.indexOf(term) !== -1;
+        item.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
+      });
+    });
+  }
+})();
+</script>
 
 {% schema %}
 {
-  "name": "t:sections.main_collection.name",
+  "name": "Produtos da Coleção",
   "tag": "section",
   "class": "section-main-collection",
   "settings": [
+    {
+      "type": "image_picker",
+      "id": "collection_icon",
+      "label": "Ícone da coleção",
+      "info": "Ícone exibido ao lado do título 'Encontre seu Livro'. Use o mesmo ícone configurado no sidebar."
+    },
     {
       "type": "range",
       "id": "products_per_page",
       "min": 8,
       "max": 24,
       "step": 4,
-      "default": 16,
-      "label": "t:sections.main_collection.settings.products_per_page.label"
+      "default": 12,
+      "label": "Produtos por página"
     },
     {
       "type": "range",
@@ -375,20 +559,20 @@
       "min": 2,
       "max": 5,
       "step": 1,
-      "default": 4,
-      "label": "t:sections.main_collection.settings.columns_desktop.label"
+      "default": 3,
+      "label": "Colunas no desktop"
     },
     {
       "type": "checkbox",
       "id": "enable_sorting",
       "default": true,
-      "label": "t:sections.main_collection.settings.enable_sorting.label"
+      "label": "Habilitar ordenação"
     },
     {
       "type": "checkbox",
       "id": "enable_filtering",
       "default": true,
-      "label": "t:sections.main_collection.settings.enable_filtering.label"
+      "label": "Habilitar filtros"
     }
   ]
 }
