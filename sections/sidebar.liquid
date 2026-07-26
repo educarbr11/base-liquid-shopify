@@ -3,49 +3,42 @@
   SIDEBAR — navegação lateral fixa
   ============================================================
 {%- endcomment -%}
-<aside class="sidebar" id="Sidebar-{{ section.id }}" data-section-id="{{ section.id }}">
-  <div class="sidebar__inner">
+<aside class='sidebar' id='Sidebar-{{ section.id }}' data-section-id='{{ section.id }}'>
+  <div class='sidebar__inner'>
     {%- comment -%} Header / Logo + Toggle {%- endcomment -%}
-    <div class="sidebar__header">
-      <a href="{{ routes.root_url }}" class="sidebar__logo-link">
+    <div class='sidebar__header'>
+      <a href='{{ routes.root_url }}' class='sidebar__logo-link'>
         {%- if settings.logo != blank -%}
           {%- assign logo_alt = shop.name | escape -%}
           {%- assign logo_height = 120 | divided_by: settings.logo.aspect_ratio | round -%}
-          {{
-            settings.logo
-            | image_url: width: 300
-            | image_tag:
-              class: 'sidebar__logo-image',
-              widths: '100, 150, 200, 300',
-              width: 120,
-              height: logo_height,
-              alt: logo_alt
-          }}
+          {{ settings.logo | image_url: width: 300 | image_tag: class: 'sidebar__logo-image', widths: '100, 150, 200, 300', width: 120, height: logo_height, alt: logo_alt }}
         {%- else -%}
-          <span class="sidebar__logo-text">{{ shop.name }}</span>
+          <span class='sidebar__logo-text'>{{ shop.name }}</span>
         {%- endif -%}
       </a>
-      
-      <button class="sidebar__close-btn tap-target" aria-label="Recolher menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+
+      <button class='sidebar__close-btn tap-target' aria-label='Recolher menu'>
+        <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'>
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
       </button>
     </div>
 
     {%- comment -%} Menu Principal {%- endcomment -%}
-    <nav class="sidebar__nav" aria-label="Menu principal">
-      <ul class="sidebar__menu" role="list">
+    <nav class='sidebar__nav' aria-label='Menu principal'>
+      <ul class='sidebar__menu' role='list'>
         {%- for block in section.blocks -%}
           {%- if block.type == 'menu_link' -%}
-            <li class="sidebar__menu-item" {{ block.shopify_attributes }}>
-              <a href="{{ block.settings.link | default: '#' }}" class="sidebar__menu-link {% if request.path == block.settings.link %}sidebar__menu-link--active{% endif %}">
-                <div class="sidebar__icon-box">
+            <li class='sidebar__menu-item' {{ block.shopify_attributes }}>
+              <a href='{{ block.settings.link | default: '#' }}' class='sidebar__menu-link {% if request.path == block.settings.link %}sidebar__menu-link--active{% endif %}'>
+                <div class='sidebar__icon-box'>
                   {%- if block.settings.icon != blank -%}
                     {{ block.settings.icon }}
                   {%- elsif block.settings.icon_image != blank -%}
-                    <img src="{{ block.settings.icon_image | image_url: width: 60 }}" width="24" height="24" style="width:24px; height:24px; object-fit:contain;" alt="">
+                    <img src='{{ block.settings.icon_image | image_url: width: 60 }}' width='24' height='24' style='width:24px; height:24px; object-fit:contain;' alt=''>
                   {%- endif -%}
                 </div>
-                <span class="sidebar__menu-name">{{ block.settings.title | escape }}</span>
+                <span class='sidebar__menu-name'>{{ block.settings.title | escape }}</span>
               </a>
             </li>
           {%- endif -%}
@@ -54,30 +47,30 @@
     </nav>
 
     {%- comment -%} Categorias / Coleções Editáveis {%- endcomment -%}
-    <div class="sidebar__collections">
-      <h3 class="sidebar__collections-title">COLEÇÕES</h3>
-      <ul class="sidebar__collections-list" role="list">
+    <div class='sidebar__collections'>
+      <h3 class='sidebar__collections-title'>COLEÇÕES</h3>
+      <ul class='sidebar__collections-list' role='list'>
         {%- for block in section.blocks -%}
           {%- if block.type == 'collection_link' -%}
             {%- assign col = block.settings.collection -%}
-            {%- assign link_title = block.settings.title | default: col.title | default: "Nova Coleção" -%}
-            {%- if block.settings.title == blank and col == blank -%}{%- assign link_title = "Nova Coleção" -%}{%- endif -%}
-            
-            <li class="sidebar__collections-item" {{ block.shopify_attributes }}>
-              <a href="{{ col.url | default: '#' }}" class="sidebar__collections-link {% if collection and collection.handle == col.handle %}sidebar__collections-link--active{% endif %}">
-                <div class="sidebar__icon-box">
+            {%- assign link_title = block.settings.title | default: col.title | default: 'Nova Coleção' -%}
+            {%- if block.settings.title == blank and col == blank -%}{%- assign link_title = 'Nova Coleção' -%}{%- endif -%}
+
+            <li class='sidebar__collections-item' {{ block.shopify_attributes }}>
+              <a href='{{ col.url | default: '#' }}' class='sidebar__collections-link {% if collection and collection.handle == col.handle %}sidebar__collections-link--active{% endif %}'>
+                <div class='sidebar__icon-box'>
                   {%- if block.settings.icon != blank -%}
                     {{ block.settings.icon }}
                   {%- elsif block.settings.icon_image != blank -%}
-                    <img src="{{ block.settings.icon_image | image_url: width: 60 }}" width="24" height="24" style="width:24px; height:24px; object-fit:contain;" alt="">
+                    <img src='{{ block.settings.icon_image | image_url: width: 60 }}' width='24' height='24' style='width:24px; height:24px; object-fit:contain;' alt=''>
                   {%- endif -%}
                 </div>
-                <span class="sidebar__collections-name">{{ link_title | escape }}</span>
+                <span class='sidebar__collections-name'>{{ link_title | escape }}</span>
                 {%- if col and col.all_products_count >= 0 -%}
-                  <span class="sidebar__collections-count">{{ col.all_products_count }}</span>
+                  <span class='sidebar__collections-count'>{{ col.all_products_count }}</span>
                 {%- else -%}
                   {%- comment -%} Fallback count se a coleção não existe ainda {%- endcomment -%}
-                  <span class="sidebar__collections-count">{{ block.settings.fallback_count | default: "0" }}</span>
+                  <span class='sidebar__collections-count'>{{ block.settings.fallback_count | default: '0' }}</span>
                 {%- endif -%}
               </a>
             </li>
@@ -95,19 +88,21 @@
     left: 0;
     width: 260px;
     height: 100vh;
-    background: #0B1D3A;
+    background: #0b1d3a;
     color: #ffffff;
     z-index: 250;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.2) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     transition: transform 0.3s ease;
   }
   @media screen and (max-width: 1366px) {
-    .sidebar { width: 240px; }
+    .sidebar {
+      width: 240px;
+    }
   }
   .sidebar__inner {
     padding: 24px 16px;
@@ -116,7 +111,7 @@
     gap: 32px;
     flex: 1;
   }
-  
+
   /* Header */
   .sidebar__header {
     display: flex;
@@ -143,8 +138,8 @@
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background: #E8A817;
-    color: #0B1D3A;
+    background: #e8a817;
+    color: #0b1d3a;
     border: none;
     display: flex;
     align-items: center;
@@ -153,15 +148,21 @@
     flex-shrink: 0;
     transition: background 0.2s;
   }
-  .sidebar__close-btn:hover { background: #d69b14; }
-  .sidebar__close-btn svg { width: 22px; height: 22px; }
+  .sidebar__close-btn:hover {
+    background: #d69b14;
+  }
+  .sidebar__close-btn svg {
+    width: 22px;
+    height: 22px;
+  }
 
   /* Base nav item styles */
-  .sidebar__menu-link, .sidebar__collections-link {
+  .sidebar__menu-link,
+  .sidebar__collections-link {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 6px 14px 6px 6px;
+    padding: 2px 14px 2px 2px;
     border-radius: 12px;
     color: #ffffff;
     text-decoration: none;
@@ -170,7 +171,7 @@
     font-weight: 600;
     transition: all 0.2s ease;
   }
-  
+
   /* Menu principal */
   .sidebar__menu {
     list-style: none;
@@ -184,8 +185,8 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    background: #E8A817; 
-    color: #0B1D3A; 
+    background: #e8a817;
+    color: #0b1d3a;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -193,20 +194,20 @@
     transition: all 0.2s;
   }
   .sidebar__menu-link:hover {
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
   }
   .sidebar__menu-link--active {
-    background: #E8A817;
-    color: #0B1D3A;
+    background: #e8a817;
+    color: #0b1d3a;
   }
   .sidebar__menu-link--active .sidebar__icon-box {
     background: transparent;
-    color: #0B1D3A;
+    color: #0b1d3a;
   }
   .sidebar__menu-link--active:hover {
     background: #d69b14;
   }
-  
+
   /* Coleções */
   .sidebar__collections-title {
     font-family: var(--font-heading-family);
@@ -228,10 +229,10 @@
   .sidebar__collections-link .sidebar__icon-box {
     width: 40px;
     height: 40px;
-    border-radius: 8px;
-    border: 1px solid #E8A817;
+    border-radius: 12px;
+    border: 1px solid #e8a817;
     background: transparent;
-    color: #E8A817;
+    color: #e8a817;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,15 +240,16 @@
     transition: all 0.2s;
   }
   .sidebar__collections-link:hover {
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
   }
   .sidebar__collections-link--active {
-    background: #E8A817;
-    color: #0B1D3A;
+    background: #e8a817;
+    color: #0b1d3a;
   }
   .sidebar__collections-link--active .sidebar__icon-box {
-    border-color: #0B1D3A;
-    color: #0B1D3A;
+    border-color: #f5be18;
+    color: #0b1d3a;
+    background: #042757;
   }
   .sidebar__collections-name {
     flex: 1;
@@ -262,7 +264,7 @@
     background: transparent;
   }
   .sidebar__collections-link--active .sidebar__collections-count {
-    color: #0B1D3A;
+    color: #0b1d3a;
   }
 
   /* Global icon size */
@@ -287,24 +289,26 @@
 </style>
 
 <script>
-  (function() {
-    var closeBtn = document.querySelector('.sidebar__close-btn');
-    var sidebar = document.querySelector('.sidebar');
-    
+  ;(function () {
+    var closeBtn = document.querySelector('.sidebar__close-btn')
+    var sidebar = document.querySelector('.sidebar')
+
     // For handling collapse (desktop vs mobile)
     if (closeBtn && sidebar) {
-      closeBtn.addEventListener('click', function() {
+      closeBtn.addEventListener('click', function () {
         if (window.innerWidth <= 1024) {
-          sidebar.classList.remove('sidebar--open');
-          var overlay = document.querySelector('.sidebar-overlay');
+          sidebar.classList.remove('sidebar--open')
+          var overlay = document.querySelector('.sidebar-overlay')
           if (overlay) {
-            overlay.style.opacity = '0';
-            setTimeout(function() { overlay.style.display = 'none'; }, 300);
+            overlay.style.opacity = '0'
+            setTimeout(function () {
+              overlay.style.display = 'none'
+            }, 300)
           }
         }
-      });
+      })
     }
-  })();
+  })()
 </script>
 
 {% schema %}
