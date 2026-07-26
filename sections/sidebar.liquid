@@ -10,6 +10,7 @@
       <a href="{{ routes.root_url }}" class="sidebar__logo-link">
         {%- if settings.logo != blank -%}
           {%- assign logo_alt = shop.name | escape -%}
+          {%- assign logo_height = 120 | divided_by: settings.logo.aspect_ratio | round -%}
           {{
             settings.logo
             | image_url: width: 300
@@ -17,7 +18,7 @@
               class: 'sidebar__logo-image',
               widths: '100, 150, 200, 300',
               width: 120,
-              height: 120 | divided_by: settings.logo.aspect_ratio,
+              height: logo_height,
               alt: logo_alt
           }}
         {%- else -%}

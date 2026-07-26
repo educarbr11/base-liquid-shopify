@@ -14,7 +14,6 @@
     {%- elsif collection.image -%}
       {{ collection.image | image_url: width: 1920 | image_tag: loading: 'eager', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
     {%- endif -%}
-    <div class='collection-hero__overlay'></div>
   </div>
 
   <div class='collection-hero__content page-width'>
@@ -41,7 +40,7 @@
   #shopify-section-{{ section.id }} .collection-hero {
     position: relative;
     width: 100%;
-    min-height: 240px;
+    min-height: 280px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -60,16 +59,6 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-  }
-  #shopify-section-{{ section.id }} .collection-hero__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to right,
-      rgba(11, 29, 58, 0.85) 0%,
-      rgba(11, 29, 58, 0.5) 50%,
-      rgba(11, 29, 58, 0.15) 100%
-    );
   }
 
   /* Content */
@@ -109,7 +98,7 @@
   /* Divider SVG */
   #shopify-section-{{ section.id }} .collection-hero__divider {
     position: absolute;
-    bottom: -1px;
+    bottom: -10px;
     left: 0;
     width: 100%;
     z-index: 2;
@@ -126,6 +115,10 @@
     #shopify-section-{{ section.id }} .collection-hero {
       min-height: 180px;
     }
+    #shopify-section-{{ section.id }} .collection-hero__bg-img {
+      object-fit: cover;
+      object-position: center;
+    }
     #shopify-section-{{ section.id }} .collection-hero__content {
       padding-top: 32px;
       padding-bottom: 56px;
@@ -140,7 +133,7 @@
 
   @media screen and (max-width: 480px) {
     #shopify-section-{{ section.id }} .collection-hero {
-      min-height: 150px;
+      min-height: 80px;
     }
     #shopify-section-{{ section.id }} .collection-hero__content {
       padding-top: 24px;

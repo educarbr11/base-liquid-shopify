@@ -51,6 +51,50 @@
             >
           </div>
 
+          {%- if section.settings.enable_sorting -%}
+            <form method="get" class="collection__sort">
+              {%- for filter in collection.filters -%}
+                {%- for value in filter.values -%}
+                  {%- if value.active -%}
+                    <input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if filter.type == 'price_range' -%}
+                  {%- if filter.min_value.value -%}
+                    <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">
+                  {%- endif -%}
+                  {%- if filter.max_value.value -%}
+                    <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+              
+              <select
+                name="sort_by"
+                id="SortBy-{{ section.id }}"
+                class="select__select"
+                onchange="this.form.submit()"
+              >
+                <option value="" disabled {% if collection.sort_by == blank %}selected{% endif %}>Ordenar por</option>
+                {%- for option in collection.sort_options -%}
+                  {%- assign option_name = option.name -%}
+                  {%- if option_name == 'Featured' -%} {%- assign option_name = 'Destaque' -%}
+                  {%- elsif option_name == 'Best selling' -%} {%- assign option_name = 'Mais vendidos' -%}
+                  {%- elsif option_name == 'Alphabetically, A-Z' -%} {%- assign option_name = 'Alfabeticamente, A-Z' -%}
+                  {%- elsif option_name == 'Alphabetically, Z-A' -%} {%- assign option_name = 'Alfabeticamente, Z-A' -%}
+                  {%- elsif option_name == 'Price, low to high' -%} {%- assign option_name = 'Preço, menor para o maior' -%}
+                  {%- elsif option_name == 'Price, high to low' -%} {%- assign option_name = 'Preço, maior para o menor' -%}
+                  {%- elsif option_name == 'Date, old to new' -%} {%- assign option_name = 'Data, mais antigo para mais novo' -%}
+                  {%- elsif option_name == 'Date, new to old' -%} {%- assign option_name = 'Data, mais novo para mais antigo' -%}
+                  {%- endif -%}
+                  <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>
+                    {{ option_name }}
+                  </option>
+                {%- endfor -%}
+              </select>
+            </form>
+          {%- endif -%}
+
           {%- if section.settings.enable_filtering and collection.filters.size > 0 -%}
             <button
               type="button"
@@ -79,7 +123,13 @@
             <div class="collection__filters-grid">
               {%- for filter in collection.filters -%}
                 <div class="collection__filter-group">
-                  <h4 class="collection__filter-label">{{ filter.label | escape }}</h4>
+                  {%- assign filter_label = filter.label -%}
+                  {%- if filter_label == 'Availability' -%} {%- assign filter_label = 'Disponibilidade' -%}
+                  {%- elsif filter_label == 'Price' -%} {%- assign filter_label = 'Preço' -%}
+                  {%- elsif filter_label == 'Brand' -%} {%- assign filter_label = 'Marca' -%}
+                  {%- elsif filter_label == 'Product type' -%} {%- assign filter_label = 'Tipo de Produto' -%}
+                  {%- endif -%}
+                  <h4 class="collection__filter-label">{{ filter_label | escape }}</h4>
                   {%- case filter.type -%}
                     {%- when 'list', 'boolean' -%}
                       <ul class="collection__filter-values" role="list">
@@ -93,7 +143,13 @@
                                 {% if value.active %}checked{% endif %}
                                 {% if value.count == 0 and value.active == false %}disabled{% endif %}
                               >
-                              <span>{{ value.label | escape }}</span>
+                              {%- assign val_label = value.label -%}
+                              {%- if filter.label == 'Availability' -%}
+                                {%- if val_label == 'In stock' -%} {%- assign val_label = 'Em estoque' -%}
+                                {%- elsif val_label == 'Out of stock' -%} {%- assign val_label = 'Esgotado' -%}
+                                {%- endif -%}
+                              {%- endif -%}
+                              <span>{{ val_label | escape }}</span>
                               <span class="collection__filter-count">({{ value.count }})</span>
                             </label>
                           </li>
@@ -147,46 +203,7 @@
       {%- endif -%}
 
       {%- comment -%} Ordenação {%- endcomment -%}
-      {%- if section.settings.enable_sorting -%}
-        <div class="collection__sort-row">
-          <form method="get" class="collection__sort">
-            {%- for filter in collection.filters -%}
-              {%- for value in filter.values -%}
-                {%- if value.active -%}
-                  <input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">
-                {%- endif -%}
-              {%- endfor -%}
-              {%- if filter.type == 'price_range' -%}
-                {%- if filter.min_value.value -%}
-                  <input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">
-                {%- endif -%}
-                {%- if filter.max_value.value -%}
-                  <input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">
-                {%- endif -%}
-              {%- endif -%}
-            {%- endfor -%}
-
-            <label class="field__label collection__sort-label" for="SortBy-{{ section.id }}">
-              Ordenar por
-            </label>
-            <select
-              name="sort_by"
-              id="SortBy-{{ section.id }}"
-              class="select__select"
-              onchange="this.form.submit()"
-            >
-              {%- for option in collection.sort_options -%}
-                <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>
-                  {{ option.name }}
-                </option>
-              {%- endfor -%}
-            </select>
-            <noscript>
-              <button type="submit" class="button button--secondary">Aplicar</button>
-            </noscript>
-          </form>
-        </div>
-      {%- endif -%}
+      {%- comment -%} Ordenação removida para a toolbar acima {%- endcomment -%}
     </div>
 
     {%- comment -%} ── Grade de produtos ── {%- endcomment -%}
@@ -388,26 +405,30 @@
   }
 
   /* Sort row */
-  #shopify-section-{{ section.id }} .collection__sort-row {
-    margin-top: 12px;
-    display: flex;
-    justify-content: flex-end;
-  }
   #shopify-section-{{ section.id }} .collection__sort {
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-  #shopify-section-{{ section.id }} .collection__sort-label {
-    margin-bottom: 0;
-    white-space: nowrap;
-    font-size: 0.85rem;
+    height: 40px;
   }
   #shopify-section-{{ section.id }} .collection__sort .select__select {
     width: auto;
-    min-width: 180px;
-    height: 38px;
+    min-width: 170px;
+    height: 40px;
     border-radius: 8px;
+    border: 1.5px solid #c2c2c2;
+    padding: 0 12px;
+    background: #ffffff;
+    font-family: var(--font-body-family);
+    font-size: 0.9rem;
+    color: #0B1D3A;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+  }
+  #shopify-section-{{ section.id }} .collection__sort .select__select:hover {
+    border-color: #0B1D3A;
   }
 
   /* Empty state */
@@ -465,24 +486,27 @@
     }
     #shopify-section-{{ section.id }} .collection__toolbar-right {
       flex-direction: row;
+      flex-wrap: wrap;
       gap: 8px;
     }
     #shopify-section-{{ section.id }} .collection__search-box {
-      width: 100%;
+      width: auto;
       flex: 1;
     }
-    #shopify-section-{{ section.id }} .collection__filters-grid {
-      grid-template-columns: 1fr;
-    }
-    #shopify-section-{{ section.id }} .collection__sort-row {
-      justify-content: stretch;
-    }
     #shopify-section-{{ section.id }} .collection__sort {
-      width: 100%;
+      flex: 1;
     }
     #shopify-section-{{ section.id }} .collection__sort .select__select {
       min-width: 0;
-      flex: 1;
+      width: 100%;
+    }
+    #shopify-section-{{ section.id }} .collection__filter-toggle {
+      width: 100%;
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+    #shopify-section-{{ section.id }} .collection__filters-grid {
+      grid-template-columns: 1fr;
     }
   }
 
