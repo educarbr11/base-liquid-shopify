@@ -12,7 +12,7 @@
     "banner": {
       "type": "collection-banner",
       "settings": {
-        "background_image": "shopify://shop_images/Frame_245.png",
+        "background_image": "shopify://shop_images/Frame_245.jpg",
         "show_description": false
       }
     },
