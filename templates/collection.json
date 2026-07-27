@@ -12,14 +12,12 @@
     "banner": {
       "type": "collection-banner",
       "settings": {
-        "background_image": "shopify://shop_images/Frame_245.jpg",
         "show_description": false
       }
     },
     "product-grid": {
       "type": "main-collection",
       "settings": {
-        "collection_icon": "shopify://shop_images/noto-v1_snail.svg",
         "products_per_page": 12,
         "columns_desktop": 3,
         "enable_sorting": true,
