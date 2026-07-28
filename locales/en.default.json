@@ -70,10 +70,10 @@
   },
   "products": {
     "product": {
-      "add_to_cart": "Add to cart",
-      "sold_out": "Sold out",
-      "unavailable": "Unavailable",
-      "on_sale": "Sale",
+      "add_to_cart": "Adicionar ao carrinho",
+      "sold_out": "Esgotado",
+      "unavailable": "Indisponível",
+      "on_sale": "Oferta",
       "quantity": {
         "label": "Quantity",
         "input_label": "Quantity for {{ product }}",

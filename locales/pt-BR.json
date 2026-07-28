@@ -1,0 +1,46 @@
+{
+  "general": {
+    "meta": {
+      "tags": "Com a tag \"{{ tags }}\"",
+      "page": "Página {{ page }}"
+    },
+    "404": {
+      "title": "Página não encontrada",
+      "subtext": "A página que você está procurando não existe."
+    },
+    "search": {
+      "search": "Buscar",
+      "placeholder": "Buscar",
+      "submit": "Buscar",
+      "results_with_count": "{{ count }} resultado para \"{{ terms }}\"",
+      "results_with_count_plural": "{{ count }} resultados para \"{{ terms }}\"",
+      "no_results": "Nenhum resultado encontrado para \"{{ terms }}\".",
+      "reset": "Limpar busca"
+    },
+    "pagination": {
+      "label": "Paginação",
+      "previous": "Página anterior",
+      "next": "Próxima página",
+      "page": "Página {{ number }}"
+    },
+    "breadcrumbs": {
+      "home": "Início"
+    },
+    "continue_shopping": "Continuar comprando"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Adicionar ao carrinho",
+      "sold_out": "Esgotado",
+      "unavailable": "Indisponível",
+      "on_sale": "Oferta",
+      "quantity": {
+        "label": "Quantidade"
+      },
+      "price": {
+        "regular_price": "Preço normal",
+        "sale_price": "Preço promocional"
+      }
+    }
+  }
+}

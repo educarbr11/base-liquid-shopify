@@ -67,14 +67,21 @@
     </div>
   </a>
 
-  {%- if card_product.available -%}
-    <form method="post" action="/cart/add" class="card-product__add-form">
-      <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
-      <input type="hidden" name="quantity" value="1">
-      <button type="submit" class="card-product__add-btn" aria-label="Adicionar {{ card_product.title | escape }} ao carrinho">
-        <span>ADICIONAR</span>
+  <div class="card-product__add-form">
+    {%- if card_product.available -%}
+      <form method="post" action="{{ routes.cart_add_url }}" style="margin:0;">
+        <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="card-product__add-btn" aria-label="Adicionar {{ card_product.title | escape }} ao carrinho">
+          <span>ADICIONAR</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        </button>
+      </form>
+    {%- else -%}
+      <button type="button" class="card-product__add-btn" disabled aria-disabled="true">
+        <span>ESGOTADO</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
       </button>
-    </form>
-  {%- endif -%}
+    {%- endif -%}
+  </div>
 </div>
