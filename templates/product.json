@@ -14,6 +14,7 @@
       "blocks": {
         "vendor": {
           "type": "vendor",
+          "disabled": true,
           "settings": {}
         },
         "rating": {
@@ -46,7 +47,7 @@
           "settings": {
             "show_pix": true,
             "pix_text": "5% de desconto no PIX",
-            "show_installments": true,
+            "show_installments": false,
             "installments_text": "ou em até 12x sem juros no cartão"
           }
         },
@@ -63,7 +64,7 @@
           "settings": {
             "show_buy_now": true,
             "buy_now_label": "Comprar Agora",
-            "show_dynamic_checkout": true,
+            "show_dynamic_checkout": false,
             "show_wishlist": true,
             "wishlist_label": "Favoritar produto"
           }
@@ -90,12 +91,16 @@
           "type": "benefits",
           "settings": {
             "title": "Incluso neste produto",
+            "benefit_1_image": "shopify://shop_images/noto-v1_headphone.svg",
             "benefit_1_icon": "🎧",
             "benefit_1_label": "Audiobook",
+            "benefit_2_image": "shopify://shop_images/LOGO_DOGOCODE_1_1_2.png",
             "benefit_2_icon": "💻",
             "benefit_2_label": "DoGoCode",
+            "benefit_3_image": "shopify://shop_images/DogoBlock_logo.svg",
             "benefit_3_icon": "🤖",
             "benefit_3_label": "DoGoBlock",
+            "benefit_4_image": "shopify://shop_images/emojione-v1_books.svg",
             "benefit_4_icon": "📚",
             "benefit_4_label": "BNCC",
             "benefit_5_icon": "",
@@ -145,7 +150,7 @@
         "share"
       ],
       "settings": {
-        "show_breadcrumb": true,
+        "show_breadcrumb": false,
         "show_description_under_media": true,
         "description_more_label": "Ver mais",
         "description_less_label": "Ver menos"
@@ -187,21 +192,27 @@
       "type": "product-trust",
       "settings": {
         "title": "Compra Segura",
+        "trust_1_image": "shopify://shop_images/Capa_1.svg",
         "trust_1_icon": "🔒",
         "trust_1_label": "Compra Segura",
         "trust_1_desc": "Ambiente 100% seguro",
+        "trust_2_image": "shopify://shop_images/Frame.svg",
         "trust_2_icon": "🛡️",
         "trust_2_label": "SSL",
         "trust_2_desc": "Dados criptografados",
+        "trust_3_image": "shopify://shop_images/surface1.svg",
         "trust_3_icon": "📄",
         "trust_3_label": "Nota Fiscal",
         "trust_3_desc": "NF emitida em todos os pedidos",
+        "trust_4_image": "shopify://shop_images/Frame_1.svg",
         "trust_4_icon": "🎧",
         "trust_4_label": "Suporte",
         "trust_4_desc": "Atendimento especializado",
+        "trust_5_image": "shopify://shop_images/Group.svg",
         "trust_5_icon": "🚚",
         "trust_5_label": "Entrega Nacional",
         "trust_5_desc": "Enviamos para todo o Brasil",
+        "trust_6_image": "shopify://shop_images/credit-card_681074_1.svg",
         "trust_6_icon": "💳",
         "trust_6_label": "Pagamento Seguro",
         "trust_6_desc": "Cartão, Pix e boleto"
