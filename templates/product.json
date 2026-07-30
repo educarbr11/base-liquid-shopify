@@ -1,19 +1,46 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-product",
-      "settings": {
-        "show_breadcrumb": true,
-        "show_description_under_media": true,
-        "description_more_label": "Ver mais",
-        "description_less_label": "Ver menos"
-      },
       "blocks": {
-        "vendor":       { "type": "vendor" },
-        "rating":       { "type": "rating", "settings": { "reviews_label": "avaliações" } },
-        "title":        { "type": "title" },
-        "sku":          { "type": "sku", "settings": { "label": "SKU:" } },
-        "stock":        { "type": "stock", "settings": { "in_stock_text": "Em estoque", "low_stock_text": "Últimas unidades", "low_stock_threshold": 5 } },
+        "vendor": {
+          "type": "vendor",
+          "settings": {}
+        },
+        "rating": {
+          "type": "rating",
+          "settings": {
+            "reviews_label": "avaliações",
+            "placeholder_text": ""
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "sku": {
+          "type": "sku",
+          "settings": {
+            "label": "SKU:"
+          }
+        },
+        "stock": {
+          "type": "stock",
+          "settings": {
+            "in_stock_text": "Em estoque",
+            "low_stock_text": "Últimas unidades",
+            "low_stock_threshold": 5
+          }
+        },
         "price": {
           "type": "price",
           "settings": {
@@ -23,8 +50,14 @@
             "installments_text": "ou em até 12x sem juros no cartão"
           }
         },
-        "variant_picker": { "type": "variant_picker" },
-        "quantity":      { "type": "quantity" },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "quantity": {
+          "type": "quantity",
+          "settings": {}
+        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -39,6 +72,7 @@
           "type": "freight",
           "settings": {
             "title": "Calcular frete",
+            "placeholder": "00000-000",
             "button_label": "Calcular",
             "link_label": "Não sei meu CEP",
             "option_1_name": "PAC",
@@ -46,7 +80,10 @@
             "option_1_price": "R$ 15,90",
             "option_2_name": "SEDEX",
             "option_2_deadline": "1 a 3 dias úteis",
-            "option_2_price": "R$ 28,90"
+            "option_2_price": "R$ 28,90",
+            "option_3_name": "",
+            "option_3_deadline": "",
+            "option_3_price": ""
           }
         },
         "benefits": {
@@ -61,10 +98,14 @@
             "benefit_3_label": "DoGoBlock",
             "benefit_4_icon": "📚",
             "benefit_4_label": "BNCC",
-            "benefit_5_icon": "🚀",
-            "benefit_5_label": "STEAM",
-            "benefit_6_icon": "🌎",
-            "benefit_6_label": "Cultura Maker"
+            "benefit_5_icon": "",
+            "benefit_5_label": "",
+            "benefit_6_icon": "",
+            "benefit_6_label": "",
+            "benefit_7_icon": "",
+            "benefit_7_label": "",
+            "benefit_8_icon": "",
+            "benefit_8_label": ""
           }
         },
         "quick_info": {
@@ -83,7 +124,10 @@
             "label_editora": "Editora"
           }
         },
-        "share": { "type": "share" }
+        "share": {
+          "type": "share",
+          "settings": {}
+        }
       },
       "block_order": [
         "vendor",
@@ -99,23 +143,44 @@
         "benefits",
         "quick_info",
         "share"
-      ]
+      ],
+      "settings": {
+        "show_breadcrumb": true,
+        "show_description_under_media": true,
+        "description_more_label": "Ver mais",
+        "description_less_label": "Ver menos"
+      }
     },
     "tabs": {
       "type": "product-tabs",
       "settings": {
         "show_desc": true,
         "label_desc": "Descrição",
+        "content_desc": "",
         "show_content": true,
         "label_content": "Conteúdo",
+        "content_content": "",
         "show_specs": true,
         "label_specs": "Especificações",
+        "label_faixa_etaria": "Faixa etária",
+        "label_categoria": "Categoria",
+        "label_colecao": "Coleção",
+        "label_ano_escolar": "Ano Escolar",
+        "label_formato": "Formato",
+        "label_idioma": "Idioma",
+        "label_isbn": "ISBN",
+        "label_paginas": "Páginas",
+        "label_autor": "Autor",
+        "label_editora": "Editora",
         "show_digital": true,
         "label_digital": "Recursos Digitais",
+        "content_digital": "",
         "show_teacher": false,
         "label_teacher": "Professor",
+        "content_teacher": "",
         "show_downloads": false,
-        "label_downloads": "Downloads"
+        "label_downloads": "Downloads",
+        "content_downloads": ""
       }
     },
     "trust": {
@@ -144,6 +209,7 @@
     },
     "ecosystem": {
       "type": "product-ecosystem",
+      "disabled": true,
       "settings": {
         "title": "Ecossistema DoGo Maker",
         "subtitle": "Uma jornada completa de aprendizado",
@@ -164,7 +230,13 @@
         "eco_5_desc": "Projetos e desafios STEAM",
         "eco_6_icon": "🏫",
         "eco_6_label": "Sala de Aula",
-        "eco_6_desc": "Aplicação prática"
+        "eco_6_desc": "Aplicação prática",
+        "eco_7_icon": "",
+        "eco_7_label": "",
+        "eco_7_desc": "",
+        "eco_8_icon": "",
+        "eco_8_label": "",
+        "eco_8_desc": ""
       }
     },
     "related": {
@@ -177,5 +249,11 @@
       }
     }
   },
-  "order": ["main", "tabs", "trust", "ecosystem", "related"]
+  "order": [
+    "main",
+    "tabs",
+    "trust",
+    "ecosystem",
+    "related"
+  ]
 }
