@@ -1,0 +1,354 @@
+{%- comment -%}
+  ============================================================
+  product-tabs — sistema de abas configurável
+  ============================================================
+
+  O QUE FAZ:
+  Exibe conteúdo do produto em tabs: Descrição, Conteúdo,
+  Especificações, Recursos Digitais, Professor, Downloads.
+  Cada tab é habilitável/desabilitável e tem label configurável.
+  Acessível: aria-selected, tabindex, navegação por teclado.
+
+  COMO USAR:
+  {% render 'product-tabs', product: product, block: block, section_id: section_id %}
+
+  PARÂMETROS:
+  - product: objeto product do Shopify
+  - block: bloco do schema com settings de cada aba
+  - section_id: id da section para namespacing
+{%- endcomment -%}
+
+{%- liquid
+  assign tab_ids = ''
+  if block.settings.show_desc
+    assign tab_ids = tab_ids | append: 'desc,'
+  endif
+  if block.settings.show_content
+    assign tab_ids = tab_ids | append: 'content,'
+  endif
+  if block.settings.show_specs
+    assign tab_ids = tab_ids | append: 'specs,'
+  endif
+  if block.settings.show_digital
+    assign tab_ids = tab_ids | append: 'digital,'
+  endif
+  if block.settings.show_teacher
+    assign tab_ids = tab_ids | append: 'teacher,'
+  endif
+  if block.settings.show_downloads
+    assign tab_ids = tab_ids | append: 'downloads,'
+  endif
+  assign tab_list = tab_ids | split: ','
+  assign first_tab = tab_list | first
+-%}
+
+{%- if tab_list.size > 0 -%}
+  <div class='ptabs' id='ProductTabs-{{ section_id }}' {{ block.shopify_attributes }}>
+    <!-- Tab Nav -->
+    <div class='ptabs__nav' role='tablist' aria-label='{{ 'sections.product.tabs.label' | t | default: 'Informações do produto' }}'>
+      {%- if block.settings.show_desc -%}
+        <button
+          class='ptabs__tab{% if first_tab == 'desc' %} ptabs__tab--active{% endif %}'
+          id='ptab-desc-{{ section_id }}'
+          role='tab'
+          aria-selected='{% if first_tab == 'desc' %}true{% else %}false{% endif %}'
+          aria-controls='ptabpanel-desc-{{ section_id }}'
+          tabindex='{% if first_tab == 'desc' %}0{% else %}-1{% endif %}'
+          data-tab='desc'
+          type='button'>
+          {{ block.settings.label_desc | default: 'Descrição' | escape }}
+        </button>
+      {%- endif -%}
+
+      {%- if block.settings.show_content -%}
+        <button
+          class='ptabs__tab{% if first_tab == 'content' %} ptabs__tab--active{% endif %}'
+          id='ptab-content-{{ section_id }}'
+          role='tab'
+          aria-selected='{% if first_tab == 'content' %}true{% else %}false{% endif %}'
+          aria-controls='ptabpanel-content-{{ section_id }}'
+          tabindex='{% if first_tab == 'content' %}0{% else %}-1{% endif %}'
+          data-tab='content'
+          type='button'>
+          {{ block.settings.label_content | default: 'Conteúdo' | escape }}
+        </button>
+      {%- endif -%}
+
+      {%- if block.settings.show_specs -%}
+        <button
+          class='ptabs__tab{% if first_tab == 'specs' %} ptabs__tab--active{% endif %}'
+          id='ptab-specs-{{ section_id }}'
+          role='tab'
+          aria-selected='{% if first_tab == 'specs' %}true{% else %}false{% endif %}'
+          aria-controls='ptabpanel-specs-{{ section_id }}'
+          tabindex='{% if first_tab == 'specs' %}0{% else %}-1{% endif %}'
+          data-tab='specs'
+          type='button'>
+          {{ block.settings.label_specs | default: 'Especificações' | escape }}
+        </button>
+      {%- endif -%}
+
+      {%- if block.settings.show_digital -%}
+        <button
+          class='ptabs__tab{% if first_tab == 'digital' %} ptabs__tab--active{% endif %}'
+          id='ptab-digital-{{ section_id }}'
+          role='tab'
+          aria-selected='{% if first_tab == 'digital' %}true{% else %}false{% endif %}'
+          aria-controls='ptabpanel-digital-{{ section_id }}'
+          tabindex='{% if first_tab == 'digital' %}0{% else %}-1{% endif %}'
+          data-tab='digital'
+          type='button'>
+          {{ block.settings.label_digital | default: 'Recursos Digitais' | escape }}
+        </button>
+      {%- endif -%}
+
+      {%- if block.settings.show_teacher -%}
+        <button
+          class='ptabs__tab{% if first_tab == 'teacher' %} ptabs__tab--active{% endif %}'
+          id='ptab-teacher-{{ section_id }}'
+          role='tab'
+          aria-selected='{% if first_tab == 'teacher' %}true{% else %}false{% endif %}'
+          aria-controls='ptabpanel-teacher-{{ section_id }}'
+          tabindex='{% if first_tab == 'teacher' %}0{% else %}-1{% endif %}'
+          data-tab='teacher'
+          type='button'>
+          {{ block.settings.label_teacher | default: 'Professor' | escape }}
+        </button>
+      {%- endif -%}
+
+      {%- if block.settings.show_downloads -%}
+        <button
+          class='ptabs__tab{% if first_tab == 'downloads' %} ptabs__tab--active{% endif %}'
+          id='ptab-downloads-{{ section_id }}'
+          role='tab'
+          aria-selected='{% if first_tab == 'downloads' %}true{% else %}false{% endif %}'
+          aria-controls='ptabpanel-downloads-{{ section_id }}'
+          tabindex='{% if first_tab == 'downloads' %}0{% else %}-1{% endif %}'
+          data-tab='downloads'
+          type='button'>
+          {{ block.settings.label_downloads | default: 'Downloads' | escape }}
+        </button>
+      {%- endif -%}
+    </div>
+
+    <!-- Tab Panels -->
+    {%- if block.settings.show_desc -%}
+      <div
+        id='ptabpanel-desc-{{ section_id }}'
+        class='ptabs__panel{% if first_tab == 'desc' %} ptabs__panel--active{% endif %} rte'
+        role='tabpanel'
+        aria-labelledby='ptab-desc-{{ section_id }}'
+        tabindex='0'
+        {% unless first_tab == 'desc' %}hidden{% endunless %}>
+        {%- if block.settings.content_desc != blank -%}
+          {{ block.settings.content_desc }}
+        {%- elsif product.description != blank -%}
+          {{ product.description }}
+        {%- else -%}
+          <p>{{ 'sections.product.tabs.no_content' | t | default: 'Sem descrição disponível.' }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block.settings.show_content -%}
+      <div
+        id='ptabpanel-content-{{ section_id }}'
+        class='ptabs__panel{% if first_tab == 'content' %} ptabs__panel--active{% endif %} rte'
+        role='tabpanel'
+        aria-labelledby='ptab-content-{{ section_id }}'
+        tabindex='0'
+        {% unless first_tab == 'content' %}hidden{% endunless %}>
+        {%- if block.settings.content_content != blank -%}
+          {{ block.settings.content_content }}
+        {%- else -%}
+          <p>{{ 'sections.product.tabs.no_content' | t | default: 'Sem conteúdo disponível.' }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block.settings.show_specs -%}
+      <div
+        id='ptabpanel-specs-{{ section_id }}'
+        class='ptabs__panel{% if first_tab == 'specs' %} ptabs__panel--active{% endif %}'
+        role='tabpanel'
+        aria-labelledby='ptab-specs-{{ section_id }}'
+        tabindex='0'
+        {% unless first_tab == 'specs' %}hidden{% endunless %}>
+        {% render 'product-specifications', product: product, block: block %}
+      </div>
+    {%- endif -%}
+
+    {%- if block.settings.show_digital -%}
+      <div
+        id='ptabpanel-digital-{{ section_id }}'
+        class='ptabs__panel{% if first_tab == 'digital' %} ptabs__panel--active{% endif %} rte'
+        role='tabpanel'
+        aria-labelledby='ptab-digital-{{ section_id }}'
+        tabindex='0'
+        {% unless first_tab == 'digital' %}hidden{% endunless %}>
+        {%- if block.settings.content_digital != blank -%}
+          {{ block.settings.content_digital }}
+        {%- else -%}
+          <p>{{ 'sections.product.tabs.no_content' | t | default: 'Sem recursos disponíveis.' }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block.settings.show_teacher -%}
+      <div
+        id='ptabpanel-teacher-{{ section_id }}'
+        class='ptabs__panel{% if first_tab == 'teacher' %} ptabs__panel--active{% endif %} rte'
+        role='tabpanel'
+        aria-labelledby='ptab-teacher-{{ section_id }}'
+        tabindex='0'
+        {% unless first_tab == 'teacher' %}hidden{% endunless %}>
+        {%- if block.settings.content_teacher != blank -%}
+          {{ block.settings.content_teacher }}
+        {%- else -%}
+          <p>{{ 'sections.product.tabs.no_content' | t | default: 'Conteúdo para professor não disponível.' }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if block.settings.show_downloads -%}
+      <div
+        id='ptabpanel-downloads-{{ section_id }}'
+        class='ptabs__panel{% if first_tab == 'downloads' %} ptabs__panel--active{% endif %} rte'
+        role='tabpanel'
+        aria-labelledby='ptab-downloads-{{ section_id }}'
+        tabindex='0'
+        {% unless first_tab == 'downloads' %}hidden{% endunless %}>
+        {%- if block.settings.content_downloads != blank -%}
+          {{ block.settings.content_downloads }}
+        {%- else -%}
+          <p>{{ 'sections.product.tabs.no_content' | t | default: 'Nenhum download disponível.' }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+<style>
+  /* ── Product Tabs ── */
+  .ptabs {
+    margin: 32px 0;
+  }
+  .ptabs__nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--color-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ptabs__nav::-webkit-scrollbar {
+    display: none;
+  }
+  .ptabs__tab {
+    flex-shrink: 0;
+    padding: 12px 20px;
+    font-size: var(--f1);
+    font-family: inherit;
+    font-weight: var(--font-heading-weight);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    color: var(--color-text);
+    opacity: 0.6;
+    transition: opacity 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .ptabs__tab:hover {
+    opacity: 0.9;
+  }
+  .ptabs__tab--active {
+    opacity: 1;
+    border-bottom-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .ptabs__tab:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+  .ptabs__panel {
+    display: none;
+    padding: 24px 0;
+    line-height: 1.7;
+    animation: ptabsFadeIn 0.2s ease;
+  }
+  .ptabs__panel--active {
+    display: block;
+  }
+  @keyframes ptabsFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .ptabs__tab {
+      padding: 10px 14px;
+      font-size: var(--f0);
+    }
+  }
+</style>
+
+<script>
+  ;(function () {
+    var container = document.getElementById('ProductTabs-{{ section_id }}')
+    if (!container) return
+
+    var tabs = container.querySelectorAll('[role="tab"]')
+    var panels = container.querySelectorAll('[role="tabpanel"]')
+
+    function activateTab(tab) {
+      tabs.forEach(function (t) {
+        var active = t === tab
+        t.setAttribute('aria-selected', active ? 'true' : 'false')
+        t.setAttribute('tabindex', active ? '0' : '-1')
+        t.classList.toggle('ptabs__tab--active', active)
+      })
+      var targetId = tab.getAttribute('aria-controls')
+      panels.forEach(function (p) {
+        var active = p.id === targetId
+        p.classList.toggle('ptabs__panel--active', active)
+        if (active) {
+          p.removeAttribute('hidden')
+        } else {
+          p.setAttribute('hidden', '')
+        }
+      })
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        activateTab(tab)
+      })
+      tab.addEventListener('keydown', function (e) {
+        var idx = Array.from(tabs).indexOf(tab)
+        if (e.key === 'ArrowRight') {
+          activateTab(tabs[(idx + 1) % tabs.length])
+          tabs[(idx + 1) % tabs.length].focus()
+        }
+        if (e.key === 'ArrowLeft') {
+          activateTab(tabs[(idx - 1 + tabs.length) % tabs.length])
+          tabs[(idx - 1 + tabs.length) % tabs.length].focus()
+        }
+        if (e.key === 'Home') {
+          activateTab(tabs[0])
+          tabs[0].focus()
+        }
+        if (e.key === 'End') {
+          activateTab(tabs[tabs.length - 1])
+          tabs[tabs.length - 1].focus()
+        }
+      })
+    })
+  })()
+</script>

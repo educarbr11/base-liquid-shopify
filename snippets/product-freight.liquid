@@ -1,0 +1,206 @@
+{%- comment -%}
+  ============================================================
+  product-freight — calculadora de frete por CEP
+  ============================================================
+
+  O QUE FAZ:
+  Campo de CEP com máscara, validação e exibição de opções de
+  entrega configuráveis (PAC, SEDEX, Transportadora).
+  Desacoplado de qualquer app — os resultados são configuráveis
+  via Theme Editor para integração futura com carrier de frete.
+
+  COMO USAR:
+  {% render 'product-freight', block: block, section_id: section_id %}
+
+  PARÂMETROS:
+  - block: bloco do schema com settings de frete
+  - section_id: id da section para namespacing
+{%- endcomment -%}
+
+<div class="pf" id="ProductFreight-{{ section_id }}" {{ block.shopify_attributes }}>
+  {%- if block.settings.title != blank -%}
+    <p class="pf__title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      {{- block.settings.title | escape -}}
+    </p>
+  {%- endif -%}
+
+  <form class="pf__form" id="FreightForm-{{ section_id }}" novalidate>
+    <div class="pf__input-row">
+      <label class="visually-hidden" for="FreightCep-{{ section_id }}">{{ 'sections.product.freight.cep_label' | t | default: 'CEP' }}</label>
+      <input
+        type="text"
+        id="FreightCep-{{ section_id }}"
+        class="pf__input"
+        placeholder="{{ block.settings.placeholder | default: '00000-000' | escape }}"
+        maxlength="9"
+        inputmode="numeric"
+        autocomplete="postal-code"
+        aria-describedby="FreightResult-{{ section_id }}"
+      >
+      <button type="submit" class="pf__btn button button--small">
+        {{ block.settings.button_label | default: 'Calcular' | escape }}
+      </button>
+    </div>
+    <div id="FreightResult-{{ section_id }}" class="pf__result" aria-live="polite" aria-atomic="true"></div>
+  </form>
+
+  <a
+    href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="pf__link"
+    aria-label="{{ 'sections.product.freight.find_cep_aria' | t | default: 'Não sei meu CEP — abre em nova aba' }}"
+  >
+    {{ block.settings.link_label | default: 'Não sei meu CEP' | escape }}
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+  </a>
+</div>
+
+<style>
+  /* ── Product Freight ── */
+  .pf { margin: 16px 0; padding: 16px; background: var(--color-background-contrast); border-radius: var(--inputs-radius); border: 1px solid var(--color-border); }
+  .pf__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--f1);
+    font-weight: var(--font-heading-weight);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 12px;
+    opacity: 0.7;
+  }
+  .pf__form { display: flex; flex-direction: column; gap: 10px; }
+  .pf__input-row { display: flex; gap: 8px; }
+  .pf__input {
+    flex: 1;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--inputs-radius);
+    background: var(--color-background);
+    color: var(--color-text);
+    font-size: var(--f2);
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .pf__input:focus { outline: none; border-color: var(--color-accent); }
+  .pf__input.pf__input--error { border-color: var(--color-sale); }
+  .pf__btn { height: 44px; white-space: nowrap; flex-shrink: 0; }
+  .pf__result { font-size: var(--f1); }
+  .pf__result-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .pf__result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--color-background);
+    border-radius: var(--inputs-radius);
+    border: 1px solid var(--color-border);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pf__result-name { font-weight: var(--font-heading-weight); font-size: var(--f1); }
+  .pf__result-deadline { opacity: 0.7; font-size: var(--f1); flex: 1; text-align: center; }
+  .pf__result-price { font-weight: var(--font-heading-weight); color: var(--color-accent); }
+  .pf__result-price--free { color: var(--color-sale); }
+  .pf__error { color: var(--color-sale); padding: 8px 0; }
+  .pf__loading { opacity: 0.6; padding: 8px 0; }
+  .pf__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: var(--f0);
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .pf__link:hover { opacity: 0.8; }
+</style>
+
+<script>
+  (function () {
+    var form = document.getElementById('FreightForm-{{ section_id }}');
+    if (!form) return;
+
+    var input = form.querySelector('.pf__input');
+    var result = document.getElementById('FreightResult-{{ section_id }}');
+
+    // CEP mask: 00000-000
+    input.addEventListener('input', function () {
+      var v = input.value.replace(/\D/g, '').slice(0, 8);
+      input.value = v.length > 5 ? v.slice(0, 5) + '-' + v.slice(5) : v;
+      input.classList.remove('pf__input--error');
+      result.innerHTML = '';
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var cep = input.value.replace(/\D/g, '');
+
+      if (cep.length !== 8) {
+        input.classList.add('pf__input--error');
+        result.innerHTML = '<p class="pf__error" role="alert">{{ 'sections.product.freight.invalid_cep' | t | default: 'CEP inválido. Digite 8 dígitos.' | escape }}</p>';
+        input.focus();
+        return;
+      }
+
+      result.innerHTML = '<p class="pf__loading">{{ 'sections.product.freight.calculating' | t | default: 'Calculando...' | escape }}</p>';
+
+      // Validate CEP via ViaCEP (CORS-friendly, public API)
+      fetch('https://viacep.com.br/ws/' + cep + '/json/')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.erro) {
+            input.classList.add('pf__input--error');
+            result.innerHTML = '<p class="pf__error" role="alert">{{ 'sections.product.freight.cep_not_found' | t | default: 'CEP não encontrado.' | escape }}</p>';
+            return;
+          }
+          showOptions(data);
+        })
+        .catch(function () {
+          input.classList.add('pf__input--error');
+          result.innerHTML = '<p class="pf__error" role="alert">{{ 'sections.product.freight.error' | t | default: 'Erro ao consultar CEP. Tente novamente.' | escape }}</p>';
+        });
+    });
+
+    function showOptions(address) {
+      // Static shipping options configured in Theme Editor
+      var options = [
+        {
+          name: '{{ block.settings.option_1_name | default: 'PAC' | escape }}',
+          deadline: '{{ block.settings.option_1_deadline | default: '5 a 10 dias úteis' | escape }}',
+          price: '{{ block.settings.option_1_price | default: '' | escape }}'
+        },
+        {
+          name: '{{ block.settings.option_2_name | default: 'SEDEX' | escape }}',
+          deadline: '{{ block.settings.option_2_deadline | default: '1 a 3 dias úteis' | escape }}',
+          price: '{{ block.settings.option_2_price | default: '' | escape }}'
+        },
+        {
+          name: '{{ block.settings.option_3_name | default: '' | escape }}',
+          deadline: '{{ block.settings.option_3_deadline | default: '' | escape }}',
+          price: '{{ block.settings.option_3_price | default: '' | escape }}'
+        }
+      ].filter(function (o) { return o.name.trim() !== ''; });
+
+      var regionNote = address.localidade && address.uf
+        ? '<p class="pf__city" style="font-size:var(--f0);opacity:0.7;margin:0 0 8px;">Entrega para ' + address.localidade + ' - ' + address.uf + '</p>'
+        : '';
+
+      var items = options.map(function (o) {
+        var isFree = o.price.toLowerCase() === 'grátis' || o.price.toLowerCase() === 'gratis' || o.price === '0' || o.price === '';
+        var priceHtml = isFree && o.price !== ''
+          ? '<span class="pf__result-price pf__result-price--free">' + o.price + '</span>'
+          : o.price !== ''
+            ? '<span class="pf__result-price">' + o.price + '</span>'
+            : '<span class="pf__result-price" style="opacity:0.5">—</span>';
+        return '<li class="pf__result-item"><span class="pf__result-name">' + o.name + '</span><span class="pf__result-deadline">' + o.deadline + '</span>' + priceHtml + '</li>';
+      }).join('');
+
+      result.innerHTML = regionNote + '<ul class="pf__result-list" role="list">' + items + '</ul>';
+    }
+  })();
+</script>

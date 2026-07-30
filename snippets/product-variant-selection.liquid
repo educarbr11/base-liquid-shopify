@@ -4,23 +4,18 @@
   ============================================================
 
   O QUE FAZ:
-  Script que controla a seleção de variante na página de produto, sem
-  depender de app: atualiza o id da variante (input hidden), o preço
-  (HTML pré-renderizado por variante), o estado do botão "adicionar ao
-  carrinho", troca a mídia em destaque e mantém ?variant na URL.
+  Script que controla a seleção de variante: atualiza o id da variante
+  (input hidden), o HTML do preço (pré-renderizado por variante), o
+  estado dos botões de compra, a galeria (produto-gallery + legado),
+  SKU, stock, e mantém ?variant na URL.
   Também controla os botões +/- do seletor de quantidade.
 
   COMO USAR:
   {% render 'product-variant-selection', section_id: section.id, product_form_id: product_form_id %}
 
   PARÂMETROS:
-  - section_id: id da section (para achar [data-section-id] e a galeria).
-  - product_form_id: id do <form> de compra do produto.
-
-  OBSERVAÇÕES:
-  Depende de marcações no HTML da section: [data-variant-json] com o JSON
-  das variantes, .product__option com radios, .product-variant-id,
-  .product__add-to-cart, .product__price e a galeria #ProductMedia-{section_id}.
+  - section_id: id da section.
+  - product_form_id: id do <form> de compra.
 {%- endcomment -%}
 <script>
   (function () {
@@ -33,20 +28,28 @@
     var variants;
     try { variants = JSON.parse(jsonEl.textContent); } catch (e) { return; }
 
-    var idInput = form.querySelector('.product-variant-id');
-    var addButton = form.querySelector('.product__add-to-cart');
+    var idInput       = form.querySelector('.product-variant-id');
+    var addButton     = form.querySelector('.product__add-to-cart');
     var addButtonText = addButton ? addButton.querySelector('span') : null;
-    var priceContainer = section.querySelector('.product__price');
-    var gallery = document.getElementById('ProductMedia-{{ section_id }}');
+    var priceContainer = section.querySelector('#ProductPrice-{{ section_id }}');
+    var skuEl         = document.getElementById('ProductSKU-{{ section_id }}');
+    var stockEl       = document.getElementById('ProductStock-{{ section_id }}');
+    var mobilePriceEl = document.getElementById('MobileCTAPrice-{{ section_id }}');
+    var buyNowBtn     = document.getElementById('BuyNowBtn-{{ section_id }}');
 
-    var ADD = '{{ 'products.product.add_to_cart' | t }}';
-    var SOLD_OUT = '{{ 'products.product.sold_out' | t }}';
-    var UNAVAILABLE = '{{ 'products.product.unavailable' | t }}';
+    // Gallery — new snippet
+    var pgActivate   = window['pgActivateMedia_{{ section_id }}'];
+    // Gallery — legacy (scrollIntoView fallback)
+    var legacy       = document.getElementById('ProductMedia-{{ section_id }}');
+
+    var ADD       = '{{ 'products.product.add_to_cart' | t }}';
+    var SOLD_OUT  = '{{ 'products.product.sold_out' | t }}';
+    var UNAVAIL   = '{{ 'products.product.unavailable' | t }}';
 
     function selectedOptions() {
       var opts = [];
-      section.querySelectorAll('.product__option').forEach(function (fieldset) {
-        var checked = fieldset.querySelector('input[type="radio"]:checked');
+      section.querySelectorAll('.product__option').forEach(function (fs) {
+        var checked = fs.querySelector('input[type="radio"]:checked');
         if (checked) opts.push(checked.value);
       });
       return opts;
@@ -54,47 +57,92 @@
 
     function findVariant(opts) {
       return variants.find(function (v) {
-        return v.options.length === opts.length && v.options.every(function (o, i) { return o === opts[i]; });
+        return v.options.length === opts.length &&
+               v.options.every(function (o, i) { return o === opts[i]; });
       });
     }
 
     function setButton(disabled, text) {
       if (!addButton) return;
-      if (disabled) { addButton.setAttribute('disabled', 'disabled'); }
-      else { addButton.removeAttribute('disabled'); }
-      if (addButtonText && text) { addButtonText.textContent = text; }
+      disabled ? addButton.setAttribute('disabled', 'disabled') : addButton.removeAttribute('disabled');
+      if (addButtonText && text) addButtonText.textContent = text;
+
+      // Also update mobile CTA button
+      var mobileBtn = document.querySelector('[data-section-id="{{ section_id }}"] .product__mobile-cta-btn');
+      if (mobileBtn) {
+        disabled ? mobileBtn.setAttribute('disabled', 'disabled') : mobileBtn.removeAttribute('disabled');
+        mobileBtn.textContent = text;
+      }
+
+      // Buy Now
+      if (buyNowBtn) {
+        if (disabled) { buyNowBtn.setAttribute('aria-disabled', 'true'); buyNowBtn.setAttribute('tabindex', '-1'); }
+        else { buyNowBtn.removeAttribute('aria-disabled'); buyNowBtn.removeAttribute('tabindex'); }
+      }
+    }
+
+    function updateGallery(mediaId) {
+      if (!mediaId) return;
+      if (typeof pgActivate === 'function') {
+        pgActivate(String(mediaId));
+      } else if (legacy) {
+        var target = legacy.querySelector('[data-media-id="' + mediaId + '"]');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function updateStock(variant) {
+      if (!stockEl || !variant) return;
+      var inStockText = '{{ section.settings.in_stock_text | default: 'Em estoque' | escape }}';
+      var lowStockText = '{{ section.settings.low_stock_text | default: 'Últimas unidades' | escape }}';
+      var threshold = {{ section.settings.low_stock_threshold | default: 5 }};
+
+      var html = '';
+      if (!variant.available) {
+        html = '<span class="prod-stock prod-stock--out"><span class="prod-stock__dot" aria-hidden="true"></span>' + SOLD_OUT + '</span>';
+      } else if (variant.inventory_management && variant.inventory_quantity > 0 && variant.inventory_quantity <= threshold) {
+        html = '<span class="prod-stock prod-stock--low"><span class="prod-stock__dot" aria-hidden="true"></span>' + lowStockText + ' (' + variant.inventory_quantity + ')</span>';
+      } else if (variant.inventory_management && variant.inventory_quantity <= 0) {
+        html = '<span class="prod-stock prod-stock--out"><span class="prod-stock__dot" aria-hidden="true"></span>' + SOLD_OUT + '</span>';
+      } else {
+        html = '<span class="prod-stock prod-stock--in"><span class="prod-stock__dot" aria-hidden="true"></span>' + inStockText + '</span>';
+      }
+      stockEl.innerHTML = html;
     }
 
     function updateUI() {
       var variant = findVariant(selectedOptions());
 
       if (!variant) {
-        setButton(true, UNAVAILABLE);
-        if (idInput) { idInput.setAttribute('disabled', 'disabled'); }
+        setButton(true, UNAVAIL);
+        if (idInput) idInput.setAttribute('disabled', 'disabled');
         return;
       }
 
       if (idInput) { idInput.value = variant.id; idInput.removeAttribute('disabled'); }
       setButton(!variant.available, variant.available ? ADD : SOLD_OUT);
 
-      // Replace the whole price block with the store-formatted HTML for this variant.
+      // SKU
+      if (skuEl) skuEl.textContent = variant.sku || '';
+
+      // Stock
+      updateStock(variant);
+
+      // Price
       if (priceContainer && variant.price_html) {
         var existing = priceContainer.querySelector('.price');
         if (existing) {
           var tmp = document.createElement('div');
           tmp.innerHTML = variant.price_html;
           var fresh = tmp.querySelector('.price');
-          if (fresh) { existing.replaceWith(fresh); }
+          if (fresh) existing.replaceWith(fresh);
         }
       }
 
-      // Swap the featured media to the one tied to this variant.
-      if (gallery && variant.featured_media_id) {
-        var target = gallery.querySelector('[data-media-id="' + variant.featured_media_id + '"]');
-        if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
-      }
+      // Gallery
+      if (variant.featured_media_id) updateGallery(String(variant.featured_media_id));
 
-      // Keep the URL shareable.
+      // URL
       if (window.history && history.replaceState) {
         var url = new URL(window.location.href);
         url.searchParams.set('variant', variant.id);
@@ -113,11 +161,11 @@
     });
 
     section.querySelectorAll('.quantity-selector').forEach(function (sel) {
-      var input = sel.querySelector('.quantity__input');
+      var inp  = sel.querySelector('.quantity__input');
       var plus = sel.querySelector('[name="plus"]');
-      var minus = sel.querySelector('[name="minus"]');
-      if (plus) plus.addEventListener('click', function () { input.value = parseInt(input.value || '1', 10) + 1; });
-      if (minus) minus.addEventListener('click', function () { input.value = Math.max(1, parseInt(input.value || '1', 10) - 1); });
+      var mns  = sel.querySelector('[name="minus"]');
+      if (plus) plus.addEventListener('click', function () { inp.value = parseInt(inp.value || '1', 10) + 1; });
+      if (mns)  mns.addEventListener('click',  function () { inp.value = Math.max(1, parseInt(inp.value || '1', 10) - 1); });
     });
   })();
 </script>

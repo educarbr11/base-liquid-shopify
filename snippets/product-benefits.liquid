@@ -1,0 +1,88 @@
+{%- comment -%}
+  ============================================================
+  product-benefits — bloco de benefícios configuráveis
+  ============================================================
+
+  O QUE FAZ:
+  Exibe até 8 benefícios do produto em grid (ícone emoji + texto).
+  Todos os ícones e textos são configuráveis pelo Theme Editor.
+
+  COMO USAR:
+  {% render 'product-benefits', block: block %}
+
+  PARÂMETROS:
+  - block: bloco do schema contendo settings de cada benefício
+{%- endcomment -%}
+
+{%- assign benefit_count = 0 -%}
+{%- for i in (1..8) -%}
+  {%- assign label_key = 'benefit_' | append: i | append: '_label' -%}
+  {%- assign label_val = block.settings[label_key] -%}
+  {%- if label_val != blank -%}
+    {%- assign benefit_count = benefit_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if benefit_count > 0 -%}
+  <div class="pb" {{ block.shopify_attributes }}>
+    {%- if block.settings.title != blank -%}
+      <p class="pb__title">{{ block.settings.title | escape }}</p>
+    {%- endif -%}
+    <ul class="pb__list" role="list">
+      {%- for i in (1..8) -%}
+        {%- assign icon_key  = 'benefit_' | append: i | append: '_icon' -%}
+        {%- assign label_key = 'benefit_' | append: i | append: '_label' -%}
+        {%- assign icon_val  = block.settings[icon_key] | default: '' -%}
+        {%- assign label_val = block.settings[label_key] -%}
+        {%- if label_val != blank -%}
+          <li class="pb__item">
+            {%- if icon_val != blank -%}
+              <span class="pb__icon" aria-hidden="true">{{ icon_val }}</span>
+            {%- endif -%}
+            <span class="pb__label">{{ label_val | escape }}</span>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endif -%}
+
+<style>
+  /* ── Product Benefits ── */
+  .pb { margin: 20px 0; }
+  .pb__title {
+    font-size: var(--f1);
+    font-weight: var(--font-heading-weight);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    margin: 0 0 10px;
+  }
+  .pb__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .pb__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    background: var(--color-background-contrast);
+    border-radius: var(--inputs-radius);
+    text-align: center;
+    border: 1px solid var(--color-border);
+    transition: border-color 0.15s;
+  }
+  .pb__item:hover { border-color: var(--color-accent); }
+  .pb__icon { font-size: 1.5rem; line-height: 1; }
+  .pb__label { font-size: var(--f0); font-weight: var(--font-heading-weight); line-height: 1.3; }
+
+  @media screen and (max-width: 600px) {
+    .pb__list { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>

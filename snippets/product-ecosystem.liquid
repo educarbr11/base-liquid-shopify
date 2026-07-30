@@ -1,0 +1,211 @@
+{%- comment -%}
+  ============================================================
+  product-ecosystem — fluxo visual Ecossistema DoGo Maker
+  ============================================================
+
+  O QUE FAZ:
+  Renderiza o fluxo visual do ecossistema DoGo Maker em etapas
+  conectadas por setas. Cada etapa tem imagem, título e texto
+  configuráveis. Animação on-scroll via Intersection Observer.
+
+  COMO USAR:
+  {% render 'product-ecosystem', block: block %}
+
+  PARÂMETROS:
+  - block: bloco do schema com settings das etapas
+{%- endcomment -%}
+
+{%- assign eco_count = 0 -%}
+{%- for i in (1..8) -%}
+  {%- assign label_key = 'eco_' | append: i | append: '_label' -%}
+  {%- if block.settings[label_key] != blank -%}
+    {%- assign eco_count = eco_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if eco_count > 0 -%}
+  <div class='peco' id='ProductEcosystem-{{ block.id }}' {{ block.shopify_attributes }}>
+    {%- if block.settings.title != blank -%}
+      <h2 class='peco__title'>{{ block.settings.title | escape }}</h2>
+    {%- endif -%}
+    {%- if block.settings.subtitle != blank -%}
+      <p class='peco__subtitle'>{{ block.settings.subtitle | escape }}</p>
+    {%- endif -%}
+
+    <div class='peco__flow' role='list'>
+      {%- for i in (1..8) -%}
+        {%- assign label_key = 'eco_' | append: i | append: '_label' -%}
+        {%- assign desc_key = 'eco_' | append: i | append: '_desc' -%}
+        {%- assign icon_key = 'eco_' | append: i | append: '_icon' -%}
+        {%- assign img_key = 'eco_' | append: i | append: '_image' -%}
+        {%- assign label_val = block.settings[label_key] -%}
+        {%- if label_val != blank -%}
+          <div class='peco__step peco__step--anim' role='listitem' aria-label='{{ label_val | escape }}'>
+            {%- assign img_val = block.settings[img_key] -%}
+            <div class='peco__step-media'>
+              {%- if img_val != blank -%}
+                {{
+                  img_val
+                  | image_url: width: 120
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'peco__step-img',
+                    widths: '60, 90, 120',
+                    alt: label_val
+                }}
+              {%- else -%}
+                <span class='peco__step-emoji' aria-hidden='true'>{{ block.settings[icon_key] | default: '📚' }}</span>
+              {%- endif -%}
+            </div>
+            <div class='peco__step-info'>
+              <strong class='peco__step-label'>{{ label_val | escape }}</strong>
+              {%- assign desc_val = block.settings[desc_key] -%}
+              {%- if desc_val != blank -%}
+                <span class='peco__step-desc'>{{ desc_val | escape }}</span>
+              {%- endif -%}
+            </div>
+          </div>
+          {%- unless forloop.last -%}
+            {%- assign next_key = 'eco_' | append: forloop.index | plus: 1 | append: '_label' -%}
+            {%- if block.settings[next_key] != blank -%}
+              <div class='peco__arrow' aria-hidden='true'>
+                <svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                  <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+                </svg>
+              </div>
+            {%- endif -%}
+          {%- endunless -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  /* ── Product Ecosystem ── */
+  .peco {
+    margin: 40px 0;
+    text-align: center;
+  }
+  .peco__title {
+    font-size: var(--f5);
+    margin: 0 0 8px;
+    font-family: var(--font-heading-family);
+  }
+  .peco__subtitle {
+    font-size: var(--f2);
+    opacity: 0.7;
+    margin: 0 0 32px;
+  }
+  .peco__flow {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .peco__step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    background: var(--color-background-contrast);
+    border: 1px solid var(--color-border);
+    border-radius: var(--inputs-radius);
+    width: 280px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease, box-shadow 0.2s;
+  }
+  .peco__step.peco__step--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .peco__step:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+  .peco__step-media {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-background);
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+  .peco__step-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .peco__step-emoji {
+    font-size: 1.5rem;
+  }
+  .peco__step-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+  }
+  .peco__step-label {
+    font-size: var(--f2);
+    font-weight: var(--font-heading-weight);
+  }
+  .peco__step-desc {
+    font-size: var(--f0);
+    opacity: 0.7;
+  }
+  .peco__arrow {
+    color: var(--color-accent);
+    opacity: 0.6;
+    padding: 4px 0;
+  }
+  .peco__arrow svg {
+    display: block;
+  }
+
+  @media screen and (max-width: 600px) {
+    .peco__step {
+      width: 100%;
+      max-width: 280px;
+    }
+  }
+</style>
+
+<script>
+  ;(function () {
+    var container = document.getElementById('ProductEcosystem-{{ block.id }}')
+    if (!container) return
+
+    var steps = container.querySelectorAll('.peco__step--anim')
+    if (!steps.length) return
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              var delay = Array.from(steps).indexOf(entry.target) * 100
+              setTimeout(function () {
+                entry.target.classList.add('peco__step--visible')
+              }, delay)
+              observer.unobserve(entry.target)
+            }
+          })
+        },
+        { threshold: 0.2 }
+      )
+      steps.forEach(function (s) {
+        observer.observe(s)
+      })
+    } else {
+      steps.forEach(function (s) {
+        s.classList.add('peco__step--visible')
+      })
+    }
+  })()
+</script>

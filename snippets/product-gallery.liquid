@@ -1,0 +1,419 @@
+{%- comment -%}
+  ============================================================
+  product-gallery — galeria de mídia do produto
+  ============================================================
+
+  O QUE FAZ:
+  Galeria completa com imagem principal + miniaturas. Suporta
+  image, video, external_video (YouTube) e model (3D).
+  Zoom no hover seguindo o cursor (desktop). Troca de mídia via JS vanilla.
+  Miniaturas em strip vertical (desktop) / horizontal (mobile).
+
+  COMO USAR:
+  {% render 'product-gallery', product: product, section_id: section.id %}
+
+  PARÂMETROS:
+  - product: objeto product do Shopify
+  - section_id: id da section (para namespacing dos IDs)
+{%- endcomment -%}
+
+{%- assign featured = product.selected_or_first_available_variant.featured_media | default: product.featured_media -%}
+
+<div class='pg' id='ProductGallery-{{ section_id }}' aria-label='{{ 'products.product.media.gallery_viewer' | t | default: 'Galeria do produto' }}'>
+  {{- '<!-- Product Gallery: main viewer -->' -}}
+  <div class='pg__viewer' id='PGViewer-{{ section_id }}'>
+    {%- for media in product.media -%}
+      <div
+        class='pg__media{% if media.id == featured.id %} pg__media--active{% endif %}'
+        data-media-id='{{ media.id }}'
+        data-media-type='{{ media.media_type }}'>
+        {%- case media.media_type -%}
+          {%- when 'image' -%}
+            {%- liquid
+              if forloop.first
+                assign img_loading = 'eager'
+                assign img_fetchpriority = 'high'
+              else
+                assign img_loading = 'lazy'
+                assign img_fetchpriority = 'auto'
+              endif
+              assign media_alt = media.alt | default: product.title
+            -%}
+            <div
+              class='pg__zoom-wrap'
+              tabindex='0'
+              role='img'
+              aria-label='{{ media_alt | escape }} — {{ 'products.product.media.zoom' | t | default: 'Ampliar' }}'
+              data-zoom-src='{{ media | image_url: width: 2400 }}'>
+              {{
+                media
+                | image_url: width: 1920
+                | image_tag:
+                  loading: img_loading,
+                  fetchpriority: img_fetchpriority,
+                  class: 'pg__img',
+                  sizes: '(min-width: 1000px) 55vw, 100vw',
+                  widths: '360, 540, 720, 900, 1080, 1440, 1920',
+                  alt: media_alt
+              }}
+              <span class='pg__zoom-hint' aria-hidden='true'>
+                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'>
+                  <circle cx="11" cy="11" r="7"/><path d="m21 21-3.5-3.5M11 8v6M8 11h6"/>
+                </svg>
+              </span>
+            </div>
+
+          {%- when 'external_video' -%}
+            <div class='pg__video-wrap' data-video-type='youtube'>
+              {%- if media.host == 'youtube' -%}
+                <iframe
+                  src='https://www.youtube-nocookie.com/embed/{{ media.external_id }}?autoplay=0&rel=0&modestbranding=1'
+                  title='{{ media.alt | default: product.title | escape }}'
+                  allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+                  allowfullscreen
+                  loading='lazy'
+                  class='pg__iframe'
+                  aria-label='{{ media.alt | default: 'Vídeo do produto' | escape }}'></iframe>
+              {%- else -%}
+                {{ media | external_video_tag: class: 'pg__iframe', loading: 'lazy' }}
+              {%- endif -%}
+            </div>
+
+          {%- when 'video' -%}
+            <div class='pg__video-wrap'>
+              {{ media | video_tag: controls: true, image_size: '1080x', class: 'pg__video', preload: 'none', aria_label: media.alt | default: product.title | escape }}
+            </div>
+
+          {%- when 'model' -%}
+            <div class='pg__model-wrap'>
+              {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true, data-shopify-feature: '3d-model', class: 'pg__model' }}
+            </div>
+
+          {%- else -%}
+            {{ media | media_tag }}
+        {%- endcase -%}
+      </div>
+    {%- endfor -%}
+    {%- unless product.media.size > 0 -%}
+      <div class='pg__media pg__media--active pg__media--placeholder'>
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg pg__placeholder' }}
+      </div>
+    {%- endunless -%}
+  </div>
+
+  {{- '<!-- Product Gallery: thumbnails -->' -}}
+  {%- if product.media.size > 1 -%}
+    <div class='pg__thumbs' role='list' aria-label='{{ 'products.product.media.thumbnails' | t | default: 'Miniaturas' }}'>
+      {%- for media in product.media -%}
+        <button
+          class='pg__thumb{% if media.id == featured.id %} pg__thumb--active{% endif %}'
+          data-target-media='{{ media.id }}'
+          aria-label='{{ media.alt | default: product.title | escape }} — {{ forloop.index }}'
+          aria-pressed='{% if media.id == featured.id %}true{% else %}false{% endif %}'
+          role='listitem'
+          type='button'>
+          {%- case media.media_type -%}
+            {%- when 'image' -%}
+              {%- assign thumb_alt = media.alt | default: product.title -%}
+              {{
+                media
+                | image_url: width: 120
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'pg__thumb-img',
+                  widths: '60, 90, 120',
+                  alt: thumb_alt
+              }}
+            {%- when 'video', 'external_video' -%}
+              <span class='pg__thumb-icon pg__thumb-icon--video' aria-hidden='true'>
+                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
+                  <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"/>
+                </svg>
+              </span>
+            {%- when 'model' -%}
+              <span class='pg__thumb-icon pg__thumb-icon--model' aria-hidden='true'>
+                <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                  <path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/>
+                </svg>
+              </span>
+          {%- endcase -%}
+        </button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+<style>
+  /* ── Product Gallery ── */
+  .pg {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    flex-direction: row-reverse; /* thumbs left, viewer right */
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+  }
+  .pg__viewer {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    border-radius: var(--media-radius);
+    overflow: hidden;
+    background: var(--color-background-contrast);
+  }
+  .pg__media {
+    display: none;
+    width: 100%;
+  }
+  .pg__media--active {
+    display: block;
+  }
+
+  /* — Zoom — */
+  .pg__zoom-wrap {
+    position: relative;
+    overflow: hidden;
+    cursor: zoom-in;
+    display: block;
+    width: 100%;
+    outline: none;
+  }
+  .pg__zoom-wrap.is-zooming {
+    cursor: zoom-out;
+    background-repeat: no-repeat;
+  }
+  .pg__zoom-wrap:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-accent);
+  }
+  .pg__img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+  .pg__zoom-wrap.is-zooming .pg__img {
+    opacity: 0;
+  }
+  .pg__zoom-hint {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+  }
+  .pg__zoom-wrap:hover .pg__zoom-hint,
+  .pg__zoom-wrap:focus-visible .pg__zoom-hint {
+    opacity: 1;
+  }
+  .pg__zoom-wrap.is-zooming .pg__zoom-hint {
+    opacity: 0;
+  }
+
+  @media (hover: none) {
+    .pg__zoom-wrap {
+      cursor: default;
+    }
+    .pg__zoom-hint {
+      display: none;
+    }
+  }
+
+  /* — Video / iframe — */
+  .pg__video-wrap {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+  }
+  .pg__iframe,
+  .pg__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+  .pg__model-wrap {
+    min-height: 400px;
+  }
+  .pg__model {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+  }
+  .pg__placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+  }
+
+  /* — Thumbnails — */
+  .pg__thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 72px;
+    max-height: 520px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .pg__thumb {
+    width: 72px;
+    height: 72px;
+    border: 2px solid var(--color-border);
+    border-radius: calc(var(--media-radius) * 0.6);
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--color-background-contrast);
+    padding: 0;
+    flex-shrink: 0;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pg__thumb:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+  .pg__thumb--active {
+    border-color: var(--color-accent);
+    border-width: 2px;
+  }
+  .pg__thumb:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .pg__thumb-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pg__thumb-icon {
+    color: var(--color-accent);
+  }
+
+  @media screen and (max-width: 1000px) {
+    .pg {
+      width: 100%;
+      flex-direction: column;
+      position: static;
+    }
+    .pg__viewer {
+      order: 1;
+    }
+    .pg__thumbs {
+      order: 2;
+      flex-direction: row;
+      width: 100%;
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    .pg__thumb {
+      width: 60px;
+      height: 60px;
+      flex-shrink: 0;
+    }
+  }
+</style>
+
+<script>
+  ;(function () {
+    var gallery = document.getElementById('ProductGallery-{{ section_id }}')
+    if (!gallery) return
+
+    var ZOOM_SCALE = 2.5
+    var canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+    function activateMedia(mediaId) {
+      resetAllZooms()
+      gallery.querySelectorAll('.pg__media').forEach(function (el) {
+        el.classList.toggle('pg__media--active', el.dataset.mediaId === mediaId)
+      })
+      gallery.querySelectorAll('.pg__thumb').forEach(function (btn) {
+        var active = btn.dataset.targetMedia === mediaId
+        btn.classList.toggle('pg__thumb--active', active)
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false')
+      })
+    }
+
+    function resetZoom(wrap) {
+      wrap.classList.remove('is-zooming')
+      wrap.style.backgroundImage = ''
+      wrap.style.backgroundSize = ''
+      wrap.style.backgroundPosition = ''
+    }
+
+    function resetAllZooms() {
+      gallery.querySelectorAll('.pg__zoom-wrap.is-zooming').forEach(resetZoom)
+    }
+
+    function setZoomAt(wrap, clientX, clientY) {
+      var img = wrap.querySelector('.pg__img')
+      if (!img) return
+      var rect = wrap.getBoundingClientRect()
+      if (!rect.width || !rect.height) return
+
+      var x = ((clientX - rect.left) / rect.width) * 100
+      var y = ((clientY - rect.top) / rect.height) * 100
+      x = Math.max(0, Math.min(100, x))
+      y = Math.max(0, Math.min(100, y))
+
+      if (!wrap.classList.contains('is-zooming')) {
+        var zoomSrc = wrap.getAttribute('data-zoom-src') || img.currentSrc || img.src
+        wrap.classList.add('is-zooming')
+        wrap.style.backgroundImage = 'url("' + zoomSrc + '")'
+        wrap.style.backgroundSize = ZOOM_SCALE * 100 + '%'
+      }
+
+      wrap.style.backgroundPosition = x + '% ' + y + '%'
+    }
+
+    gallery.querySelectorAll('.pg__thumb').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activateMedia(btn.dataset.targetMedia)
+      })
+    })
+
+    if (canHover) {
+      gallery.querySelectorAll('.pg__zoom-wrap').forEach(function (wrap) {
+        wrap.addEventListener('mouseenter', function (e) {
+          setZoomAt(wrap, e.clientX, e.clientY)
+        })
+        wrap.addEventListener('mousemove', function (e) {
+          setZoomAt(wrap, e.clientX, e.clientY)
+        })
+        wrap.addEventListener('mouseleave', function () {
+          resetZoom(wrap)
+        })
+        wrap.addEventListener('keydown', function (e) {
+          if (e.key !== 'Enter' && e.key !== ' ') return
+          e.preventDefault()
+          if (wrap.classList.contains('is-zooming')) {
+            resetZoom(wrap)
+          } else {
+            var rect = wrap.getBoundingClientRect()
+            setZoomAt(wrap, rect.left + rect.width / 2, rect.top + rect.height / 2)
+          }
+        })
+      })
+    }
+
+    window['pgActivateMedia_{{ section_id }}'] = activateMedia
+  })()
+</script>

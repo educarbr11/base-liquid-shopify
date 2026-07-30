@@ -1,0 +1,157 @@
+{%- comment -%}
+  ============================================================
+  product-quick-info — card de informações rápidas do produto
+  ============================================================
+
+  O QUE FAZ:
+  Exibe uma tabela de metadados do produto (faixa etária, categoria,
+  ISBN, páginas, etc.). Todos os dados vêm de metafields configurados
+  no painel do Shopify. Labels são configuráveis via Theme Editor.
+
+  COMO USAR:
+  {% render 'product-quick-info', product: product, block: block %}
+
+  PARÂMETROS:
+  - product: objeto product do Shopify
+  - block: bloco do schema com settings de labels
+{%- endcomment -%}
+
+{%- liquid
+  assign has_any = false
+  assign mf = product.metafields.custom
+
+  assign fields = 'faixa_etaria,categoria,colecao,ano_escolar,formato,idioma,isbn,paginas,autor,editora' | split: ','
+  for f in fields
+    if mf[f] != blank
+      assign has_any = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if has_any -%}
+  <div class="pqi" {{ block.shopify_attributes }}>
+    {%- if block.settings.title != blank -%}
+      <p class="pqi__title">{{ block.settings.title | escape }}</p>
+    {%- endif -%}
+    <dl class="pqi__table">
+
+      {%- if mf.faixa_etaria != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_faixa_etaria | default: 'Faixa etária' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.faixa_etaria.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.categoria != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_categoria | default: 'Categoria' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.categoria.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.colecao != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_colecao | default: 'Coleção' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.colecao.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.ano_escolar != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_ano_escolar | default: 'Ano Escolar' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.ano_escolar.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.formato != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_formato | default: 'Formato' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.formato.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.idioma != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_idioma | default: 'Idioma' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.idioma.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.isbn != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_isbn | default: 'ISBN' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.isbn.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.paginas != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_paginas | default: 'Páginas' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.paginas.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.autor != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_autor | default: 'Autor' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.autor.value }}</dd>
+        </div>
+      {%- endif -%}
+
+      {%- if mf.editora != blank -%}
+        <div class="pqi__row">
+          <dt class="pqi__label">{{ block.settings.label_editora | default: 'Editora' | escape }}</dt>
+          <dd class="pqi__value">{{ mf.editora.value }}</dd>
+        </div>
+      {%- endif -%}
+
+    </dl>
+  </div>
+{%- endif -%}
+
+<style>
+  /* ── Product Quick Info ── */
+  .pqi { margin: 20px 0; }
+  .pqi__title {
+    font-size: var(--f1);
+    font-weight: var(--font-heading-weight);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    margin: 0 0 10px;
+  }
+  .pqi__table {
+    border: 1px solid var(--color-border);
+    border-radius: var(--inputs-radius);
+    overflow: hidden;
+    margin: 0;
+  }
+  .pqi__row {
+    display: flex;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .pqi__row:last-child { border-bottom: 0; }
+  .pqi__label {
+    width: 45%;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: var(--f1);
+    font-weight: var(--font-heading-weight);
+    background: var(--color-background-contrast);
+    color: var(--color-text);
+    border-right: 1px solid var(--color-border);
+  }
+  .pqi__value {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: var(--f1);
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  @media screen and (max-width: 600px) {
+    .pqi__row { flex-direction: column; }
+    .pqi__label { width: 100%; border-right: 0; border-bottom: 1px solid var(--color-border); }
+  }
+</style>

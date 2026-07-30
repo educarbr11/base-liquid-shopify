@@ -1,0 +1,43 @@
+{% render 'product-related', product: product, block: section, section_id: section.id %}
+
+{% schema %}
+{
+  "name": "Produtos Relacionados",
+  "tag": "section",
+  "class": "page-width",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Você também pode gostar",
+      "label": "Título"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4,
+      "label": "Quantidade de produtos"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_add_all",
+      "default": false,
+      "label": "Mostrar botão 'Adicionar todos ao carrinho'"
+    },
+    {
+      "type": "text",
+      "id": "add_all_label",
+      "default": "Adicionar todos ao carrinho",
+      "label": "Texto do botão"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Produtos Relacionados"
+    }
+  ]
+}
+{% endschema %}

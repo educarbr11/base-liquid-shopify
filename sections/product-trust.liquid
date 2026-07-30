@@ -1,0 +1,35 @@
+{% render 'product-trust', block: section %}
+
+{% schema %}
+{
+  "name": "Selos de Confiança",
+  "tag": "section",
+  "class": "page-width",
+  "settings": [
+    { "type": "text", "id": "title", "default": "Compra Segura", "label": "Título" },
+    { "type": "text", "id": "trust_1_icon", "default": "🔒", "label": "Ícone 1" },
+    { "type": "text", "id": "trust_1_label", "default": "Compra Segura", "label": "Título 1" },
+    { "type": "text", "id": "trust_1_desc", "default": "Ambiente 100% seguro", "label": "Descrição 1" },
+    { "type": "text", "id": "trust_2_icon", "default": "🛡️", "label": "Ícone 2" },
+    { "type": "text", "id": "trust_2_label", "default": "SSL", "label": "Título 2" },
+    { "type": "text", "id": "trust_2_desc", "default": "Dados criptografados", "label": "Descrição 2" },
+    { "type": "text", "id": "trust_3_icon", "default": "📄", "label": "Ícone 3" },
+    { "type": "text", "id": "trust_3_label", "default": "Nota Fiscal", "label": "Título 3" },
+    { "type": "text", "id": "trust_3_desc", "default": "NF emitida em todos os pedidos", "label": "Descrição 3" },
+    { "type": "text", "id": "trust_4_icon", "default": "🎧", "label": "Ícone 4" },
+    { "type": "text", "id": "trust_4_label", "default": "Suporte", "label": "Título 4" },
+    { "type": "text", "id": "trust_4_desc", "default": "Atendimento especializado", "label": "Descrição 4" },
+    { "type": "text", "id": "trust_5_icon", "default": "🚚", "label": "Ícone 5" },
+    { "type": "text", "id": "trust_5_label", "default": "Entrega Nacional", "label": "Título 5" },
+    { "type": "text", "id": "trust_5_desc", "default": "Enviamos para todo o Brasil", "label": "Descrição 5" },
+    { "type": "text", "id": "trust_6_icon", "default": "💳", "label": "Ícone 6" },
+    { "type": "text", "id": "trust_6_label", "default": "Pagamento Seguro", "label": "Título 6" },
+    { "type": "text", "id": "trust_6_desc", "default": "Cartão, Pix e boleto", "label": "Descrição 6" }
+  ],
+  "presets": [
+    {
+      "name": "Selos de Confiança"
+    }
+  ]
+}
+{% endschema %}

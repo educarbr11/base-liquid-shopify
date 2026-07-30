@@ -1,0 +1,136 @@
+{%- comment -%}
+  ============================================================
+  product-related — produtos relacionados + cross-sell
+  ============================================================
+
+  O QUE FAZ:
+  Seção de produtos relacionados usando a API de recomendações do
+  Shopify. Cards tipados (Livro, Professor, Kit, Software).
+  Botão "Adicionar todos ao carrinho" vía JS vanilla.
+
+  COMO USAR:
+  {% render 'product-related', product: product, block: block, section_id: section_id %}
+
+  PARÂMETROS:
+  - product: objeto product do Shopify
+  - block: bloco do schema com settings (heading, limit)
+  - section_id: id da section para namespacing
+{%- endcomment -%}
+
+<div class="prel" id="ProductRelated-{{ section_id }}" {{ block.shopify_attributes }}>
+  {%- if block.settings.title != blank -%}
+    <h2 class="prel__title">{{ block.settings.title | escape }}</h2>
+  {%- endif -%}
+
+  <product-recommendations
+    class="prel__recs"
+    data-url="{{ routes.product_recommendations_url }}?section_id={{ section_id }}&product_id={{ product.id }}&limit={{ block.settings.limit | default: 4 }}"
+  >
+    {%- if recommendations.performed and recommendations.products_count > 0 -%}
+      <ul class="prel__grid" role="list">
+        {%- for rec in recommendations.products -%}
+          <li class="prel__item">
+            {%- render 'card-product', card_product: rec -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+      {%- if block.settings.show_add_all -%}
+        <div class="prel__actions">
+          <button
+            type="button"
+            class="button prel__add-all"
+            id="AddAllBtn-{{ section_id }}"
+            aria-label="{{ block.settings.add_all_label | default: 'Adicionar todos ao carrinho' | escape }}"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12L6 6Zm0 0-.5-3H3"/><circle cx="9" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg>
+            {{ block.settings.add_all_label | default: 'Adicionar todos ao carrinho' | escape }}
+          </button>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </product-recommendations>
+</div>
+
+<style>
+  /* ── Product Related ── */
+  .prel { margin: 40px 0; }
+  .prel__title {
+    font-size: var(--f4);
+    margin: 0 0 20px;
+    font-family: var(--font-heading-family);
+  }
+  .prel__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .prel__actions { margin-top: 20px; text-align: center; }
+  .prel__add-all { display: inline-flex; align-items: center; gap: 8px; }
+
+  @media screen and (max-width: 600px) {
+    .prel__grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  }
+</style>
+
+<script>
+  (function () {
+    var btn = document.getElementById('AddAllBtn-{{ section_id }}');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      var container = document.getElementById('ProductRelated-{{ section_id }}');
+      if (!container) return;
+
+      var forms = container.querySelectorAll('.card-product__add-form form');
+      if (!forms.length) return;
+
+      btn.disabled = true;
+      btn.textContent = '{{ 'sections.cart.adding' | t | default: 'Adicionando...' | escape }}';
+
+      var items = Array.from(forms).map(function (f) {
+        var idInput = f.querySelector('input[name="id"]');
+        return { id: idInput ? idInput.value : null, quantity: 1 };
+      }).filter(function (item) { return item.id; });
+
+      fetch('{{ routes.cart_add_url }}.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ items: items })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function () {
+          btn.textContent = '✓ {{ 'sections.cart.added' | t | default: 'Adicionados!' | escape }}';
+          setTimeout(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12L6 6Zm0 0-.5-3H3"/><circle cx="9" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg> {{ block.settings.add_all_label | default: 'Adicionar todos ao carrinho' | escape }}';
+          }, 2000);
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.textContent = '{{ 'sections.product.error' | t | default: 'Erro — tente novamente' | escape }}';
+        });
+    });
+
+    // Custom element for recommendations fetch (reuses existing if already defined)
+    if (!customElements.get('product-recommendations')) {
+      customElements.define('product-recommendations', class extends HTMLElement {
+        connectedCallback() {
+          var el = this;
+          if (el.querySelector('.prel__grid')) return;
+          fetch(el.dataset.url)
+            .then(function (r) { return r.text(); })
+            .then(function (text) {
+              var html = document.createElement('div');
+              html.innerHTML = text;
+              var recos = html.querySelector('product-recommendations');
+              if (recos && recos.innerHTML.trim().length) { el.innerHTML = recos.innerHTML; }
+            })
+            .catch(function (e) { console.warn('[product-related]', e); });
+        }
+      });
+    }
+  })();
+</script>

@@ -2,33 +2,177 @@
   "sections": {
     "main": {
       "type": "main-product",
+      "settings": {
+        "show_breadcrumb": true
+      },
       "blocks": {
-        "vendor": { "type": "vendor" },
-        "title": { "type": "title" },
-        "price": { "type": "price" },
+        "vendor":       { "type": "vendor" },
+        "rating":       { "type": "rating", "settings": { "reviews_label": "avaliações" } },
+        "title":        { "type": "title" },
+        "sku":          { "type": "sku", "settings": { "label": "SKU:" } },
+        "stock":        { "type": "stock", "settings": { "in_stock_text": "Em estoque", "low_stock_text": "Últimas unidades", "low_stock_threshold": 5 } },
+        "price": {
+          "type": "price",
+          "settings": {
+            "show_pix": true,
+            "pix_text": "5% de desconto no PIX",
+            "show_installments": true,
+            "installments_text": "ou em até 12x sem juros no cartão"
+          }
+        },
         "variant_picker": { "type": "variant_picker" },
-        "quantity": { "type": "quantity" },
+        "quantity":      { "type": "quantity" },
         "buy_buttons": {
           "type": "buy_buttons",
-          "settings": { "show_dynamic_checkout": true }
+          "settings": {
+            "show_buy_now": true,
+            "buy_now_label": "Comprar Agora",
+            "show_dynamic_checkout": true,
+            "show_wishlist": true,
+            "wishlist_label": "Favoritar produto"
+          }
         },
-        "description": { "type": "description" },
+        "freight": {
+          "type": "freight",
+          "settings": {
+            "title": "Calcular frete",
+            "button_label": "Calcular",
+            "link_label": "Não sei meu CEP",
+            "option_1_name": "PAC",
+            "option_1_deadline": "5 a 10 dias úteis",
+            "option_1_price": "R$ 15,90",
+            "option_2_name": "SEDEX",
+            "option_2_deadline": "1 a 3 dias úteis",
+            "option_2_price": "R$ 28,90"
+          }
+        },
+        "benefits": {
+          "type": "benefits",
+          "settings": {
+            "title": "Incluso neste produto",
+            "benefit_1_icon": "🎧",
+            "benefit_1_label": "Audiobook",
+            "benefit_2_icon": "💻",
+            "benefit_2_label": "DoGoCode",
+            "benefit_3_icon": "🤖",
+            "benefit_3_label": "DoGoBlock",
+            "benefit_4_icon": "📚",
+            "benefit_4_label": "BNCC",
+            "benefit_5_icon": "🚀",
+            "benefit_5_label": "STEAM",
+            "benefit_6_icon": "🌎",
+            "benefit_6_label": "Cultura Maker"
+          }
+        },
+        "quick_info": {
+          "type": "quick_info",
+          "settings": {
+            "title": "Informações",
+            "label_faixa_etaria": "Faixa etária",
+            "label_categoria": "Categoria",
+            "label_colecao": "Coleção",
+            "label_ano_escolar": "Ano Escolar",
+            "label_formato": "Formato",
+            "label_idioma": "Idioma",
+            "label_isbn": "ISBN",
+            "label_paginas": "Páginas",
+            "label_autor": "Autor",
+            "label_editora": "Editora"
+          }
+        },
         "share": { "type": "share" }
       },
       "block_order": [
         "vendor",
+        "rating",
         "title",
+        "sku",
+        "stock",
         "price",
         "variant_picker",
         "quantity",
         "buy_buttons",
-        "description",
+        "freight",
+        "benefits",
+        "quick_info",
         "share"
       ]
     },
+    "tabs": {
+      "type": "product-tabs",
+      "settings": {
+        "show_desc": true,
+        "label_desc": "Descrição",
+        "show_content": true,
+        "label_content": "Conteúdo",
+        "show_specs": true,
+        "label_specs": "Especificações",
+        "show_digital": true,
+        "label_digital": "Recursos Digitais",
+        "show_teacher": false,
+        "label_teacher": "Professor",
+        "show_downloads": false,
+        "label_downloads": "Downloads"
+      }
+    },
+    "trust": {
+      "type": "product-trust",
+      "settings": {
+        "title": "Compra Segura",
+        "trust_1_icon": "🔒",
+        "trust_1_label": "Compra Segura",
+        "trust_1_desc": "Ambiente 100% seguro",
+        "trust_2_icon": "🛡️",
+        "trust_2_label": "SSL",
+        "trust_2_desc": "Dados criptografados",
+        "trust_3_icon": "📄",
+        "trust_3_label": "Nota Fiscal",
+        "trust_3_desc": "NF emitida em todos os pedidos",
+        "trust_4_icon": "🎧",
+        "trust_4_label": "Suporte",
+        "trust_4_desc": "Atendimento especializado",
+        "trust_5_icon": "🚚",
+        "trust_5_label": "Entrega Nacional",
+        "trust_5_desc": "Enviamos para todo o Brasil",
+        "trust_6_icon": "💳",
+        "trust_6_label": "Pagamento Seguro",
+        "trust_6_desc": "Cartão, Pix e boleto"
+      }
+    },
+    "ecosystem": {
+      "type": "product-ecosystem",
+      "settings": {
+        "title": "Ecossistema DoGo Maker",
+        "subtitle": "Uma jornada completa de aprendizado",
+        "eco_1_icon": "📖",
+        "eco_1_label": "Livro",
+        "eco_1_desc": "Conteúdo pedagógico rico",
+        "eco_2_icon": "💻",
+        "eco_2_label": "Software",
+        "eco_2_desc": "DoGoCode e DoGoBlock",
+        "eco_3_icon": "🎧",
+        "eco_3_label": "Audiobook",
+        "eco_3_desc": "Conteúdo em áudio",
+        "eco_4_icon": "🌐",
+        "eco_4_label": "Portal",
+        "eco_4_desc": "Acesso a recursos online",
+        "eco_5_icon": "🚀",
+        "eco_5_label": "Projetos",
+        "eco_5_desc": "Projetos e desafios STEAM",
+        "eco_6_icon": "🏫",
+        "eco_6_label": "Sala de Aula",
+        "eco_6_desc": "Aplicação prática"
+      }
+    },
     "related": {
-      "type": "related-products"
+      "type": "product-related",
+      "settings": {
+        "title": "Você também pode gostar",
+        "limit": 4,
+        "show_add_all": false,
+        "add_all_label": "Adicionar todos ao carrinho"
+      }
     }
   },
-  "order": ["main", "related"]
+  "order": ["main", "tabs", "trust", "ecosystem", "related"]
 }

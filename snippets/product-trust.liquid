@@ -1,0 +1,83 @@
+{%- comment -%}
+  ============================================================
+  product-trust — selos de confiança configuráveis
+  ============================================================
+
+  O QUE FAZ:
+  Exibe até 6 selos de confiança (ícone + título + descrição).
+  Todo o conteúdo é configurável via Theme Editor.
+
+  COMO USAR:
+  {% render 'product-trust', block: block %}
+
+  PARÂMETROS:
+  - block: bloco do schema com settings de cada selo
+{%- endcomment -%}
+
+<div class="ptrust" {{ block.shopify_attributes }}>
+  {%- if block.settings.title != blank -%}
+    <p class="ptrust__heading">{{ block.settings.title | escape }}</p>
+  {%- endif -%}
+  <ul class="ptrust__list" role="list">
+
+    {%- for i in (1..6) -%}
+      {%- assign label_key = 'trust_' | append: i | append: '_label' -%}
+      {%- assign desc_key  = 'trust_' | append: i | append: '_desc' -%}
+      {%- assign icon_key  = 'trust_' | append: i | append: '_icon' -%}
+      {%- assign label_val = block.settings[label_key] -%}
+      {%- if label_val != blank -%}
+        <li class="ptrust__item">
+          <span class="ptrust__icon" aria-hidden="true">{{ block.settings[icon_key] | default: '✅' }}</span>
+          <span class="ptrust__text">
+            <strong class="ptrust__label">{{ label_val | escape }}</strong>
+            {%- assign desc_val = block.settings[desc_key] -%}
+            {%- if desc_val != blank -%}
+              <span class="ptrust__desc">{{ desc_val | escape }}</span>
+            {%- endif -%}
+          </span>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+
+  </ul>
+</div>
+
+<style>
+  /* ── Product Trust ── */
+  .ptrust {
+    margin: 24px 0;
+    padding: 16px 20px;
+    background: var(--color-background-contrast);
+    border-radius: var(--inputs-radius);
+    border: 1px solid var(--color-border);
+  }
+  .ptrust__heading {
+    font-size: var(--f1);
+    font-weight: var(--font-heading-weight);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    margin: 0 0 12px;
+  }
+  .ptrust__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .ptrust__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .ptrust__icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .ptrust__text { display: flex; flex-direction: column; gap: 2px; }
+  .ptrust__label { font-size: var(--f1); font-weight: var(--font-heading-weight); }
+  .ptrust__desc { font-size: var(--f0); opacity: 0.7; }
+
+  @media screen and (max-width: 600px) {
+    .ptrust__list { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

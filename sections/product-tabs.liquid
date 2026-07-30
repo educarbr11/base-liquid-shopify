@@ -1,0 +1,48 @@
+{% render 'product-tabs', product: product, section: section %}
+
+{% schema %}
+{
+  "name": "Abas de conteúdo",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Aba — Descrição" },
+    { "type": "checkbox", "id": "show_desc", "default": true, "label": "Exibir aba" },
+    { "type": "text", "id": "label_desc", "default": "Descrição", "label": "Label da aba" },
+    { "type": "richtext", "id": "content_desc", "label": "Conteúdo (deixe vazio para usar descrição do produto)" },
+    { "type": "header", "content": "Aba — Conteúdo" },
+    { "type": "checkbox", "id": "show_content", "default": true, "label": "Exibir aba" },
+    { "type": "text", "id": "label_content", "default": "Conteúdo", "label": "Label da aba" },
+    { "type": "richtext", "id": "content_content", "label": "Conteúdo" },
+    { "type": "header", "content": "Aba — Especificações" },
+    { "type": "checkbox", "id": "show_specs", "default": true, "label": "Exibir aba" },
+    { "type": "text", "id": "label_specs", "default": "Especificações", "label": "Label da aba" },
+    { "type": "text", "id": "label_faixa_etaria", "default": "Faixa etária", "label": "Label — Faixa etária" },
+    { "type": "text", "id": "label_categoria", "default": "Categoria", "label": "Label — Categoria" },
+    { "type": "text", "id": "label_colecao", "default": "Coleção", "label": "Label — Coleção" },
+    { "type": "text", "id": "label_ano_escolar", "default": "Ano Escolar", "label": "Label — Ano Escolar" },
+    { "type": "text", "id": "label_formato", "default": "Formato", "label": "Label — Formato" },
+    { "type": "text", "id": "label_idioma", "default": "Idioma", "label": "Label — Idioma" },
+    { "type": "text", "id": "label_isbn", "default": "ISBN", "label": "Label — ISBN" },
+    { "type": "text", "id": "label_paginas", "default": "Páginas", "label": "Label — Páginas" },
+    { "type": "text", "id": "label_autor", "default": "Autor", "label": "Label — Autor" },
+    { "type": "text", "id": "label_editora", "default": "Editora", "label": "Label — Editora" },
+    { "type": "header", "content": "Aba — Recursos Digitais" },
+    { "type": "checkbox", "id": "show_digital", "default": true, "label": "Exibir aba" },
+    { "type": "text", "id": "label_digital", "default": "Recursos Digitais", "label": "Label da aba" },
+    { "type": "richtext", "id": "content_digital", "label": "Conteúdo" },
+    { "type": "header", "content": "Aba — Professor" },
+    { "type": "checkbox", "id": "show_teacher", "default": false, "label": "Exibir aba" },
+    { "type": "text", "id": "label_teacher", "default": "Professor", "label": "Label da aba" },
+    { "type": "richtext", "id": "content_teacher", "label": "Conteúdo" },
+    { "type": "header", "content": "Aba — Downloads" },
+    { "type": "checkbox", "id": "show_downloads", "default": false, "label": "Exibir aba" },
+    { "type": "text", "id": "label_downloads", "default": "Downloads", "label": "Label da aba" },
+    { "type": "richtext", "id": "content_downloads", "label": "Conteúdo" }
+  ],
+  "presets": [
+    {
+      "name": "Abas de conteúdo"
+    }
+  ]
+}
+{% endschema %}

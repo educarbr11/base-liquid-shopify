@@ -1,0 +1,99 @@
+{%- comment -%}
+  ============================================================
+  product-specifications — tabela de especificações técnicas
+  ============================================================
+
+  O QUE FAZ:
+  Renderiza uma tabela HTML acessível com as especificações técnicas
+  do produto, puxando dados de metafields `custom.*`.
+
+  COMO USAR:
+  {% render 'product-specifications', product: product, block: block %}
+
+  PARÂMETROS:
+  - product: objeto product do Shopify
+  - block: bloco do schema (para labels configuráveis)
+{%- endcomment -%}
+
+{%- assign mf = product.metafields.custom -%}
+
+{%- liquid
+  assign has_any = false
+  if mf.faixa_etaria != blank or mf.categoria != blank or mf.colecao != blank or mf.ano_escolar != blank or mf.formato != blank or mf.idioma != blank or mf.isbn != blank or mf.paginas != blank or mf.autor != blank or mf.editora != blank
+    assign has_any = true
+  endif
+-%}
+
+{%- if has_any -%}
+  <table class="pspec" aria-label="{{ 'sections.product.tabs.specs_label' | t | default: 'Especificações técnicas' }}">
+    <caption class="visually-hidden">{{ 'sections.product.tabs.specs_label' | t | default: 'Especificações técnicas do produto' }}</caption>
+    <tbody>
+
+      {%- if mf.faixa_etaria != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_faixa_etaria | default: 'Faixa etária' | escape }}</th><td class="pspec__value">{{ mf.faixa_etaria.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.categoria != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_categoria | default: 'Categoria' | escape }}</th><td class="pspec__value">{{ mf.categoria.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.colecao != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_colecao | default: 'Coleção' | escape }}</th><td class="pspec__value">{{ mf.colecao.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.ano_escolar != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_ano_escolar | default: 'Ano Escolar' | escape }}</th><td class="pspec__value">{{ mf.ano_escolar.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.formato != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_formato | default: 'Formato' | escape }}</th><td class="pspec__value">{{ mf.formato.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.idioma != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_idioma | default: 'Idioma' | escape }}</th><td class="pspec__value">{{ mf.idioma.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.isbn != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_isbn | default: 'ISBN' | escape }}</th><td class="pspec__value">{{ mf.isbn.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.paginas != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_paginas | default: 'Páginas' | escape }}</th><td class="pspec__value">{{ mf.paginas.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.autor != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_autor | default: 'Autor' | escape }}</th><td class="pspec__value">{{ mf.autor.value }}</td></tr>
+      {%- endif -%}
+      {%- if mf.editora != blank -%}
+        <tr><th scope="row" class="pspec__label">{{ block.settings.label_editora | default: 'Editora' | escape }}</th><td class="pspec__value">{{ mf.editora.value }}</td></tr>
+      {%- endif -%}
+
+    </tbody>
+  </table>
+{%- else -%}
+  <p class="pspec__empty">{{ 'sections.product.specifications.empty' | t | default: 'Especificações não disponíveis.' }}</p>
+{%- endif -%}
+
+<style>
+  /* ── Product Specifications ── */
+  .pspec {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--f1);
+  }
+  .pspec tr { border-bottom: 1px solid var(--color-border); }
+  .pspec tr:last-child { border-bottom: 0; }
+  .pspec__label {
+    width: 40%;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: var(--font-heading-weight);
+    background: var(--color-background-contrast);
+    color: var(--color-text);
+    vertical-align: top;
+  }
+  .pspec__value {
+    padding: 10px 14px;
+    color: var(--color-text);
+    vertical-align: top;
+  }
+  .pspec__empty { opacity: 0.5; font-size: var(--f1); }
+
+  @media screen and (max-width: 600px) {
+    .pspec, .pspec tbody, .pspec tr, .pspec th, .pspec td { display: block; width: 100%; }
+    .pspec__label { padding-bottom: 4px; }
+    .pspec__value { padding-top: 4px; }
+  }
+</style>
