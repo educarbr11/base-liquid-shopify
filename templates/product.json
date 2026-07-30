@@ -3,7 +3,10 @@
     "main": {
       "type": "main-product",
       "settings": {
-        "show_breadcrumb": true
+        "show_breadcrumb": true,
+        "show_description_under_media": true,
+        "description_more_label": "Ver mais",
+        "description_less_label": "Ver menos"
       },
       "blocks": {
         "vendor":       { "type": "vendor" },

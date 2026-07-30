@@ -19,8 +19,8 @@
   ecosystem, related, share, custom_liquid
 
   SNIPPETS RENDERIZADOS:
-  product-gallery, product-freight, product-benefits, product-quick-info,
-  product-tabs, product-trust, product-ecosystem, product-related,
+  product-gallery, product-description-collapse, product-freight, product-benefits,
+  product-quick-info, product-tabs, product-trust, product-ecosystem, product-related,
   price, share-button, structured-data-product
 {%- endcomment -%}
 
@@ -74,6 +74,13 @@
   {{- '<!-- LEFT: Gallery -->' -}}
   <div class='product__media-wrapper'>
     {% render 'product-gallery', product: product, section_id: section_id %}
+    {% render 'product-description-collapse',
+      product: product,
+      section_id: section_id,
+      show: section.settings.show_description_under_media,
+      more_label: section.settings.description_more_label,
+      less_label: section.settings.description_less_label
+    %}
   </div>
 
   {{- '<!-- RIGHT: Info + Form -->' -}}
@@ -745,6 +752,28 @@
       "id": "show_breadcrumb",
       "default": true,
       "label": "Mostrar breadcrumb"
+    },
+    {
+      "type": "header",
+      "content": "Descrição sob a imagem"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description_under_media",
+      "default": true,
+      "label": "Mostrar descrição abaixo da galeria"
+    },
+    {
+      "type": "text",
+      "id": "description_more_label",
+      "default": "Ver mais",
+      "label": "Texto do botão (expandir)"
+    },
+    {
+      "type": "text",
+      "id": "description_less_label",
+      "default": "Ver menos",
+      "label": "Texto do botão (recolher)"
     }
   ],
   "blocks": [
@@ -998,49 +1027,57 @@
           "type": "header",
           "content": "Benefício 1"
         },
-        { "type": "text", "id": "benefit_1_icon", "default": "🎧", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_1_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_1_icon", "default": "🎧", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_1_label", "default": "Audiobook", "label": "Texto" },
         {
           "type": "header",
           "content": "Benefício 2"
         },
-        { "type": "text", "id": "benefit_2_icon", "default": "💻", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_2_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_2_icon", "default": "💻", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_2_label", "default": "DoGoCode", "label": "Texto" },
         {
           "type": "header",
           "content": "Benefício 3"
         },
-        { "type": "text", "id": "benefit_3_icon", "default": "🤖", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_3_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_3_icon", "default": "🤖", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_3_label", "default": "DoGoBlock", "label": "Texto" },
         {
           "type": "header",
           "content": "Benefício 4"
         },
-        { "type": "text", "id": "benefit_4_icon", "default": "📚", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_4_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_4_icon", "default": "📚", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_4_label", "default": "BNCC", "label": "Texto" },
         {
           "type": "header",
           "content": "Benefício 5"
         },
-        { "type": "text", "id": "benefit_5_icon", "default": "🚀", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_5_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_5_icon", "default": "🚀", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_5_label", "default": "STEAM", "label": "Texto" },
         {
           "type": "header",
           "content": "Benefício 6"
         },
-        { "type": "text", "id": "benefit_6_icon", "default": "🌎", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_6_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_6_icon", "default": "🌎", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_6_label", "default": "Cultura Maker", "label": "Texto" },
         {
           "type": "header",
           "content": "Benefício 7"
         },
-        { "type": "text", "id": "benefit_7_icon", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_7_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_7_icon", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_7_label", "label": "Texto (deixe vazio para ocultar)" },
         {
           "type": "header",
           "content": "Benefício 8"
         },
-        { "type": "text", "id": "benefit_8_icon", "label": "Ícone (emoji)" },
+        { "type": "image_picker", "id": "benefit_8_image", "label": "Imagem / SVG" },
+        { "type": "text", "id": "benefit_8_icon", "label": "Ícone (emoji — fallback)" },
         { "type": "text", "id": "benefit_8_label", "label": "Texto (deixe vazio para ocultar)" }
       ]
     },

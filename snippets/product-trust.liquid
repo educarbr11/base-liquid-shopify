@@ -4,7 +4,7 @@
   ============================================================
 
   O QUE FAZ:
-  Exibe até 6 selos de confiança (ícone + título + descrição).
+  Exibe até 6 selos de confiança (imagem/SVG ou emoji + título + descrição).
   Todo o conteúdo é configurável via Theme Editor.
 
   COMO USAR:
@@ -12,6 +12,7 @@
 
   PARÂMETROS:
   - block: bloco do schema com settings de cada selo
+    (também aceita section quando renderizado por sections/product-trust)
 {%- endcomment -%}
 
 <div class="ptrust" {{ block.shopify_attributes }}>
@@ -22,12 +23,29 @@
 
     {%- for i in (1..6) -%}
       {%- assign label_key = 'trust_' | append: i | append: '_label' -%}
-      {%- assign desc_key  = 'trust_' | append: i | append: '_desc' -%}
-      {%- assign icon_key  = 'trust_' | append: i | append: '_icon' -%}
+      {%- assign desc_key = 'trust_' | append: i | append: '_desc' -%}
+      {%- assign icon_key = 'trust_' | append: i | append: '_icon' -%}
+      {%- assign img_key = 'trust_' | append: i | append: '_image' -%}
       {%- assign label_val = block.settings[label_key] -%}
       {%- if label_val != blank -%}
+        {%- assign img_val = block.settings[img_key] -%}
+        {%- assign icon_val = block.settings[icon_key] | default: '✅' -%}
         <li class="ptrust__item">
-          <span class="ptrust__icon" aria-hidden="true">{{ block.settings[icon_key] | default: '✅' }}</span>
+          <span class="ptrust__icon{% if img_val != blank %} ptrust__icon--media{% endif %}" aria-hidden="true">
+            {%- if img_val != blank -%}
+              {{
+                img_val
+                | image_url: width: 96
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'ptrust__img',
+                  widths: '48, 72, 96',
+                  alt: label_val
+              }}
+            {%- else -%}
+              {{ icon_val }}
+            {%- endif -%}
+          </span>
           <span class="ptrust__text">
             <strong class="ptrust__label">{{ label_val | escape }}</strong>
             {%- assign desc_val = block.settings[desc_key] -%}
@@ -72,7 +90,25 @@
     align-items: flex-start;
     gap: 8px;
   }
-  .ptrust__icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .ptrust__icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+  }
+  .ptrust__icon--media {
+    font-size: 0;
+  }
+  .ptrust__img {
+    display: block;
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
   .ptrust__text { display: flex; flex-direction: column; gap: 2px; }
   .ptrust__label { font-size: var(--f1); font-weight: var(--font-heading-weight); }
   .ptrust__desc { font-size: var(--f0); opacity: 0.7; }
