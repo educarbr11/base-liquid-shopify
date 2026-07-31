@@ -28,6 +28,48 @@
     },
     "continue_shopping": "Continuar comprando"
   },
+  "customer": {
+    "account": {
+      "title": "Minha conta",
+      "details": "Dados da conta",
+      "addresses": "Endereços",
+      "return": "Voltar para a conta"
+    },
+    "login_page": {
+      "title": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "forgot_password": "Esqueceu sua senha?",
+      "sign_in": "Entrar",
+      "create_account": "Criar conta"
+    },
+    "register": {
+      "title": "Criar conta",
+      "first_name": "Nome",
+      "last_name": "Sobrenome",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Criar conta"
+    },
+    "orders": {
+      "title": "Meus pedidos",
+      "order_number": "Pedido",
+      "date": "Data",
+      "payment_status": "Pagamento",
+      "fulfillment_status": "Entrega",
+      "total": "Total",
+      "none": "Você ainda não fez nenhum pedido."
+    },
+    "addresses": {
+      "title": "Meus endereços",
+      "add_new": "Adicionar novo endereço",
+      "edit_address": "Editar endereço",
+      "delete": "Excluir",
+      "update": "Atualizar endereço",
+      "cancel": "Cancelar"
+    },
+    "log_out": "Sair"
+  },
   "products": {
     "product": {
       "add_to_cart": "Adicionar ao carrinho",

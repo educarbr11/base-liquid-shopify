@@ -34,10 +34,12 @@
 
   <div class="topbar__actions">
     {%- if shop.customer_accounts_enabled -%}
-      <a href="{{ routes.account_url }}" class="topbar__action-link">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Entrar/Cadastro</span>
-      </a>
+      <shopify-account class="topbar__account" lang="pt-BR" menu="{{ section.settings.customer_account_menu | default: 'customer-account-main-menu' }}">
+        <span slot="signed-out-avatar" class="topbar__action-link" aria-label="Entrar ou criar conta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>{{ section.settings.account_label | default: 'Entrar/Cadastro' | escape }}</span>
+        </span>
+      </shopify-account>
     {%- else -%}
       <a href="{{ routes.account_url }}" class="topbar__action-link">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -139,6 +141,31 @@
   .topbar__action-link:hover {
     opacity: 0.8;
   }
+  .topbar__account {
+    --shopify-account-color-accent: var(--color-accent, #ff0033);
+    --shopify-account-color-accent-hover: #d9002b;
+    --shopify-account-color-accent-text: var(--color-accent-text, #fff);
+    --shopify-account-color-background: var(--color-background, #fff);
+    --shopify-account-color-background-subdued: var(--color-background-contrast, #f2f3f8);
+    --shopify-account-color-text: var(--color-text, #0B1D3A);
+    --shopify-account-color-border: var(--color-border, #c2c2c2);
+    --shopify-account-color-card-background: var(--color-background, #fff);
+    --shopify-account-color-card-text: var(--color-text, #0B1D3A);
+    --shopify-account-color-control-background: var(--color-background, #fff);
+    --shopify-account-color-control-text: var(--color-text, #0B1D3A);
+    --shopify-account-font-body: var(--font-body-family);
+    --shopify-account-font-heading: 'Bungee', sans-serif;
+    --shopify-account-radius-base: 14px;
+    --shopify-account-radius-button: 14px;
+    --shopify-account-radius-input: 14px;
+    --shopify-account-radius-dialog: 24px;
+    --shopify-account-dialog-position-top: 78px;
+    --shopify-account-signed-in-avatar-size: 36px;
+    --shopify-account-signed-in-avatar-color-background: #E8A817;
+    --shopify-account-signed-in-avatar-color-text: #0B1D3A;
+    color: #fff;
+  }
+  .topbar__account::part(signed-out-avatar) { color: #fff; cursor: pointer; }
 
   /* Cart */
   .topbar__cart {
@@ -225,6 +252,20 @@
 {% schema %}
 {
   "name": "Topbar",
-  "class": "section-topbar"
+  "class": "section-topbar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "account_label",
+      "default": "Entrar/Cadastro",
+      "label": "Texto de acesso à conta"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "default": "customer-account-main-menu",
+      "label": "Menu da conta do cliente"
+    }
+  ]
 }
 {% endschema %}

@@ -113,9 +113,11 @@
       </details>
 
       {%- if shop.customer_accounts_enabled -%}
-        <a href="{{ routes.account_url }}" class="header__action-button tap-target" aria-label="{{ 'customer.account.title' | t }}">
-          {% render 'icon', name: 'account' %}
-        </a>
+        <shopify-account class="header__account" lang="pt-BR" menu="{{ section.settings.customer_account_menu | default: 'customer-account-main-menu' }}">
+          <span slot="signed-out-avatar" class="header__action-button tap-target" aria-label="Entrar ou criar conta">
+            {% render 'icon', name: 'account' %}
+          </span>
+        </shopify-account>
       {%- endif -%}
 
       <a href="{{ routes.cart_url }}" class="header__action-button header__cart tap-target" aria-label="{{ 'templates.cart.cart' | t }}"{% if settings.cart_type == 'drawer' %} data-cart-drawer-open aria-haspopup="dialog" aria-controls="carrinho" aria-expanded="false"{% endif %}>
@@ -223,6 +225,24 @@
     text-decoration: none;
   }
   .header__action-button svg { width: 22px; height: 22px; }
+  .header__account {
+    --shopify-account-color-accent: var(--color-accent, #ff0033);
+    --shopify-account-color-accent-text: var(--color-accent-text, #fff);
+    --shopify-account-color-background: var(--color-background, #fff);
+    --shopify-account-color-background-subdued: var(--color-background-contrast, #f2f3f8);
+    --shopify-account-color-text: var(--color-text, #0B1D3A);
+    --shopify-account-color-border: var(--color-border, #c2c2c2);
+    --shopify-account-font-body: var(--font-body-family);
+    --shopify-account-font-heading: 'Bungee', sans-serif;
+    --shopify-account-radius-base: 14px;
+    --shopify-account-radius-button: 14px;
+    --shopify-account-radius-input: 14px;
+    --shopify-account-radius-dialog: 24px;
+    --shopify-account-dialog-position-top: 78px;
+    --shopify-account-signed-in-avatar-size: 36px;
+    --shopify-account-signed-in-avatar-color-background: #E8A817;
+    --shopify-account-signed-in-avatar-color-text: #0B1D3A;
+  }
   .header__cart-count {
     position: absolute;
     top: 2px;
@@ -311,6 +331,12 @@
       "id": "menu",
       "default": "main-menu",
       "label": "t:sections.header.settings.menu.label"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "default": "customer-account-main-menu",
+      "label": "Menu da conta do cliente"
     },
     {
       "type": "header",
