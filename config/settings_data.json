@@ -9,7 +9,9 @@
  */
 {
   "current": {
-    "logo_width": 120,
+    "logo": "shopify://shop_images/logo-dogomaker.png",
+    "logo_width": 50,
+    "favicon": "shopify://shop_images/logo-dogomaker.png",
     "color_background": "#ffffff",
     "color_text": "#0B1D3A",
     "color_background_contrast": "#f2f3f8",
@@ -40,7 +42,8 @@
     "cart_drawer_free_shipping_goal": 300,
     "social_instagram_link": "",
     "social_facebook_link": "",
-    "social_linkedin_link": ""
+    "social_linkedin_link": "",
+    "content_for_index": []
   },
   "presets": {
     "Base Liquid": {
