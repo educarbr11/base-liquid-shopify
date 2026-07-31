@@ -19,20 +19,10 @@
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 
-  <form action="{{ routes.search_url }}" method="get" role="search" class="topbar__search">
-    <svg class="topbar__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input
-      type="search"
-      name="q"
-      value="{{ search.terms | escape }}"
-      placeholder="Pesquisar produto"
-      aria-label="Pesquisar produtos"
-      class="topbar__search-input"
-      autocomplete="off"
-    >
-  </form>
-
   <div class="topbar__actions">
+    <button type="button" class="topbar__search-toggle tap-target" aria-label="Abrir pesquisa" aria-haspopup="dialog" aria-controls="SearchModal-{{ section.id }}" aria-expanded="false">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    </button>
     {%- if shop.customer_accounts_enabled -%}
       <shopify-account class="topbar__account" lang="pt-BR" menu="{{ section.settings.customer_account_menu | default: 'customer-account-main-menu' }}">
         <span slot="signed-out-avatar" class="topbar__action-link" aria-label="Entrar ou criar conta">
@@ -53,6 +43,22 @@
     </a>
   </div>
 </header>
+
+<div class="search-modal" id="SearchModal-{{ section.id }}" data-search-modal data-predictive-url="{{ routes.predictive_search_url }}" hidden>
+  <button type="button" class="search-modal__overlay" data-search-close aria-label="Fechar pesquisa"></button>
+  <section class="search-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="SearchModalTitle-{{ section.id }}">
+    <h2 class="visually-hidden" id="SearchModalTitle-{{ section.id }}">Pesquisar produtos</h2>
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-modal__form">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input type="search" name="q" class="search-modal__input" placeholder="O que você está procurando?" aria-label="Pesquisar produtos" autocomplete="off" data-search-input>
+      <button type="button" class="search-modal__close tap-target" data-search-close aria-label="Fechar pesquisa">{% render 'icon', name: 'close' %}</button>
+    </form>
+    <div class="search-modal__content">
+      <div class="search-modal__status" role="status" aria-live="polite"></div>
+      <div data-search-results></div>
+    </div>
+  </section>
+</div>
 
 <style>
   .topbar {
@@ -88,44 +94,11 @@
     padding: 4px;
   }
 
-  /* Search */
-  .topbar__search {
-    flex: 1;
-    max-width: 420px;
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .topbar__search-icon {
-    position: absolute;
-    left: 12px;
-    color: rgba(255,255,255,0.5);
-    pointer-events: none;
-  }
-  .topbar__search-input {
-    width: 100%;
-    padding: 10px 14px 10px 40px;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.08);
-    color: #ffffff;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .topbar__search-input::placeholder {
-    color: rgba(255,255,255,0.45);
-  }
-  .topbar__search-input:focus {
-    border-color: #E8A817;
-    background: rgba(255,255,255,0.12);
-  }
-
   /* Actions */
   .topbar__actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 2px;
     margin-left: auto;
   }
   .topbar__action-link {
@@ -141,7 +114,18 @@
   .topbar__action-link:hover {
     opacity: 0.8;
   }
+  .topbar__search-toggle {
+    padding: 0;
+    color: #fff;
+    background: transparent;
+    border: 0;
+    border-radius: 10px;
+    transition: color .2s ease, background-color .2s ease;
+  }
+  .topbar__search-toggle:hover { color: #E8A817; background: rgba(255,255,255,.1); }
   .topbar__account {
+    display: inline-flex;
+    align-items: center;
     --shopify-account-color-accent: var(--color-accent, #ff0033);
     --shopify-account-color-accent-hover: #d9002b;
     --shopify-account-color-accent-text: var(--color-accent-text, #fff);
@@ -166,6 +150,30 @@
     color: #fff;
   }
   .topbar__account::part(signed-out-avatar) { color: #fff; cursor: pointer; }
+
+  /* Modal de pesquisa */
+  .search-modal[hidden] { display: none; }
+  .search-modal { position: fixed; inset: 0; z-index: 900; display: grid; place-items: start center; padding: 92px 24px 24px; }
+  .search-modal__overlay { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: rgba(11,29,58,.62); opacity: 0; transition: opacity .25s ease; }
+  .search-modal__dialog { position: relative; display: flex; flex-direction: column; width: min(860px, 100%); max-height: min(680px, calc(100vh - 116px)); overflow: hidden; background: #fff; color: var(--color-text); border-radius: 20px; box-shadow: 0 24px 70px rgba(11,29,58,.28); transform: translateY(-12px); opacity: 0; transition: transform .25s ease, opacity .25s ease; }
+  .search-modal.is-open .search-modal__overlay { opacity: 1; }
+  .search-modal.is-open .search-modal__dialog { transform: translateY(0); opacity: 1; }
+  .search-modal__form { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--color-border); }
+  .search-modal__input { width: 100%; min-width: 0; padding: 8px 0; color: var(--color-text); background: transparent; border: 0; outline: 0; font-family: var(--font-body-family); font-size: var(--f3); }
+  .search-modal__input::placeholder { color: var(--color-text); opacity: .5; }
+  .search-modal__close { padding: 0; color: var(--color-text); background: var(--color-background-contrast); border: 0; border-radius: 12px; }
+  .search-modal__content { min-height: 260px; overflow-y: auto; padding: 22px 24px 28px; }
+  .search-modal__status { color: var(--color-accent); font-size: var(--f1); }
+  .search-modal__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 14px; font-family: 'Bungee', sans-serif; font-size: var(--f2); font-weight: 400; }
+  .search-modal__clear { padding: 4px 0; color: var(--color-accent); background: none; border: 0; text-decoration: underline; }
+  .search-modal__grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; margin-bottom: 24px; }
+  .search-modal__product { display: flex; min-width: 0; flex-direction: column; padding: 10px; color: var(--color-text); background: var(--color-background-contrast); border: 1px solid var(--color-border); border-radius: 16px; text-decoration: none; transition: transform .2s ease, border-color .2s ease; }
+  .search-modal__product:hover { border-color: var(--color-accent); transform: translateY(-2px); }
+  .search-modal__image { width: 100%; aspect-ratio: 4 / 5; margin-bottom: 9px; object-fit: cover; background: #fff; border-radius: 12px; }
+  .search-modal__product-title { overflow: hidden; margin-bottom: 6px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .search-modal__price { margin-top: auto; font-family: 'Bungee', sans-serif; font-size: var(--f1); }
+  .search-modal__empty { padding: 48px 12px; text-align: center; opacity: .7; }
+  body.search-modal-open { overflow: hidden; }
 
   /* Cart */
   .topbar__cart {
@@ -205,6 +213,13 @@
     .topbar__action-link span {
       display: none;
     }
+    .search-modal { padding: 72px 12px 12px; }
+    .search-modal__dialog { max-height: calc(100vh - 84px); border-radius: 16px; }
+    .search-modal__grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .search-modal__content { padding: 18px 16px 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .search-modal__overlay, .search-modal__dialog, .search-modal__product { transition: none; }
   }
 </style>
 
@@ -246,6 +261,111 @@
       if (open) closeSidebar(); else openSidebar();
     });
   }
+
+  var searchToggle = topbar.querySelector('.topbar__search-toggle');
+  var searchModal = document.getElementById('SearchModal-{{ section.id }}');
+  var searchInput = searchModal && searchModal.querySelector('[data-search-input]');
+  var searchResults = searchModal && searchModal.querySelector('[data-search-results]');
+  var searchStatus = searchModal && searchModal.querySelector('.search-modal__status');
+  var searchTimer;
+  var recentKey = 'dogo-recent-products';
+  var currency = {{ cart.currency.iso_code | default: 'BRL' | json }};
+
+  function escapeSearchHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>'"]/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char];
+    });
+  }
+  function searchMoney(value) {
+    var amount = Number(value || 0);
+    try { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: currency }).format(amount); }
+    catch (error) { return 'R$ ' + amount.toFixed(2).replace('.', ','); }
+  }
+  function getRecentProducts() {
+    try { return JSON.parse(localStorage.getItem(recentKey) || '[]'); }
+    catch (error) { return []; }
+  }
+  function productCard(item) {
+    var image = item.image || (item.featured_image && item.featured_image.url) || '';
+    var price = item.priceText || searchMoney(item.price);
+    return '<a class="search-modal__product" href="' + escapeSearchHtml(item.url) + '">' +
+      (image ? '<img class="search-modal__image" src="' + escapeSearchHtml(image) + '" alt="" loading="lazy">' : '<span class="search-modal__image"></span>') +
+      '<span class="search-modal__product-title">' + escapeSearchHtml(item.title) + '</span><span class="search-modal__price">' + escapeSearchHtml(price) + '</span></a>';
+  }
+  function renderRecentProducts() {
+    if (!searchResults) return;
+    var recent = getRecentProducts();
+    if (!recent.length) {
+      searchResults.innerHTML = '<div class="search-modal__empty">Digite o nome de um produto para começar a pesquisar.</div>';
+      return;
+    }
+    searchResults.innerHTML = '<h3 class="search-modal__heading"><span>Vistos recentemente</span><button type="button" class="search-modal__clear" data-search-clear>Limpar</button></h3><div class="search-modal__grid">' + recent.map(productCard).join('') + '</div>';
+  }
+  function openSearch() {
+    if (!searchModal) return;
+    searchModal.hidden = false;
+    searchToggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('search-modal-open');
+    renderRecentProducts();
+    requestAnimationFrame(function () { searchModal.classList.add('is-open'); searchInput.focus(); });
+  }
+  function closeSearch() {
+    if (!searchModal || searchModal.hidden) return;
+    searchModal.classList.remove('is-open');
+    searchToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('search-modal-open');
+    setTimeout(function () { searchModal.hidden = true; searchToggle.focus(); }, 250);
+  }
+  function predictiveSearch(query) {
+    if (!query.trim()) { if (searchStatus) searchStatus.textContent = ''; renderRecentProducts(); return; }
+    if (searchStatus) searchStatus.textContent = 'Pesquisando...';
+    var url = searchModal.dataset.predictiveUrl + '?q=' + encodeURIComponent(query) + '&resources[type]=product&resources[limit]=8';
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then(function (response) { if (!response.ok) throw new Error('search'); return response.json(); })
+      .then(function (data) {
+        var products = data.resources && data.resources.results ? data.resources.results.products || [] : [];
+        if (searchStatus) searchStatus.textContent = products.length ? products.length + (products.length === 1 ? ' produto encontrado' : ' produtos encontrados') : '';
+        searchResults.innerHTML = products.length ? '<h3 class="search-modal__heading">Produtos</h3><div class="search-modal__grid">' + products.map(productCard).join('') + '</div>' : '<div class="search-modal__empty">Nenhum produto encontrado para “' + escapeSearchHtml(query) + '”.</div>';
+      })
+      .catch(function () { if (searchStatus) searchStatus.textContent = 'Não foi possível carregar os resultados.'; });
+  }
+
+  if (searchToggle && searchModal) {
+    searchToggle.addEventListener('click', openSearch);
+    searchModal.addEventListener('click', function (event) {
+      if (event.target.closest('[data-search-close]')) closeSearch();
+      if (event.target.closest('[data-search-clear]')) { try { localStorage.removeItem(recentKey); } catch (error) {} renderRecentProducts(); }
+    });
+    searchInput.addEventListener('input', function () {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { predictiveSearch(searchInput.value); }, 250);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (searchModal.hidden) return;
+      if (event.key === 'Escape') { closeSearch(); return; }
+      if (event.key !== 'Tab') return;
+      var focusable = searchModal.querySelectorAll('a[href], button:not([disabled]), input:not([disabled])');
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+  }
+
+  {%- if request.page_type == 'product' and product != blank -%}
+    try {
+      var viewedProduct = {
+        title: {{ product.title | json }},
+        url: {{ product.url | json }},
+        image: {% if product.featured_image %}{{ product.featured_image | image_url: width: 360 | json }}{% else %}""{% endif %},
+        priceText: {{ product.price | money | json }}
+      };
+      var viewedProducts = getRecentProducts().filter(function (item) { return item.url !== viewedProduct.url; });
+      viewedProducts.unshift(viewedProduct);
+      localStorage.setItem(recentKey, JSON.stringify(viewedProducts.slice(0, 4)));
+    } catch (error) {}
+  {%- endif -%}
 })();
 </script>
 
