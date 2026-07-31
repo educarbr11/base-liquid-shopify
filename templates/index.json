@@ -44,6 +44,7 @@
         "cat_2",
         "cat_3"
       ],
+      "disabled": true,
       "settings": {
         "heading": "",
         "columns_desktop": 3
