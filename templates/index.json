@@ -53,7 +53,7 @@
       "type": "featured-collection",
       "settings": {
         "heading": "COLEÇÃO PRÉ-ESCOLA DIGITAL",
-        "collection": "",
+        "collection": "pre-escola-digital",
         "products_to_show": 4,
         "columns_desktop": 4,
         "show_view_all": true
@@ -63,7 +63,7 @@
       "type": "featured-collection",
       "settings": {
         "heading": "COLEÇÃO EDU DIGITAL",
-        "collection": "",
+        "collection": "pre-escola-digital-copia",
         "products_to_show": 4,
         "columns_desktop": 4,
         "show_view_all": true
