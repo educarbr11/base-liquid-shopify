@@ -34,7 +34,7 @@
           "type": "menu_link",
           "settings": {
             "title": "Lançamentos",
-            "link": "/collections/all",
+            "link": "shopify://collections/lancamentos",
             "icon": "<svg width=\"16\" height=\"15\" viewbox=\"0 0 16 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M2.883 14.366L4.123 9.053L0 5.481L5.431 5.011L7.558 0L9.685 5.01L15.115 5.48L10.992 9.052L12.233 14.365L7.558 11.545L2.883 14.366Z\" fill=\"#042757\"></path>\n</svg>"
           }
         },
@@ -98,7 +98,10 @@
     },
     "topbar": {
       "type": "topbar",
-      "settings": {}
+      "settings": {
+        "account_label": "Entrar/Cadastro",
+        "customer_account_menu": "customer-account-main-menu"
+      }
     }
   },
   "order": [
