@@ -12,8 +12,8 @@
     "hero": {
       "type": "image-banner",
       "settings": {
-        "image": "shopify://shop_images/hero_banner_2.jpg",
-        "height": "medium",
+        "image": "shopify://shop_images/banner-home.jpg",
+        "height": "large",
         "text_alignment": "left"
       }
     },
