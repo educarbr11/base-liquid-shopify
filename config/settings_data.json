@@ -2,9 +2,9 @@
   "current": {
     "logo_width": 120,
     "color_background": "#ffffff",
-    "color_text": "#000000",
+    "color_text": "#0B1D3A",
     "color_background_contrast": "#f2f3f8",
-    "color_text_contrast": "#000000",
+    "color_text_contrast": "#0B1D3A",
     "color_accent": "#ff0033",
     "color_accent_text": "#ffffff",
     "color_sale": "#1cb744",
@@ -31,9 +31,9 @@
     "Base Liquid": {
       "logo_width": 120,
       "color_background": "#ffffff",
-      "color_text": "#000000",
+      "color_text": "#0B1D3A",
       "color_background_contrast": "#f2f3f8",
-      "color_text_contrast": "#000000",
+      "color_text_contrast": "#0B1D3A",
       "color_accent": "#ff0033",
       "color_accent_text": "#ffffff",
       "color_sale": "#1cb744",
