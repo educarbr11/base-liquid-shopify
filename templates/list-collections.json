@@ -1,7 +1,10 @@
 {
   "sections": {
     "list": {
-      "type": "main-list-collections"
+      "type": "main-list-collections",
+      "settings": {
+        "heading": "Encontrar por categoria"
+      }
     }
   },
   "order": ["list"]
