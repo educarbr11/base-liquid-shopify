@@ -28,25 +28,25 @@
     assign less_txt = less_label | default: 'Ver menos'
   -%}
   <div class='pmd' id='ProductMediaDesc-{{ section_id }}'>
+    <input
+      type='checkbox'
+      class='pmd__state visually-hidden'
+      id='ProductMediaDescState-{{ section_id }}'
+      aria-controls='ProductMediaDescBody-{{ section_id }}'>
     <div
       class='pmd__body rte is-collapsed'
       id='ProductMediaDescBody-{{ section_id }}'>
       {{ product.description }}
     </div>
-    <button
-      type='button'
+    <label
       class='pmd__toggle'
-      id='ProductMediaDescToggle-{{ section_id }}'
-      aria-expanded='false'
-      aria-controls='ProductMediaDescBody-{{ section_id }}'
-      hidden>
-      <span class='pmd__toggle-label' data-more='{{ more_txt | escape }}' data-less='{{ less_txt | escape }}'>
-        {{- more_txt | escape -}}
-      </span>
+      for='ProductMediaDescState-{{ section_id }}'>
+      <span class='pmd__toggle-more'>{{ more_txt | escape }}</span>
+      <span class='pmd__toggle-less'>{{ less_txt | escape }}</span>
       <svg class='pmd__toggle-icon' width='14' height='14' viewBox='0 0 16 16' fill='none' aria-hidden='true'>
         <path d='m4 6 4 4 4-4' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
       </svg>
-    </button>
+    </label>
   </div>
 
   <style>
@@ -75,10 +75,11 @@
       background: linear-gradient(to bottom, transparent, var(--color-background, #fff));
       pointer-events: none;
     }
-    .pmd__body.is-expanded {
+    .pmd__state:checked ~ .pmd__body {
       max-height: none;
+      overflow: visible;
     }
-    .pmd__body.is-expanded::after {
+    .pmd__state:checked ~ .pmd__body::after {
       display: none;
     }
     .pmd__toggle {
@@ -96,6 +97,15 @@
       text-decoration: underline;
       text-underline-offset: 3px;
     }
+    .pmd__toggle-less {
+      display: none;
+    }
+    .pmd__state:checked ~ .pmd__toggle .pmd__toggle-more {
+      display: none;
+    }
+    .pmd__state:checked ~ .pmd__toggle .pmd__toggle-less {
+      display: inline;
+    }
     .pmd__toggle:hover {
       opacity: 0.8;
     }
@@ -103,77 +113,16 @@
       outline: 2px solid var(--color-accent);
       outline-offset: 3px;
     }
+    .pmd__state:focus-visible ~ .pmd__toggle {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 3px;
+    }
     .pmd__toggle-icon {
       transition: transform 0.25s ease;
       flex-shrink: 0;
     }
-    .pmd__toggle[aria-expanded='true'] .pmd__toggle-icon {
+    .pmd__state:checked ~ .pmd__toggle .pmd__toggle-icon {
       transform: rotate(180deg);
     }
-    .pmd__toggle[hidden] {
-      display: none;
-    }
   </style>
-
-  <script>
-    ;(function () {
-      var root = document.getElementById('ProductMediaDesc-{{ section_id }}')
-      if (!root) return
-      var body = document.getElementById('ProductMediaDescBody-{{ section_id }}')
-      var btn = document.getElementById('ProductMediaDescToggle-{{ section_id }}')
-      if (!body || !btn) return
-
-      var label = btn.querySelector('.pmd__toggle-label')
-      var moreTxt = label ? label.getAttribute('data-more') : 'Ver mais'
-      var lessTxt = label ? label.getAttribute('data-less') : 'Ver menos'
-      var collapsedMax = 0
-
-      function measure() {
-        var wasExpanded = body.classList.contains('is-expanded')
-        body.classList.add('is-collapsed')
-        body.classList.remove('is-expanded')
-        collapsedMax = parseFloat(window.getComputedStyle(body).maxHeight) || 0
-        var needsToggle = body.scrollHeight > collapsedMax + 4
-        btn.hidden = !needsToggle
-        if (!needsToggle) {
-          body.classList.remove('is-collapsed')
-          body.classList.add('is-expanded')
-          btn.setAttribute('aria-expanded', 'false')
-          if (label) label.textContent = moreTxt
-          return
-        }
-        if (wasExpanded) {
-          body.classList.remove('is-collapsed')
-          body.classList.add('is-expanded')
-          btn.setAttribute('aria-expanded', 'true')
-          if (label) label.textContent = lessTxt
-        } else {
-          btn.setAttribute('aria-expanded', 'false')
-          if (label) label.textContent = moreTxt
-        }
-      }
-
-      btn.addEventListener('click', function () {
-        var expanded = btn.getAttribute('aria-expanded') === 'true'
-        if (expanded) {
-          body.classList.add('is-collapsed')
-          body.classList.remove('is-expanded')
-          btn.setAttribute('aria-expanded', 'false')
-          if (label) label.textContent = moreTxt
-        } else {
-          body.classList.remove('is-collapsed')
-          body.classList.add('is-expanded')
-          btn.setAttribute('aria-expanded', 'true')
-          if (label) label.textContent = lessTxt
-        }
-      })
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', measure)
-      } else {
-        measure()
-      }
-      window.addEventListener('resize', measure)
-    })()
-  </script>
 {%- endif -%}
