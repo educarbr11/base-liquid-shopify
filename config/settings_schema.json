@@ -263,6 +263,50 @@
         "id": "cart_show_note",
         "default": true,
         "label": "t:settings_schema.cart.settings.cart_show_note.label"
+      },
+      {
+        "type": "header",
+        "content": "Drawer do carrinho"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_title",
+        "default": "Seu carrinho",
+        "label": "Título"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_empty_text",
+        "default": "Seu carrinho está vazio.",
+        "label": "Mensagem de carrinho vazio"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_continue_label",
+        "default": "Continuar comprando",
+        "label": "Texto para continuar comprando"
+      },
+      {
+        "type": "text",
+        "id": "cart_drawer_checkout_label",
+        "default": "Finalizar compra",
+        "label": "Texto para finalizar a compra"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_drawer_show_free_shipping",
+        "default": true,
+        "label": "Mostrar progresso para frete grátis"
+      },
+      {
+        "type": "range",
+        "id": "cart_drawer_free_shipping_goal",
+        "min": 50,
+        "max": 1000,
+        "step": 10,
+        "unit": "R$",
+        "default": 300,
+        "label": "Valor para frete grátis"
       }
     ]
   },

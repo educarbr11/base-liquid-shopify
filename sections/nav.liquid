@@ -118,7 +118,7 @@
         </a>
       {%- endif -%}
 
-      <a href="{{ routes.cart_url }}" class="header__action-button header__cart tap-target" aria-label="{{ 'templates.cart.cart' | t }}">
+      <a href="{{ routes.cart_url }}" class="header__action-button header__cart tap-target" aria-label="{{ 'templates.cart.cart' | t }}"{% if settings.cart_type == 'drawer' %} data-cart-drawer-open aria-haspopup="dialog" aria-controls="carrinho" aria-expanded="false"{% endif %}>
         {% render 'icon', name: 'cart' %}
         <span class="header__cart-count" data-cart-count>{{ cart.item_count }}</span>
       </a>

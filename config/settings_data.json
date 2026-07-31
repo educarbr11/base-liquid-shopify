@@ -23,6 +23,12 @@
     "card_show_second_image": true,
     "cart_type": "drawer",
     "cart_show_note": true,
+    "cart_drawer_title": "Seu carrinho",
+    "cart_drawer_empty_text": "Seu carrinho está vazio.",
+    "cart_drawer_continue_label": "Continuar comprando",
+    "cart_drawer_checkout_label": "Finalizar compra",
+    "cart_drawer_show_free_shipping": true,
+    "cart_drawer_free_shipping_goal": 300,
     "social_instagram_link": "",
     "social_facebook_link": "",
     "social_linkedin_link": ""
@@ -51,7 +57,13 @@
       "card_show_vendor": false,
       "card_show_second_image": true,
       "cart_type": "drawer",
-      "cart_show_note": true
+      "cart_show_note": true,
+      "cart_drawer_title": "Seu carrinho",
+      "cart_drawer_empty_text": "Seu carrinho está vazio.",
+      "cart_drawer_continue_label": "Continuar comprando",
+      "cart_drawer_checkout_label": "Finalizar compra",
+      "cart_drawer_show_free_shipping": true,
+      "cart_drawer_free_shipping_goal": 300
     }
   }
 }
