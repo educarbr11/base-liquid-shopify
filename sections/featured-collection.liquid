@@ -230,8 +230,9 @@
     margin-bottom: 2px;
   }
   .price--card {
+    font-family: 'Bungee', sans-serif;
     font-size: 0.95rem;
-    font-weight: 800;
+    font-weight: 400;
     color: #e8a817;
   }
 
@@ -245,19 +246,20 @@
     justify-content: space-between;
     width: 100%;
     padding: 10px 14px;
-    background: #e8a817;
-    color: #0b1d3a;
+    font-family: 'Bungee', sans-serif;
+    background: var(--color-accent, #ff0033);
+    color: var(--color-accent-text, #fff);
     border: none;
     border-radius: 8px;
     font-size: 0.78rem;
-    font-weight: 800;
+    font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.1s ease;
   }
   .card-product__add-btn:hover {
-    background: #d69b14;
+    background: color-mix(in srgb, var(--color-accent, #ff0033) 85%, #000);
   }
   .card-product__add-btn:active {
     transform: scale(0.98);

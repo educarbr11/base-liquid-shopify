@@ -117,7 +117,7 @@ button.button {
   color: var(--color-accent-text, #fff);
   background-color: var(--color-accent, #000);
   border: 1px solid var(--color-accent, #000);
-  border-radius: var(--buttons-radius, 4px);
+  border-radius: var(, 12px);
   cursor: pointer;
   text-decoration: none;
   transition: opacity 0.15s ease;
@@ -203,6 +203,25 @@ textarea.field__input {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
+
+/* Product page cards — consistent, roomier rounding without affecting listings */
+.template-product {
+  --product-card-radius: max(var(--inputs-radius, 8px), 16px);
+}
+
+.template-product .pf,
+.template-product .pb__item,
+.template-product .pqi__table,
+.template-product .ptrust,
+.template-product .peco__step,
+.template-product .card-product {
+  border-radius: var(--product-card-radius);
+}
+
+.template-product .card-product__media {
+  border-radius: var(--product-card-radius) var(--product-card-radius) 0 0;
+}
+
 .card-product__link {
   text-decoration: none;
   color: inherit;
@@ -281,8 +300,9 @@ textarea.field__input {
   margin-bottom: 2px;
 }
 .price--card {
+  font-family: 'Bungee', sans-serif;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 400;
   color: #e8a817;
 }
 .card-product__add-form {
@@ -297,19 +317,20 @@ textarea.field__input {
   justify-content: space-between;
   width: 100%;
   padding: 10px 14px;
-  background: #e8a817;
-  color: #0b1d3a;
+  font-family: 'Bungee', sans-serif;
+  background: var(--color-accent, #ff0033);
+  color: var(--color-accent-text, #fff);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 }
 .card-product__add-btn:hover {
-  background: #d69b14;
+  background: color-mix(in srgb, var(--color-accent, #ff0033) 85%, #000);
 }
 .card-product__add-btn:active {
   transform: scale(0.98);
