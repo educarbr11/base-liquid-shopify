@@ -13,7 +13,7 @@
       "type": "image-banner",
       "settings": {
         "image": "shopify://shop_images/banner-home.jpg",
-        "height": "large",
+        "height": "medium",
         "text_alignment": "left"
       }
     },
