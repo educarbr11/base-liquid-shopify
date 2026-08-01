@@ -11,6 +11,7 @@
   "sections": {
     "hero": {
       "type": "image-banner",
+      "disabled": true,
       "settings": {
         "image": "shopify://shop_images/banner-home.jpg",
         "height": "large",
@@ -49,6 +50,37 @@
         "heading": "",
         "columns_desktop": 3
       }
+    },
+    "17856078222d1a2efc": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_9944dad_6tXXxC": {
+          "type": "ai_gen_block_9944dad",
+          "settings": {
+            "banner_image_1": "shopify://shop_images/banner-home.jpg",
+            "banner_image_2": "shopify://shop_images/hero_banner_1_1.jpg",
+            "desktop_width_percent": 100,
+            "banner_height": 500,
+            "banner_height_mobile": 300,
+            "border_radius": 8,
+            "transition_duration": 0.5,
+            "autoplay": true,
+            "autoplay_speed": 5,
+            "show_arrows": true,
+            "arrow_size": 40,
+            "arrow_background": "#ffffff",
+            "arrow_color": "#0B1D3A",
+            "show_dots": true,
+            "dot_size": 10,
+            "dot_color": "#ffffff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_9944dad_6tXXxC"
+      ],
+      "settings": {}
     },
     "collection_pre_escola": {
       "type": "featured-collection",
@@ -120,6 +152,7 @@
   "order": [
     "hero",
     "categories",
+    "17856078222d1a2efc",
     "collection_pre_escola",
     "collection_edu_digital",
     "1785587299d6afe2b4"
