@@ -1,6 +1,519 @@
+{% doc %}
+  @prompt
+    adicionar seção para adicionar vídeo de fundo, em 100% da tela com opção de iniciar vídeo automático; adicionar url do youtube e ajuste para não aparece nenhum player, apenas a opção de pausar ou dar play no vídeo. opção de vídeo ficar com audio ou sem audio; 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-video-background-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: block;
+  }
+
+  .ai-video-background__container-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-video-background__iframe-{{ ai_gen_id }} {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100vw;
+    height: 56.25vw;
+    min-height: 100vh;
+    min-width: 177.77vh;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .ai-video-background__overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: {{ block.settings.overlay_color }};
+    opacity: {{ block.settings.overlay_opacity }};
+    pointer-events: none;
+  }
+
+  .ai-video-background__content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  .ai-video-background__heading-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.heading_size }}px;
+    margin: 0 0 16px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .ai-video-background__text-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    font-size: {{ block.settings.text_size }}px;
+    margin: 0 0 24px;
+    max-width: 600px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .ai-video-background__button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 14px 32px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-size: {{ block.settings.button_text_size }}px;
+    transition: background-color 0.3s ease;
+    text-shadow: none;
+  }
+
+  .ai-video-background__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg_color }};
+  }
+
+  .ai-video-background__controls-{{ ai_gen_id }} {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    z-index: 3;
+    display: flex;
+    gap: 12px;
+  }
+
+  .ai-video-background__control-btn-{{ ai_gen_id }} {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-video-background__control-btn-{{ ai_gen_id }}:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+  }
+
+  .ai-video-background__control-btn-{{ ai_gen_id }} svg {
+    width: 24px;
+    height: 24px;
+    fill: #000000;
+  }
+
+  .ai-video-background__control-btn-{{ ai_gen_id }}.hidden {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-video-background__heading-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.heading_size }}px * 0.7);
+    }
+
+    .ai-video-background__text-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.text_size }}px * 0.9);
+    }
+
+    .ai-video-background__controls-{{ ai_gen_id }} {
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .ai-video-background__control-btn-{{ ai_gen_id }} {
+      width: 40px;
+      height: 40px;
+    }
+
+    .ai-video-background__control-btn-{{ ai_gen_id }} svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+{% endstyle %}
+
+<youtube-video-background-{{ ai_gen_id }}
+  class="ai-video-background-{{ ai_gen_id }}"
+  data-video-id="{{ block.settings.youtube_url }}"
+  data-autoplay="{{ block.settings.autoplay }}"
+  data-muted="{{ block.settings.muted }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-video-background__container-{{ ai_gen_id }}">
+    <div id="ai-video-player-{{ ai_gen_id }}" class="ai-video-background__iframe-{{ ai_gen_id }}"></div>
+    <div class="ai-video-background__overlay-{{ ai_gen_id }}"></div>
+  </div>
+
+  <div class="ai-video-background__content-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-video-background__heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    {% if block.settings.text != blank %}
+      <div class="ai-video-background__text-{{ ai_gen_id }}">{{ block.settings.text }}</div>
+    {% endif %}
+
+    {% if block.settings.button_label != blank and block.settings.button_link != blank %}
+      <a href="{{ block.settings.button_link }}" class="ai-video-background__button-{{ ai_gen_id }}">
+        {{ block.settings.button_label }}
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="ai-video-background__controls-{{ ai_gen_id }}">
+    <button
+      class="ai-video-background__control-btn-{{ ai_gen_id }} ai-video-background__play-btn-{{ ai_gen_id }}"
+      aria-label="Reproduzir vídeo"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </button>
+    <button
+      class="ai-video-background__control-btn-{{ ai_gen_id }} ai-video-background__pause-btn-{{ ai_gen_id }} hidden"
+      aria-label="Pausar vídeo"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+      </svg>
+    </button>
+    <button
+      class="ai-video-background__control-btn-{{ ai_gen_id }} ai-video-background__mute-btn-{{ ai_gen_id }}"
+      aria-label="Silenciar vídeo"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+      </svg>
+    </button>
+    <button
+      class="ai-video-background__control-btn-{{ ai_gen_id }} ai-video-background__unmute-btn-{{ ai_gen_id }} hidden"
+      aria-label="Ativar som do vídeo"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+      </svg>
+    </button>
+  </div>
+</youtube-video-background-{{ ai_gen_id }}>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+  (function() {
+    class YoutubeVideoBackground{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.player = null;
+        this.isPlaying = false;
+        this.isMuted = this.dataset.muted === 'true';
+      }
+
+      connectedCallback() {
+        this.videoId = this.extractVideoId(this.dataset.videoId);
+        this.autoplay = this.dataset.autoplay === 'true';
+        
+        this.playBtn = this.querySelector('.ai-video-background__play-btn-{{ ai_gen_id }}');
+        this.pauseBtn = this.querySelector('.ai-video-background__pause-btn-{{ ai_gen_id }}');
+        this.muteBtn = this.querySelector('.ai-video-background__mute-btn-{{ ai_gen_id }}');
+        this.unmuteBtn = this.querySelector('.ai-video-background__unmute-btn-{{ ai_gen_id }}');
+
+        if (this.videoId) {
+          this.initYouTubePlayer();
+        }
+
+        this.setupEventListeners();
+      }
+
+      extractVideoId(url) {
+        if (!url) return null;
+        
+        const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[7].length === 11) ? match[7] : url;
+      }
+
+      initYouTubePlayer() {
+        const self = this;
+        
+        if (typeof YT !== 'undefined' && YT.Player) {
+          this.createPlayer();
+        } else {
+          window.onYouTubeIframeAPIReady = function() {
+            self.createPlayer();
+          };
+        }
+      }
+
+      createPlayer() {
+        const self = this;
+        
+        this.player = new YT.Player('ai-video-player-{{ ai_gen_id }}', {
+          videoId: this.videoId,
+          playerVars: {
+            autoplay: this.autoplay ? 1 : 0,
+            controls: 0,
+            showinfo: 0,
+            modestbranding: 1,
+            loop: 1,
+            fs: 0,
+            cc_load_policy: 0,
+            iv_load_policy: 3,
+            autohide: 1,
+            mute: this.isMuted ? 1 : 0,
+            playlist: this.videoId,
+            rel: 0,
+            enablejsapi: 1,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: function(event) {
+              if (self.autoplay) {
+                event.target.playVideo();
+                self.isPlaying = true;
+                self.updatePlayPauseButtons();
+              }
+              
+              if (self.isMuted) {
+                event.target.mute();
+                self.updateMuteButtons();
+              } else {
+                event.target.unMute();
+                self.updateMuteButtons();
+              }
+            },
+            onStateChange: function(event) {
+              if (event.data === YT.PlayerState.PLAYING) {
+                self.isPlaying = true;
+                self.updatePlayPauseButtons();
+              } else if (event.data === YT.PlayerState.PAUSED) {
+                self.isPlaying = false;
+                self.updatePlayPauseButtons();
+              }
+            }
+          }
+        });
+      }
+
+      setupEventListeners() {
+        const self = this;
+
+        this.playBtn.addEventListener('click', function() {
+          if (self.player && self.player.playVideo) {
+            self.player.playVideo();
+          }
+        });
+
+        this.pauseBtn.addEventListener('click', function() {
+          if (self.player && self.player.pauseVideo) {
+            self.player.pauseVideo();
+          }
+        });
+
+        this.muteBtn.addEventListener('click', function() {
+          if (self.player && self.player.mute) {
+            self.player.mute();
+            self.isMuted = true;
+            self.updateMuteButtons();
+          }
+        });
+
+        this.unmuteBtn.addEventListener('click', function() {
+          if (self.player && self.player.unMute) {
+            self.player.unMute();
+            self.isMuted = false;
+            self.updateMuteButtons();
+          }
+        });
+      }
+
+      updatePlayPauseButtons() {
+        if (this.isPlaying) {
+          this.playBtn.classList.add('hidden');
+          this.pauseBtn.classList.remove('hidden');
+        } else {
+          this.playBtn.classList.remove('hidden');
+          this.pauseBtn.classList.add('hidden');
+        }
+      }
+
+      updateMuteButtons() {
+        if (this.isMuted) {
+          this.muteBtn.classList.add('hidden');
+          this.unmuteBtn.classList.remove('hidden');
+        } else {
+          this.muteBtn.classList.remove('hidden');
+          this.unmuteBtn.classList.add('hidden');
+        }
+      }
+    }
+
+    customElements.define('youtube-video-background-{{ ai_gen_id }}', YoutubeVideoBackground{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Vídeo de fundo",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Vídeo"
+    },
+    {
+      "type": "text",
+      "id": "youtube_url",
+      "label": "URL do YouTube",
+      "info": "Cole a URL completa do vídeo do YouTube ou apenas o ID do vídeo"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Reproduzir automaticamente",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "muted",
+      "label": "Iniciar sem áudio",
+      "default": true,
+      "info": "Recomendado manter ativado para reprodução automática"
+    },
+    {
+      "type": "header",
+      "content": "Sobreposição"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Cor da sobreposição",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "label": "Opacidade da sobreposição",
+      "default": 0.3
+    },
+    {
+      "type": "header",
+      "content": "Conteúdo"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Título"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Texto"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Cor do texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamanho do título",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Tamanho do texto",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Botão"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link do botão"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Cor de fundo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Cor de fundo ao passar o mouse",
+      "default": "#f0f0f0"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Cor do texto",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Tamanho do texto",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Raio da borda",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vídeo de fundo"
+    }
+  ]
+}
 {% endschema %}
