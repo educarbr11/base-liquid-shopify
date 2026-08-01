@@ -82,6 +82,27 @@
       ],
       "settings": {}
     },
+    "category_banners": {
+      "type": "category-banners",
+      "blocks": {
+        "banner_1": {
+          "type": "category_banner",
+          "settings": {}
+        },
+        "banner_2": {
+          "type": "category_banner",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "banner_1",
+        "banner_2"
+      ],
+      "settings": {
+        "title": "Nossas Categorias",
+        "columns_desktop": 2
+      }
+    },
     "collection_pre_escola": {
       "type": "featured-collection",
       "settings": {
@@ -153,6 +174,7 @@
     "hero",
     "categories",
     "17856078222d1a2efc",
+    "category_banners",
     "collection_pre_escola",
     "collection_edu_digital",
     "1785587299d6afe2b4"
