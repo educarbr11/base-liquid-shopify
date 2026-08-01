@@ -1,6 +1,127 @@
+{% doc %}
+  @prompt
+    adicionar scroll horizontal infinito com uma frase, seguindo o mesma fonte bungee grande, escrito: SEJA MAKER. 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-infinite-scroll-{{ ai_gen_id }} {
+    width: 100%;
+    overflow: hidden;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding_vertical }}px 0;
+    display: block;
+  }
+
+  .ai-infinite-scroll-track-{{ ai_gen_id }} {
+    display: flex;
+    width: max-content;
+    animation: ai-scroll-{{ ai_gen_id }} {{ block.settings.animation_speed }}s linear infinite;
+  }
+
+  .ai-infinite-scroll-item-{{ ai_gen_id }} {
+    font-family: 'Bungee', sans-serif;
+    font-size: {{ block.settings.font_size }}px;
+    color: {{ block.settings.text_color }};
+    white-space: nowrap;
+    padding: 0 {{ block.settings.spacing }}px;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  @keyframes ai-scroll-{{ ai_gen_id }} {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-infinite-scroll-item-{{ ai_gen_id }} {
+      font-size: {{ block.settings.font_size | times: 0.6 }}px;
+    }
+  }
+{% endstyle %}
+
+<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+
+<div class="ai-infinite-scroll-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-infinite-scroll-track-{{ ai_gen_id }}">
+    {% for i in (1..20) %}
+      <div class="ai-infinite-scroll-item-{{ ai_gen_id }}">{{ block.settings.scroll_text }}</div>
+    {% endfor %}
+  </div>
+</div>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Scroll infinito",
+  "settings": [
+    {
+      "type": "text",
+      "id": "scroll_text",
+      "label": "Texto",
+      "default": "SEJA MAKER"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Tamanho da fonte",
+      "min": 40,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "animation_speed",
+      "label": "Velocidade da animação",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "s",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "label": "Espaçamento entre textos",
+      "min": 20,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Espaçamento vertical",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Cor do texto",
+      "default": "#0B1D3A"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Cor de fundo",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scroll infinito"
+    }
+  ]
+}
 {% endschema %}
