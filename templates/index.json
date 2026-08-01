@@ -78,10 +78,10 @@
           "settings": {
             "scroll_text": "o futuro é maker",
             "font_size": 100,
-            "animation_speed": 50,
+            "animation_speed": 60,
             "spacing": 60,
             "padding_vertical": 40,
-            "text_color": "#0B1D3A",
+            "text_color": "#0b1d3a",
             "background_color": "#ffffff"
           },
           "blocks": {}
