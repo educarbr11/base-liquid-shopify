@@ -93,7 +93,7 @@
             "autoplay": true,
             "muted": true,
             "overlay_color": "#000000",
-            "overlay_opacity": 0.3,
+            "overlay_opacity": 0.2,
             "heading": "",
             "text": "",
             "text_color": "#ffffff",
