@@ -53,8 +53,8 @@
     "collection_pre_escola": {
       "type": "featured-collection",
       "settings": {
-        "heading": "COLEÇÃO PRÉ-ESCOLA DIGITAL",
-        "collection": "pre-escola-digital",
+        "heading": "Nossos lançamentos",
+        "collection": "lancamentos",
         "products_to_show": 4,
         "columns_desktop": 4,
         "show_view_all": true
