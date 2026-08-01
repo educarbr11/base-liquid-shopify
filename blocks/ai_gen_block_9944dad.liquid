@@ -9,14 +9,18 @@
     position: relative;
     width: {{ block.settings.desktop_width_percent }}%;
     max-width: 100%;
-    overflow: hidden;
     display: block;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 24px;
   }
 
   .ai-banner-carousel__wrapper-{{ ai_gen_id }} {
     position: relative;
     width: 100%;
     height: {{ block.settings.banner_height }}px;
+    overflow: hidden;
+    border-radius: {{ block.settings.border_radius }}px;
   }
 
   .ai-banner-carousel__slides-{{ ai_gen_id }} {
@@ -145,6 +149,12 @@
   .ai-banner-carousel__arrow-{{ ai_gen_id }} svg {
     width: calc({{ block.settings.arrow_size }}px * 0.5);
     height: calc({{ block.settings.arrow_size }}px * 0.5);
+  }
+
+  @media screen and (max-width: 1000px) {
+    .ai-banner-carousel-{{ ai_gen_id }} {
+      padding: 16px;
+    }
   }
 
   @media screen and (max-width: 749px) {
