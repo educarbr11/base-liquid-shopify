@@ -69,12 +69,35 @@
         "columns_desktop": 4,
         "show_view_all": true
       }
+    },
+    "1785587299d6afe2b4": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_dac1083_mr73F7": {
+          "type": "ai_gen_block_dac1083",
+          "settings": {
+            "scroll_text": "o futuro é maker",
+            "font_size": 100,
+            "animation_speed": 50,
+            "spacing": 60,
+            "padding_vertical": 40,
+            "text_color": "#0B1D3A",
+            "background_color": "#ffffff"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_dac1083_mr73F7"
+      ],
+      "settings": {}
     }
   },
   "order": [
     "hero",
     "categories",
     "collection_pre_escola",
-    "collection_edu_digital"
+    "collection_edu_digital",
+    "1785587299d6afe2b4"
   ]
 }
