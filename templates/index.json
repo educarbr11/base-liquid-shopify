@@ -69,7 +69,7 @@
             "show_arrows": true,
             "arrow_size": 40,
             "arrow_background": "#ffffff",
-            "arrow_color": "#0B1D3A",
+            "arrow_color": "#0b1d3a",
             "show_dots": true,
             "dot_size": 10,
             "dot_color": "#ffffff"
@@ -87,20 +87,42 @@
       "blocks": {
         "banner_1": {
           "type": "category_banner",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/categoria_livros.jpg",
+            "link": ""
+          }
         },
         "banner_2": {
           "type": "category_banner",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/categoria_livros_1.png",
+            "link": ""
+          }
+        },
+        "category_banner_6tHAYM": {
+          "type": "category_banner",
+          "settings": {
+            "image": "shopify://shop_images/categoria_livros_2.png",
+            "link": ""
+          }
+        },
+        "category_banner_fN79fc": {
+          "type": "category_banner",
+          "settings": {
+            "image": "shopify://shop_images/categoria_livros_3.png",
+            "link": ""
+          }
         }
       },
       "block_order": [
         "banner_1",
-        "banner_2"
+        "banner_2",
+        "category_banner_6tHAYM",
+        "category_banner_fN79fc"
       ],
       "settings": {
-        "title": "Nossas Categorias",
-        "columns_desktop": 2
+        "title": "encontrar por categoria",
+        "columns_desktop": 4
       }
     },
     "collection_pre_escola": {
