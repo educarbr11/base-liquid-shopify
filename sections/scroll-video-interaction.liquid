@@ -1,0 +1,315 @@
+{%- comment -%}
+  ============================================================
+  SCROLL VIDEO INTERACTION
+  ============================================================
+  Vídeo de fundo sticky que reproduz "frame by frame" via Scroll (scrub).
+  Textos surgem conforme as etapas (blocos) são atingidas no scroll.
+{%- endcomment -%}
+
+<section class="scroll-video" data-section-id="{{ section.id }}">
+  <div class="scroll-video__sticky">
+    {%- if section.settings.video != blank -%}
+      <video
+        id="ScrollVideo-{{ section.id }}"
+        class="scroll-video__media"
+        muted
+        playsinline
+        preload="auto"
+      >
+        {%- for source in section.settings.video.sources -%}
+          {%- if source.mime_type == 'video/mp4' -%}
+            <source src="{{ source.url }}" type="{{ source.mime_type }}">
+          {%- endif -%}
+        {%- endfor -%}
+        {%- for source in section.settings.video.sources -%}
+          {%- if source.mime_type != 'video/mp4' -%}
+            <source src="{{ source.url }}" type="{{ source.mime_type }}">
+          {%- endif -%}
+        {%- endfor -%}
+      </video>
+    {%- elsif section.settings.video_url != blank -%}
+      <video
+        id="ScrollVideo-{{ section.id }}"
+        class="scroll-video__media"
+        muted
+        playsinline
+        preload="auto"
+        src="{{ section.settings.video_url }}"
+      ></video>
+    {%- else -%}
+      <div class="scroll-video__placeholder">
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    {%- endif -%}
+
+    <div
+      class="scroll-video__overlay"
+      style="background-color: {{ section.settings.overlay_color }}; opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
+    ></div>
+  </div>
+
+  <div class="scroll-video__content page-width">
+    {%- for block in section.blocks -%}
+      <div class="scroll-video__step" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+        <div class="scroll-video__text-wrapper aligns-{{ block.settings.alignment }}">
+          {%- if block.settings.title != blank -%}
+            <h2 class="scroll-video__title">{{ block.settings.title | escape }}</h2>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <div class="scroll-video__desc rte">{{ block.settings.text }}</div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+</section>
+
+<style>
+  .scroll-video {
+    position: relative;
+    width: 100%;
+    background: #000;
+  }
+  .scroll-video__sticky {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .scroll-video__media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .scroll-video__placeholder {
+    width: 100%;
+    height: 100%;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .scroll-video__placeholder svg {
+    max-width: 200px;
+    opacity: 0.5;
+    fill: #fff;
+  }
+  .scroll-video__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  
+  .scroll-video__content {
+    position: relative;
+    z-index: 3;
+    /* Começa no topo pra sobrepor e criar a área de scroll */
+    margin-top: -100vh;
+    padding-bottom: 20vh;
+  }
+  .scroll-video__step {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+  }
+  
+  .scroll-video__text-wrapper {
+    color: #fff;
+    max-width: 540px;
+    opacity: 0; /* JS cuidará da aparição */
+    transform: translateY(40px);
+  }
+  
+  .scroll-video__text-wrapper.aligns-left {
+    margin-right: auto;
+    text-align: left;
+  }
+  .scroll-video__text-wrapper.aligns-center {
+    margin: 0 auto;
+    text-align: center;
+  }
+  .scroll-video__text-wrapper.aligns-right {
+    margin-left: auto;
+    text-align: right;
+  }
+  
+  .scroll-video__title {
+    font-size: var(--f6, 3rem);
+    font-family: 'Bungee', cursive;
+    color: var(--color-background, #fff);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .scroll-video__desc {
+    font-size: var(--f2, 1.125rem);
+    line-height: 1.6;
+    color: var(--color-background, #fff);
+    opacity: 0.9;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .scroll-video__title { font-size: var(--f5, 2.25rem); }
+    .scroll-video__desc { font-size: var(--f1, 1rem); }
+    .scroll-video__text-wrapper { text-align: center !important; margin: 0 auto !important; }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    const video = section.querySelector('#ScrollVideo-{{ section.id }}');
+    const steps = section.querySelectorAll('.scroll-video__step');
+    
+    // Fallback if no window.gsap or no ScrollTrigger
+    if (!window.gsap || !window.ScrollTrigger) {
+      // Very basic fallback: just show all text completely
+      steps.forEach(step => {
+        const text = step.querySelector('.scroll-video__text-wrapper');
+        if (text) {
+          text.style.opacity = 1;
+          text.style.transform = 'translateY(0)';
+          text.style.transition = 'opacity 0.6s, transform 0.6s';
+        }
+      });
+      // Optionally play video normally if no scrub is possible
+      if (video) video.play();
+      return;
+    }
+
+    if (video) {
+      // Need metadata loaded to get correct duration for mapping
+      if (video.readyState >= 1) {
+        initVideoScrub();
+      } else {
+        video.addEventListener('loadedmetadata', initVideoScrub);
+      }
+    } else {
+      initTextAnimations(); // Only text if no video
+    }
+
+    function initVideoScrub() {
+      // Fix for iOS Safari to allow programmatic seeking smoothly
+      video.pause();
+      // Use GSAP to scrub video time based on scroll progress over the entire section
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: self => {
+          // self.progress is a float between 0 and 1
+          if (video.duration) {
+            video.currentTime = self.progress * video.duration;
+          }
+        }
+      });
+      
+      initTextAnimations();
+    }
+
+    function initTextAnimations() {
+      steps.forEach((step, index) => {
+        const textWrapper = step.querySelector('.scroll-video__text-wrapper');
+        
+        // Appear and disappear effect per block
+        gsap.to(textWrapper, {
+          y: 0,
+          opacity: 1,
+          scrollTrigger: {
+            trigger: step,
+            start: "top center+=20%",
+            end: "bottom center-=20%",
+            scrub: true, /* Scrub smoothly reveals text on scroll */
+            toggleActions: "play reverse play reverse"
+          }
+        });
+      });
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Video Interativo Scroll",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Vídeo Nativo (Shopify)",
+      "info": "Upload através do admin da Shopify (recomendado para performance)."
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "URL Externa do Vídeo (MP4)",
+      "info": "Insira URL direta caso o vídeo esteja hospedado externamente ou na pasta files de terceiros."
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Cor do Overlay",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 40,
+      "label": "Opacidade do Overlay"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text_overlay",
+      "name": "Bloco de Texto",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "default": "Etapa de Aprendizado",
+          "label": "Título"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Um pequeno texto que explica esta parte do vídeo.</p>",
+          "label": "Texto"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alinhamento (Desktop)",
+          "options": [
+            { "value": "left", "label": "Esquerda" },
+            { "value": "center", "label": "Centro" },
+            { "value": "right", "label": "Direita" }
+          ],
+          "default": "left"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video Interativo Scroll",
+      "blocks": [
+        { "type": "text_overlay" },
+        { "type": "text_overlay" },
+        { "type": "text_overlay" }
+      ]
+    }
+  ]
+}
+{% endschema %}
