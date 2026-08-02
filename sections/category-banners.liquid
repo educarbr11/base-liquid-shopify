@@ -46,7 +46,8 @@
     margin-bottom: 32px;
     text-align: center;
     color: var(--text-color, #0B1D3A);
-    font-weight: 800; /* Matching common theme styles */
+    font-family: 'Bungee', cursive;
+    font-weight: 400;
     text-transform: uppercase;
   }
   .category-banners__grid {
@@ -119,6 +120,51 @@
     }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const bannersSection = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!bannersSection) return;
+    
+    const bannerItems = bannersSection.querySelectorAll('.category-banner-item');
+    if (bannerItems.length === 0) return;
+
+    // Pre-hide items for animation if GSAP isn't taking over instantly
+    if (!window.gsap) {
+      bannerItems.forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(40px)';
+      });
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (window.gsap) {
+            gsap.fromTo(bannerItems, 
+              { y: 40, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out", clearProps: "all" }
+            );
+          } else {
+            // CSS Fallback
+            bannerItems.forEach((item, index) => {
+              item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+              item.style.transitionDelay = `${index * 0.1}s`;
+              // execute next frame
+              requestAnimationFrame(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+              });
+            });
+          }
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    observer.observe(bannersSection);
+  });
+</script>
 
 {% schema %}
 {
