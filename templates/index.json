@@ -145,6 +145,10 @@
         "show_view_all": true
       }
     },
+    "box_banner": {
+      "type": "box-banner",
+      "settings": {}
+    },
     "1785587299d6afe2b4": {
       "type": "_blocks",
       "blocks": {
@@ -199,6 +203,7 @@
     "category_banners",
     "collection_pre_escola",
     "collection_edu_digital",
+    "box_banner",
     "1785587299d6afe2b4"
   ]
 }
