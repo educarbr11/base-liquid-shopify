@@ -89,21 +89,21 @@
           "type": "category_banner",
           "settings": {
             "image": "shopify://shop_images/categoria_livros.jpg",
-            "link": ""
+            "link": "shopify://collections/pre-escola-digital"
           }
         },
         "banner_2": {
           "type": "category_banner",
           "settings": {
             "image": "shopify://shop_images/categoria_livros_1.png",
-            "link": ""
+            "link": "shopify://collections/edu-digital-copia"
           }
         },
         "category_banner_6tHAYM": {
           "type": "category_banner",
           "settings": {
             "image": "shopify://shop_images/categoria_livros_2.png",
-            "link": ""
+            "link": "shopify://collections/pensamento-computacional-copia"
           }
         },
         "category_banner_fN79fc": {
@@ -151,10 +151,11 @@
         "bg_color": "#061a3d",
         "btn_color": "#fb1f2a",
         "icon_image": "shopify://shop_images/fluent_box-20-filled.svg",
+        "icon_size": 72,
         "title": "CONHEÇA NOSSOS BOX'S",
         "text": "<p>Adquira todos os volumes da coleção em um único Box e tenha acesso a uma metodologia inovadora que integra livros didáticos, tecnologia, pensamento computacional, programação, robótica e recursos digitais exclusivos.</p>",
         "button_label": "CONHECER BOX'S",
-        "button_link": "",
+        "button_link": "shopify://collections/lancamentos",
         "image": "shopify://shop_images/Gemini_Generated_Image_hrx50khrx50khrx5_1_2.jpg"
       }
     },
