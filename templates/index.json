@@ -150,6 +150,7 @@
       "settings": {
         "bg_color": "#061a3d",
         "btn_color": "#fb1f2a",
+        "icon_image": "shopify://shop_images/fluent_box-20-filled.svg",
         "title": "CONHEÇA NOSSOS BOX'S",
         "text": "<p>Adquira todos os volumes da coleção em um único Box e tenha acesso a uma metodologia inovadora que integra livros didáticos, tecnologia, pensamento computacional, programação, robótica e recursos digitais exclusivos.</p>",
         "button_label": "CONHECER BOX'S",
