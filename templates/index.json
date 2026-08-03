@@ -147,7 +147,15 @@
     },
     "box_banner": {
       "type": "box-banner",
-      "settings": {}
+      "settings": {
+        "bg_color": "#061a3d",
+        "btn_color": "#fb1f2a",
+        "title": "CONHEÇA NOSSOS BOX'S",
+        "text": "<p>Adquira todos os volumes da coleção em um único Box e tenha acesso a uma metodologia inovadora que integra livros didáticos, tecnologia, pensamento computacional, programação, robótica e recursos digitais exclusivos.</p>",
+        "button_label": "CONHECER BOX'S",
+        "button_link": "",
+        "image": "shopify://shop_images/Gemini_Generated_Image_hrx50khrx50khrx5_1_2.jpg"
+      }
     },
     "1785587299d6afe2b4": {
       "type": "_blocks",
