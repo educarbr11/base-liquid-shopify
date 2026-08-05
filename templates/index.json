@@ -59,8 +59,8 @@
           "settings": {
             "banner_image_1": "shopify://shop_images/banner-home.jpg",
             "banner_image_2": "shopify://shop_images/hero_banner_1_1.jpg",
-            "desktop_width_percent": 95,
-            "banner_height": 550,
+            "desktop_width_percent": 100,
+            "banner_height": 650,
             "banner_height_mobile": 200,
             "border_radius": 0,
             "transition_duration": 0.5,
