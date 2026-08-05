@@ -105,7 +105,7 @@
     }
   },
   "order": [
-    "sidebar",
-    "topbar"
+    "topbar",
+    "sidebar"
   ]
 }

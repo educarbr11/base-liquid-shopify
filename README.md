@@ -55,7 +55,7 @@ e acesso a uma loja Shopify (ou uma development store).
 
 ```bash
 # 1. Clonar a base
-git clone https://github.com/eduardolecdt/base-liquid-shopify.git minha-loja
+git clone https://github.com/educarbr11/base-liquid-shopify.git minha-loja
 cd minha-loja
 
 # 2. Rodar localmente com hot reload (preview ao vivo)
