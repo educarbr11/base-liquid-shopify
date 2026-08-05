@@ -17,7 +17,7 @@
         {%- endif -%}
       </a>
 
-      <button class='sidebar__close-btn tap-target' aria-label='Recolher menu'>
+      <button class='sidebar__close-btn tap-target' type='button' aria-label='Fechar menu'>
         <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'>
           <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -46,41 +46,63 @@
       </ul>
     </nav>
 
-    {%- comment -%} Categorias / Coleções Editáveis {%- endcomment -%}
-    <details class='sidebar__collections'>
-      <summary class='sidebar__collections-title'>
-        <span>Todas as categorias</span>
-        <svg width='16' height='16' viewBox='0 0 16 16' fill='none' aria-hidden='true'><path d='m4 6 4 4 4-4' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
-      </summary>
-      <ul class='sidebar__collections-list' role='list'>
+    {%- comment -%} Categorias de ensino e coleções configuráveis no editor {%- endcomment -%}
+    {%- assign education_stages = 'educacao_infantil|Educação Infantil,fundamental_i|Fundamental I,fundamental_ii|Fundamental II,paradidatico|Paradidático,oba|OBA' | split: ',' -%}
+    <div class='sidebar__stages'>
+      {%- for stage_item in education_stages -%}
+        {%- assign stage_data = stage_item | split: '|' -%}
+        {%- assign stage_key = stage_data[0] -%}
+        {%- assign stage_title = stage_data[1] -%}
+        {%- assign stage_is_active = false -%}
         {%- for block in section.blocks -%}
-          {%- if block.type == 'collection_link' -%}
-            {%- assign col = block.settings.collection -%}
-            {%- assign link_title = block.settings.title | default: col.title | default: 'Nova Coleção' -%}
-            {%- if block.settings.title == blank and col == blank -%}{%- assign link_title = 'Nova Coleção' -%}{%- endif -%}
-
-            <li class='sidebar__collections-item' {{ block.shopify_attributes }}>
-              <a href='{{ col.url | default: '#' }}' class='sidebar__collections-link {% if collection and collection.handle == col.handle %}sidebar__collections-link--active{% endif %}'>
-                <div class='sidebar__icon-box'>
-                  {%- if block.settings.icon != blank -%}
-                    {{ block.settings.icon }}
-                  {%- elsif block.settings.icon_image != blank -%}
-                    <img src='{{ block.settings.icon_image | image_url: width: 60 }}' width='24' height='24' style='width:24px; height:24px; object-fit:contain;' alt=''>
-                  {%- endif -%}
-                </div>
-                <span class='sidebar__collections-name'>{{ link_title | escape }}</span>
-                {%- if col and col.all_products_count >= 0 -%}
-                  <span class='sidebar__collections-count'>{{ col.all_products_count }}</span>
-                {%- else -%}
-                  {%- comment -%} Fallback count se a coleção não existe ainda {%- endcomment -%}
-                  <span class='sidebar__collections-count'>{{ block.settings.fallback_count | default: '0' }}</span>
-                {%- endif -%}
-              </a>
-            </li>
+          {%- if block.type == 'collection_link' and block.settings.stage == stage_key and collection and block.settings.collection.handle == collection.handle -%}
+            {%- assign stage_is_active = true -%}
           {%- endif -%}
         {%- endfor -%}
-      </ul>
-    </details>
+
+        <details class='sidebar__stage{% if stage_is_active %} sidebar__stage--active{% endif %}' data-stage>
+          <summary class='sidebar__stage-title'>
+            <span>{{ stage_title }}</span>
+            <svg width='16' height='16' viewBox='0 0 16 16' fill='none' aria-hidden='true'><path d='m4 6 4 4 4-4' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>
+          </summary>
+          <ul class='sidebar__collections-list' role='list'>
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'collection_link' and block.settings.stage == stage_key -%}
+                {%- assign col = block.settings.collection -%}
+                {%- assign link_title = block.settings.title | default: col.title | default: 'Nova Coleção' -%}
+                <li class='sidebar__collections-item' {{ block.shopify_attributes }}>
+                  {%- if col != blank -%}
+                    <a href='{{ col.url }}' class='sidebar__collections-link{% if collection and collection.handle == col.handle %} sidebar__collections-link--active{% endif %}'{% if collection and collection.handle == col.handle %} aria-current='page'{% endif %}>
+                      <span class='sidebar__icon-box'>
+                        {%- if block.settings.icon != blank -%}
+                          {{ block.settings.icon }}
+                        {%- elsif block.settings.icon_image != blank -%}
+                          {{ block.settings.icon_image | image_url: width: 60 | image_tag: width: 24, height: 24, loading: 'lazy', alt: '' }}
+                        {%- endif -%}
+                      </span>
+                      <span class='sidebar__collections-name'>{{ link_title | escape }}</span>
+                      <span class='sidebar__collections-count'>{{ col.all_products_count }}</span>
+                    </a>
+                  {%- else -%}
+                    <span class='sidebar__collections-link sidebar__collections-link--disabled' aria-disabled='true'>
+                      <span class='sidebar__icon-box'>
+                        {%- if block.settings.icon != blank -%}
+                          {{ block.settings.icon }}
+                        {%- elsif block.settings.icon_image != blank -%}
+                          {{ block.settings.icon_image | image_url: width: 60 | image_tag: width: 24, height: 24, loading: 'lazy', alt: '' }}
+                        {%- endif -%}
+                      </span>
+                      <span class='sidebar__collections-name'>{{ link_title | escape }}</span>
+                      <span class='sidebar__collections-status'>Em breve</span>
+                    </span>
+                  {%- endif -%}
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </details>
+      {%- endfor -%}
+    </div>
   </div>
 </aside>
 
@@ -203,12 +225,22 @@
   }
 
   /* Coleções */
-  .sidebar__collections-title {
+  .sidebar__stages {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+  .sidebar__stage {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .sidebar__stage-title {
     font-family: var(--font-heading-family);
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.7px;
     color: var(--color-text, #0b1d3a);
     margin: 0;
     padding: 9px 12px;
@@ -220,27 +252,38 @@
     list-style: none;
     transition: color 0.2s ease, background-color 0.2s ease;
   }
-  .sidebar__collections-title::-webkit-details-marker { display: none; }
-  .sidebar__collections-title:hover { background: var(--color-background-contrast, #f2f3f8); }
-  .sidebar__collections-title svg { transition: transform 0.2s ease; }
-  .sidebar__collections[open] .sidebar__collections-title svg { transform: rotate(180deg); }
-  .sidebar__collections { position: relative; margin-left: auto; flex-shrink: 0; }
+  .sidebar__stage-title::-webkit-details-marker { display: none; }
+  .sidebar__stage-title:hover,
+  .sidebar__stage[open] .sidebar__stage-title,
+  .sidebar__stage--active .sidebar__stage-title { background: var(--color-background-contrast, #f2f3f8); }
+  .sidebar__stage--active .sidebar__stage-title { color: var(--color-accent, #ff0033); }
+  .sidebar__stage-title svg { flex-shrink: 0; transition: transform 0.2s ease; }
+  .sidebar__stage[open] .sidebar__stage-title svg { transform: rotate(180deg); }
+  .sidebar__stage[open]::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 12px;
+  }
   .sidebar__collections-list {
     list-style: none;
     margin: 0;
     position: absolute;
     top: calc(100% + 12px);
-    right: 0;
-    width: min(560px, calc(100vw - 40px));
+    left: 0;
+    width: min(340px, calc(100vw - 40px));
     padding: 14px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     background: var(--color-background, #ffffff);
     border: 1px solid var(--color-border, #d9dde5);
     border-radius: 18px;
     box-shadow: 0 18px 44px rgba(11, 29, 58, 0.18);
   }
+  .sidebar__stage:last-child .sidebar__collections-list { right: 0; left: auto; }
   .sidebar__collections-link .sidebar__icon-box {
     width: 40px;
     height: 40px;
@@ -257,6 +300,11 @@
   .sidebar__collections-link:hover {
     background: var(--color-background-contrast, #f2f3f8);
   }
+  .sidebar__collections-link--disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  .sidebar__collections-link--disabled:hover { background: transparent; }
   .sidebar__collections-link--active {
     background: #e8a817;
     color: #0b1d3a;
@@ -278,6 +326,13 @@
     font-weight: 800;
     background: transparent;
   }
+  .sidebar__collections-status {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
   .sidebar__collections-link--active .sidebar__collections-count {
     color: #0b1d3a;
   }
@@ -286,6 +341,12 @@
   .sidebar__icon-box svg {
     width: 22px;
     height: 22px;
+  }
+
+  @media screen and (min-width: 1025px) and (max-width: 1200px) {
+    .sidebar__inner { gap: 6px; padding-inline: 12px; }
+    .sidebar__menu-link { padding-inline: 8px; font-size: 0.86rem; }
+    .sidebar__stage-title { padding-inline: 7px; font-size: 0.65rem; letter-spacing: 0.35px; }
   }
 
   /* Mobile & Tablet Drawer */
@@ -299,12 +360,18 @@
       background: #0b1d3a;
       color: #ffffff;
       transform: translateX(-100%);
+      visibility: hidden;
+      pointer-events: none;
       z-index: 250;
       border: 0;
       box-shadow: 16px 0 40px rgba(0, 0, 0, 0.24);
+      transition: transform 0.3s ease, visibility 0s linear 0.3s;
     }
     .sidebar.sidebar--open {
       transform: translateX(0);
+      visibility: visible;
+      pointer-events: auto;
+      transition-delay: 0s;
     }
     .sidebar__inner {
       height: auto;
@@ -323,8 +390,18 @@
     .sidebar__menu-link .sidebar__icon-box { display: flex; }
     .sidebar__menu-link:hover,
     .sidebar__collections-link:hover { background: rgba(255, 255, 255, 0.08); }
-    .sidebar__collections { position: static; margin-left: 0; }
-    .sidebar__collections-title {
+    .sidebar__collections-link--disabled:hover { background: transparent; }
+    .sidebar__stages {
+      width: 100%;
+      margin-left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+    .sidebar__stage { position: static; }
+    .sidebar__stage[open]::after { display: none; }
+    .sidebar__stage-title {
       width: 100%;
       justify-content: space-between;
       padding: 12px 10px;
@@ -332,7 +409,10 @@
       border-top: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 0;
     }
-    .sidebar__collections-title:hover { background: rgba(255, 255, 255, 0.08); }
+    .sidebar__stage-title:hover,
+    .sidebar__stage[open] .sidebar__stage-title,
+    .sidebar__stage--active .sidebar__stage-title { background: rgba(255, 255, 255, 0.08); }
+    .sidebar__stage--active .sidebar__stage-title { color: #e8a817; }
     .sidebar__collections-list {
       position: static;
       width: 100%;
@@ -346,6 +426,7 @@
       box-shadow: none;
     }
     .sidebar__collections-count { color: #ffffff; }
+    .sidebar__collections-status { color: #ffffff; }
   }
 </style>
 
@@ -353,11 +434,19 @@
   ;(function () {
     var closeBtn = document.querySelector('.sidebar__close-btn')
     var sidebar = document.querySelector('.sidebar')
-    var collections = sidebar && sidebar.querySelector('.sidebar__collections')
+    var stages = sidebar ? Array.prototype.slice.call(sidebar.querySelectorAll('[data-stage]')) : []
+
+    function closeStages(exception) {
+      stages.forEach(function (stage) {
+        if (stage !== exception) stage.removeAttribute('open')
+      })
+    }
 
     function resetMobileNavigation() {
       if (!sidebar) return
       sidebar.classList.remove('sidebar--open')
+      sidebar.setAttribute('aria-hidden', window.innerWidth <= 1024 ? 'true' : 'false')
+      closeStages()
       var overlay = document.querySelector('.sidebar-overlay')
       if (overlay) {
         overlay.style.opacity = '0'
@@ -377,15 +466,43 @@
       })
     }
 
+    stages.forEach(function (stage) {
+      stage.addEventListener('toggle', function () {
+        if (stage.open) closeStages(stage)
+      })
+      stage.addEventListener('mouseenter', function () {
+        if (window.innerWidth > 1024) {
+          closeStages(stage)
+          stage.setAttribute('open', '')
+        }
+      })
+      stage.addEventListener('mouseleave', function () {
+        if (window.innerWidth > 1024 && !stage.contains(document.activeElement)) {
+          stage.removeAttribute('open')
+        }
+      })
+      stage.addEventListener('focusin', function () {
+        if (window.innerWidth > 1024) {
+          closeStages(stage)
+          stage.setAttribute('open', '')
+        }
+      })
+      stage.addEventListener('focusout', function () {
+        setTimeout(function () {
+          if (window.innerWidth > 1024 && !stage.contains(document.activeElement)) {
+            stage.removeAttribute('open')
+          }
+        }, 0)
+      })
+    })
+
     document.addEventListener('click', function (event) {
-      if (window.innerWidth > 1024 && collections && collections.open && !collections.contains(event.target)) {
-        collections.removeAttribute('open')
-      }
+      if (window.innerWidth > 1024 && sidebar && !sidebar.contains(event.target)) closeStages()
     })
 
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return
-      if (collections) collections.removeAttribute('open')
+      closeStages()
       if (window.innerWidth <= 1024 && sidebar && sidebar.classList.contains('sidebar--open')) {
         resetMobileNavigation()
       }
@@ -394,6 +511,12 @@
     window.addEventListener('resize', function () {
       if (window.innerWidth > 1024 && sidebar && sidebar.classList.contains('sidebar--open')) {
         resetMobileNavigation()
+      }
+      if (window.innerWidth > 1024) {
+        sidebar.setAttribute('aria-hidden', 'false')
+        closeStages()
+      } else if (!sidebar.classList.contains('sidebar--open')) {
+        sidebar.setAttribute('aria-hidden', 'true')
       }
     })
   })()
@@ -420,6 +543,19 @@
       "name": "Link de Coleção",
       "settings": [
         { "type": "collection", "id": "collection", "label": "Coleção Vinculada" },
+        {
+          "type": "select",
+          "id": "stage",
+          "label": "Categoria / etapa de ensino",
+          "default": "educacao_infantil",
+          "options": [
+            { "value": "educacao_infantil", "label": "Educação Infantil" },
+            { "value": "fundamental_i", "label": "Fundamental I" },
+            { "value": "fundamental_ii", "label": "Fundamental II" },
+            { "value": "paradidatico", "label": "Paradidático" },
+            { "value": "oba", "label": "OBA" }
+          ]
+        },
         { "type": "text", "id": "title", "label": "Título alternativo (opcional)", "info": "Se vazio, usa o nome da coleção." },
         { "type": "html", "id": "icon", "label": "Ícone SVG (Recomendado)", "info": "Cole o código do SVG aqui para que as cores troquem automaticamente no hover." },
         { "type": "image_picker", "id": "icon_image", "label": "Ou envie uma imagem (PNG/JPG)" },

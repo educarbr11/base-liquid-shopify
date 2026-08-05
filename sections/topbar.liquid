@@ -228,6 +228,7 @@
 
 <script>
 (function () {
+  function initializeTopbar() {
   var topbar = document.querySelector('.topbar[data-section-id="{{ section.id }}"]');
   if (!topbar) return;
   var toggle = topbar.querySelector('.topbar__menu-toggle');
@@ -237,7 +238,7 @@
   function createOverlay() {
     overlay = document.createElement('div');
     overlay.className = 'sidebar-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:140;opacity:0;transition:opacity .3s;display:none;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(11,29,58,0.62);z-index:240;opacity:0;transition:opacity .3s;display:none;';
     document.body.appendChild(overlay);
     overlay.addEventListener('click', closeSidebar);
   }
@@ -245,6 +246,7 @@
   function openSidebar() {
     if (!overlay) createOverlay();
     sidebar.classList.add('sidebar--open');
+    sidebar.setAttribute('aria-hidden', 'false');
     overlay.style.display = 'block';
     requestAnimationFrame(function () { overlay.style.opacity = '1'; });
     toggle.setAttribute('aria-expanded', 'true');
@@ -253,12 +255,14 @@
 
   function closeSidebar() {
     sidebar.classList.remove('sidebar--open');
+    if (window.innerWidth <= 1024) sidebar.setAttribute('aria-hidden', 'true');
     if (overlay) { overlay.style.opacity = '0'; setTimeout(function () { overlay.style.display = 'none'; }, 300); }
     toggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   }
 
   if (toggle && sidebar) {
+    sidebar.setAttribute('aria-hidden', window.innerWidth <= 1024 ? 'true' : 'false');
     toggle.addEventListener('click', function () {
       var open = toggle.getAttribute('aria-expanded') === 'true';
       if (open) closeSidebar(); else openSidebar();
@@ -369,6 +373,13 @@
       localStorage.setItem(recentKey, JSON.stringify(viewedProducts.slice(0, 4)));
     } catch (error) {}
   {%- endif -%}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeTopbar, { once: true });
+  } else {
+    initializeTopbar();
+  }
 })();
 </script>
 
