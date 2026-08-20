@@ -8,7 +8,10 @@
 
 <div class='collection-hero' data-section-id='{{ section.id }}'>
   {%- comment -%} Mídia de fundo — vídeo, imagem configurada ou imagem da coleção {%- endcomment -%}
-  <div class='collection-hero__bg'>
+  <div
+    class='collection-hero__bg'
+    style='--collection-video-position-x: {{ section.settings.video_position_x }}%; --collection-video-position-y: {{ section.settings.video_position_y }}%;'
+  >
     {%- if section.settings.background_video != blank -%}
       {{
         section.settings.background_video
@@ -74,7 +77,10 @@
     object-fit: cover;
     object-position: center;
   }
-  #shopify-section-{{ section.id }} .collection-hero__bg-video { pointer-events: none; }
+  #shopify-section-{{ section.id }} .collection-hero__bg-video {
+    object-position: var(--collection-video-position-x, 50%) var(--collection-video-position-y, 50%);
+    pointer-events: none;
+  }
 
   /* Content */
   #shopify-section-{{ section.id }} .collection-hero__content {
@@ -154,11 +160,11 @@
     #shopify-section-{{ section.id }} .collection-hero {
       min-height: 180px;
     }
-    #shopify-section-{{ section.id }} .collection-hero__bg-img,
-    #shopify-section-{{ section.id }} .collection-hero__bg-video {
+    #shopify-section-{{ section.id }} .collection-hero__bg-img {
       object-fit: cover;
       object-position: right;
     }
+    #shopify-section-{{ section.id }} .collection-hero__bg-video { object-fit: cover; }
     #shopify-section-{{ section.id }} .collection-hero__content {
       padding-top: 32px;
       padding-bottom: 56px;
@@ -225,6 +231,27 @@
       "id": "background_video",
       "label": "Vídeo de fundo",
       "info": "Quando selecionado, o vídeo tem prioridade sobre a imagem. Reproduz automaticamente, sem som e em loop."
+    },
+    {
+      "type": "range",
+      "id": "video_position_x",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
+      "label": "Posição horizontal do vídeo"
+    },
+    {
+      "type": "range",
+      "id": "video_position_y",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
+      "label": "Posição vertical do vídeo",
+      "info": "0% prioriza o topo e 100% prioriza a parte inferior."
     },
     {
       "type": "image_picker",
