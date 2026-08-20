@@ -11,6 +11,60 @@
   "sections": {
     "list": {
       "type": "main-list-collections",
+      "blocks": {
+        "launches": {
+          "type": "collection_card",
+          "settings": { "collection": "lancamentos", "title": "Lançamentos", "group": "featured" }
+        },
+        "opportunities": {
+          "type": "collection_card",
+          "settings": { "collection": "", "title": "Oportunidades", "group": "featured" }
+        },
+        "preschool": {
+          "type": "collection_card",
+          "settings": { "collection": "pre-escola-digital", "title": "Pré-Escola", "group": "educacao_infantil" }
+        },
+        "edu_digital": {
+          "type": "collection_card",
+          "settings": { "collection": "pre-escola-digital-copia", "title": "Edu Digital", "group": "fundamental_i" }
+        },
+        "microbit": {
+          "type": "collection_card",
+          "settings": { "collection": "", "title": "Kit Microbit", "group": "fundamental_i" }
+        },
+        "computational_thinking": {
+          "type": "collection_card",
+          "settings": { "collection": "edu-digital-copia", "title": "Pensamento Computacional", "group": "fundamental_ii" }
+        },
+        "educational_robotics": {
+          "type": "collection_card",
+          "settings": { "collection": "pensamento-computacional-copia", "title": "Robótica Educacional", "group": "fundamental_ii" }
+        },
+        "arduino": {
+          "type": "collection_card",
+          "settings": { "collection": "", "title": "Kit Arduino", "group": "fundamental_ii" }
+        },
+        "hq": {
+          "type": "collection_card",
+          "settings": { "collection": "", "title": "HQ", "group": "paradidatico" }
+        },
+        "oba": {
+          "type": "collection_card",
+          "settings": { "collection": "robotica-educacional-copia", "title": "OBA", "group": "paradidatico" }
+        }
+      },
+      "block_order": [
+        "launches",
+        "opportunities",
+        "preschool",
+        "edu_digital",
+        "microbit",
+        "computational_thinking",
+        "educational_robotics",
+        "arduino",
+        "hq",
+        "oba"
+      ],
       "settings": {
         "heading": "Encontrar por categoria"
       }

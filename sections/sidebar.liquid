@@ -47,7 +47,7 @@
     </nav>
 
     {%- comment -%} Categorias de ensino e coleções configuráveis no editor {%- endcomment -%}
-    {%- assign education_stages = 'educacao_infantil|Educação Infantil,fundamental_i|Fundamental I,fundamental_ii|Fundamental II,paradidatico|Paradidático,oba|OBA' | split: ',' -%}
+    {%- assign education_stages = 'educacao_infantil|Educação Infantil,fundamental_i|Fundamental I,fundamental_ii|Fundamental II,paradidatico|Paradidático' | split: ',' -%}
     <div class='sidebar__stages'>
       {%- for stage_item in education_stages -%}
         {%- assign stage_data = stage_item | split: '|' -%}
@@ -558,8 +558,7 @@
             { "value": "educacao_infantil", "label": "Educação Infantil" },
             { "value": "fundamental_i", "label": "Fundamental I" },
             { "value": "fundamental_ii", "label": "Fundamental II" },
-            { "value": "paradidatico", "label": "Paradidático" },
-            { "value": "oba", "label": "OBA" }
+            { "value": "paradidatico", "label": "Paradidático" }
           ]
         },
         { "type": "text", "id": "title", "label": "Título alternativo (opcional)", "info": "Se vazio, usa o nome da coleção." },

@@ -1,25 +1,6 @@
 {%- comment -%}
-  ============================================================
-  MAIN LIST COLLECTIONS — grade com todas as coleções da loja
-  ============================================================
-
-  O QUE FAZ:
-  Renderiza um grid com TODAS as coleções da loja, cada uma como
-  card (imagem + título) linkando para a página da coleção.
-  Usa paginação nativa de 12 itens por página.
-
-  ONDE É USADA:
-  Template list-collections (página /collections que lista as coleções).
-
-  PRINCIPAIS PARTES:
-  - {%- paginate collections by 12 -%}: paginação da lista de coleções
-  - Imagem: usa featured_image da coleção; se não houver, cai para
-    a imagem do primeiro produto; e se nada, placeholder SVG
-  - render 'pagination': snippet de navegação entre páginas
-  - Setting: heading (título da página)
-
-  OBSERVAÇÕES:
-  O CSS é escopado por #shopify-section-{{ section.id }} para não vazar.
+  Página editorial de categorias. Somente coleções escolhidas nos
+  blocos são exibidas, agrupadas na ordem pedagógica definida.
 {%- endcomment -%}
 
 <div class="list-collections page-width" data-section-id="{{ section.id }}">
@@ -27,176 +8,145 @@
     <h1 class="list-collections__heading">{{ section.settings.heading | escape }}</h1>
   {%- endif -%}
 
-  {%- paginate collections by 12 -%}
-    <ul class="list-collections__grid product-grid" role="list">
-      {%- for collection in collections -%}
-        {%- liquid
-          assign collection_image = collection.featured_image
-          unless collection_image
-            assign collection_image = collection.products.first.featured_image
-          endunless
-        -%}
-        <li class="list-collections__item">
-          <a href="{{ collection.url }}" class="list-collections__link">
-            <div class="list-collections__media">
-              {%- if collection_image -%}
-                {{
-                  collection_image
-                  | image_url: width: 720
-                  | image_tag:
-                    loading: 'lazy',
-                    widths: '180, 360, 540, 720',
-                    sizes: '(min-width: 1000px) 25vw, 50vw',
-                    class: 'list-collections__image',
-                    alt: collection.title | escape
-                }}
-              {%- else -%}
-                {{ 'collection-1' | placeholder_svg_tag: 'list-collections__image placeholder-svg' }}
-              {%- endif -%}
-            </div>
-            <h2 class="list-collections__title">{{ collection.title }}</h2>
-          </a>
-        </li>
-      {%- endfor -%}
-    </ul>
+  {%- assign category_groups = 'featured|Lançamentos e Oportunidades,educacao_infantil|Educação Infantil,fundamental_i|Fundamental I,fundamental_ii|Fundamental II,paradidatico|Paradidático' | split: ',' -%}
 
-    {% render 'pagination', paginate: paginate %}
-  {%- endpaginate -%}
+  <div class="list-collections__groups">
+    {%- for group_item in category_groups -%}
+      {%- assign group_data = group_item | split: '|' -%}
+      {%- assign group_key = group_data[0] -%}
+      {%- assign group_title = group_data[1] -%}
+      {%- assign visible_cards = 0 -%}
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'collection_card' and block.settings.group == group_key and block.settings.collection != blank -%}
+          {%- assign visible_cards = visible_cards | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if visible_cards > 0 -%}
+        <section class="list-collections__group" aria-labelledby="CategoryGroup-{{ section.id }}-{{ group_key }}">
+          <h2 class="list-collections__group-title" id="CategoryGroup-{{ section.id }}-{{ group_key }}">{{ group_title }}</h2>
+          <ul class="list-collections__grid" role="list">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'collection_card' and block.settings.group == group_key and block.settings.collection != blank -%}
+                {%- assign category_collection = block.settings.collection -%}
+                {%- assign collection_title = block.settings.title | default: category_collection.title -%}
+                {%- assign collection_image = category_collection.featured_image -%}
+                {%- if collection_image == blank -%}
+                  {%- assign collection_image = category_collection.products.first.featured_image -%}
+                {%- endif -%}
+
+                <li class="list-collections__item" {{ block.shopify_attributes }}>
+                  <a href="{{ category_collection.url }}" class="list-collections__link">
+                    <div class="list-collections__media">
+                      {%- if collection_image != blank -%}
+                        {{
+                          collection_image
+                          | image_url: width: 720
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '180, 360, 540, 720',
+                            sizes: '(min-width: 1000px) 33vw, (min-width: 601px) 50vw, 100vw',
+                            class: 'list-collections__image',
+                            alt: collection_title | escape
+                        }}
+                      {%- else -%}
+                        {{ 'collection-1' | placeholder_svg_tag: 'list-collections__image placeholder-svg' }}
+                      {%- endif -%}
+                    </div>
+                    <h3 class="list-collections__title">{{ collection_title | escape }}</h3>
+                  </a>
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </section>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
 </div>
 
 <style>
-  #shopify-section-{{ section.id }} .list-collections {
-    margin-top: 24px;
-    margin-bottom: var(--spacing-sections, 40px);
-  }
+  #shopify-section-{{ section.id }} .list-collections { margin-top: 24px; margin-bottom: var(--spacing-sections, 40px); }
   #shopify-section-{{ section.id }} .list-collections__heading {
-    font-family: 'Bungee', sans-serif;
-    font-size: var(--f6);
-    font-weight: 400;
-    color: var(--color-text, #0B1D3A);
-    text-align: center;
-    margin: 0 0 32px;
+    margin: 0 0 36px; color: var(--color-text, #0B1D3A); font-family: 'Bungee', sans-serif;
+    font-size: var(--f6); font-weight: 400; text-align: center;
   }
-  #shopify-section-{{ section.id }} .list-collections__item {
-    overflow: hidden;
-    background: var(--color-background, #fff);
-    border: 1px solid var(--color-border, #c2c2c2);
-    border-radius: 18px;
-    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  #shopify-section-{{ section.id }} .list-collections__groups { display: grid; gap: 40px; }
+  #shopify-section-{{ section.id }} .list-collections__group-title {
+    margin: 0 0 16px; color: var(--color-text, #0B1D3A); font-family: 'Bungee', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 400;
   }
   #shopify-section-{{ section.id }} .list-collections__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;
+    margin: 0; padding: 0; list-style: none;
+  }
+  #shopify-section-{{ section.id }} .list-collections__item {
+    overflow: hidden; background: var(--color-background, #fff); border: 1px solid var(--color-border, #c2c2c2);
+    border-radius: 18px; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   }
   #shopify-section-{{ section.id }} .list-collections__item:hover {
-    border-color: var(--color-secondary, #E8A817);
-    box-shadow: 0 10px 28px rgba(11, 29, 58, .12);
-    transform: translateY(-4px);
+    border-color: var(--color-secondary, #E8A817); box-shadow: 0 10px 28px rgba(11, 29, 58, .12); transform: translateY(-4px);
   }
   #shopify-section-{{ section.id }} .list-collections__link {
-    display: block;
-    position: relative;
-    height: 100%;
-    text-decoration: none;
-    color: inherit;
+    position: relative; display: block; height: 100%; color: inherit; text-decoration: none;
   }
   #shopify-section-{{ section.id }} .list-collections__media {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 5;
-    overflow: hidden;
-    border-radius: 18px 18px 0 0;
-    background-color: var(--color-background-contrast, #f2f3f8);
+    position: relative; width: 100%; aspect-ratio: 16 / 5; overflow: hidden;
+    background-color: var(--color-background-contrast, #f2f3f8); border-radius: 18px 18px 0 0;
   }
   #shopify-section-{{ section.id }} .list-collections__media::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
+    content: ''; position: absolute; inset: 0; z-index: 1;
     background: linear-gradient(90deg, rgba(11, 29, 58, .82) 0%, rgba(11, 29, 58, .35) 58%, rgba(11, 29, 58, .08) 100%);
     pointer-events: none;
   }
   #shopify-section-{{ section.id }} .list-collections__image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
   }
   #shopify-section-{{ section.id }} .list-collections__title {
-    position: absolute;
-    left: 18px;
-    right: 18px;
-    bottom: 16px;
-    z-index: 2;
-    padding: 0;
-    max-width: 14ch;
-    font-family: 'Bungee', sans-serif;
-    font-size: var(--f2);
-    font-weight: 400;
-    color: #fff;
-    text-align: left;
-    line-height: 1.25;
-    overflow-wrap: anywhere;
-    text-shadow: 0 2px 8px rgba(11, 29, 58, .4);
-    margin: 0;
+    position: absolute; right: 18px; bottom: 16px; left: 18px; z-index: 2; max-width: 14ch; margin: 0;
+    color: #fff; font-family: 'Bungee', sans-serif; font-size: var(--f2); font-weight: 400; line-height: 1.25;
+    overflow-wrap: anywhere; text-align: left; text-shadow: 0 2px 8px rgba(11, 29, 58, .4);
   }
   @media screen and (max-width: 1000px) {
     #shopify-section-{{ section.id }} .list-collections__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media screen and (max-width: 600px) {
+    #shopify-section-{{ section.id }} .list-collections__groups { gap: 32px; }
     #shopify-section-{{ section.id }} .list-collections__grid { grid-template-columns: 1fr; gap: 14px; }
     #shopify-section-{{ section.id }} .list-collections__media { aspect-ratio: 2 / 1; }
   }
   @media (prefers-reduced-motion: reduce) {
     #shopify-section-{{ section.id }} .list-collections__item { transition: none; }
   }
-  #shopify-section-{{ section.id }} .pagination {
-    margin-top: 40px;
-  }
-  #shopify-section-{{ section.id }} .pagination__list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  #shopify-section-{{ section.id }} .pagination__item {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    min-height: 40px;
-    padding: 0 8px;
-    font-size: var(--f2);
-    color: var(--color-text, #0B1D3A);
-    text-decoration: none;
-    border: 1px solid transparent;
-    border-radius: var(--inputs-radius, 4px);
-  }
-  #shopify-section-{{ section.id }} a.pagination__item:hover {
-    border-color: var(--color-border, #c2c2c2);
-  }
-  #shopify-section-{{ section.id }} .pagination__item--current {
-    border-color: var(--color-accent, #000);
-    font-weight: bold;
-  }
 </style>
 
 {% schema %}
 {
-  "name": "t:sections.main_list_collections.name",
+  "name": "Categorias organizadas",
   "tag": "section",
   "class": "section-main-list-collections",
   "settings": [
+    { "type": "text", "id": "heading", "default": "Encontrar por categoria", "label": "Título" }
+  ],
+  "blocks": [
     {
-      "type": "text",
-      "id": "heading",
-      "default": "Encontrar por categoria",
-      "label": "t:sections.main_list_collections.settings.heading.label"
+      "type": "collection_card",
+      "name": "Coleção",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Coleção" },
+        { "type": "text", "id": "title", "label": "Título alternativo", "info": "Se vazio, usa o título da coleção." },
+        {
+          "type": "select", "id": "group", "label": "Grupo", "default": "educacao_infantil",
+          "options": [
+            { "value": "featured", "label": "Lançamentos e Oportunidades" },
+            { "value": "educacao_infantil", "label": "Educação Infantil" },
+            { "value": "fundamental_i", "label": "Fundamental I" },
+            { "value": "fundamental_ii", "label": "Fundamental II" },
+            { "value": "paradidatico", "label": "Paradidático" }
+          ]
+        }
+      ]
     }
   ]
 }
