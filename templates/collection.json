@@ -13,8 +13,9 @@
       "type": "collection-banner",
       "settings": {
         "background_video": "shopify://files/videos/Child_astronaut_holding_book_202608201520.mp4",
+        "video_collection": "robotica-educacional-copia",
         "video_position_x": 50,
-        "video_position_y": 35,
+        "video_position_y": 30,
         "show_description": false
       }
     },
