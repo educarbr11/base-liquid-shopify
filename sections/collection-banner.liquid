@@ -2,14 +2,27 @@
   ============================================================
   COLLECTION BANNER — hero da página de coleção
   ============================================================
-  Banner full-width com imagem de fundo, texto à esquerda,
+  Banner full-width com imagem ou vídeo de fundo, texto à esquerda,
   e divider SVG curvo na base.
 {%- endcomment -%}
 
 <div class='collection-hero' data-section-id='{{ section.id }}'>
-  {%- comment -%} Imagem de fundo — usa a imagem da coleção ou a imagem do setting {%- endcomment -%}
+  {%- comment -%} Mídia de fundo — vídeo, imagem configurada ou imagem da coleção {%- endcomment -%}
   <div class='collection-hero__bg'>
-    {%- if section.settings.background_image != blank -%}
+    {%- if section.settings.background_video != blank -%}
+      {{
+        section.settings.background_video
+        | video_tag:
+          autoplay: true,
+          loop: true,
+          muted: true,
+          controls: false,
+          playsinline: true,
+          preload: 'metadata',
+          image_size: '1920x',
+          class: 'collection-hero__bg-video'
+      }}
+    {%- elsif section.settings.background_image != blank -%}
       {{ section.settings.background_image | image_url: width: 1920 | image_tag: loading: 'eager', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
     {%- elsif collection.image -%}
       {{ collection.image | image_url: width: 1920 | image_tag: loading: 'eager', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
@@ -47,19 +60,21 @@
     background: #0B1D3A;
   }
 
-  /* Background image */
+  /* Background media */
   #shopify-section-{{ section.id }} .collection-hero__bg {
     position: absolute;
     inset: 0;
     z-index: 0;
   }
-  #shopify-section-{{ section.id }} .collection-hero__bg-img {
+  #shopify-section-{{ section.id }} .collection-hero__bg-img,
+  #shopify-section-{{ section.id }} .collection-hero__bg-video {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
   }
+  #shopify-section-{{ section.id }} .collection-hero__bg-video { pointer-events: none; }
 
   /* Content */
   #shopify-section-{{ section.id }} .collection-hero__content {
@@ -139,7 +154,8 @@
     #shopify-section-{{ section.id }} .collection-hero {
       min-height: 180px;
     }
-    #shopify-section-{{ section.id }} .collection-hero__bg-img {
+    #shopify-section-{{ section.id }} .collection-hero__bg-img,
+    #shopify-section-{{ section.id }} .collection-hero__bg-video {
       object-fit: cover;
       object-position: right;
     }
@@ -177,6 +193,27 @@
   }
 </style>
 
+<script>
+  ;(function () {
+    var section = document.getElementById('shopify-section-{{ section.id }}')
+    var video = section && section.querySelector('.collection-hero__bg-video')
+    if (!video) return
+
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    function updatePlayback() {
+      if (reducedMotion.matches) {
+        video.pause()
+      } else {
+        var playPromise = video.play()
+        if (playPromise) playPromise.catch(function () {})
+      }
+    }
+
+    updatePlayback()
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', updatePlayback)
+  })()
+</script>
+
 {% schema %}
 {
   "name": "Banner da Coleção",
@@ -184,10 +221,16 @@
   "class": "section-collection-banner",
   "settings": [
     {
+      "type": "video",
+      "id": "background_video",
+      "label": "Vídeo de fundo",
+      "info": "Quando selecionado, o vídeo tem prioridade sobre a imagem. Reproduz automaticamente, sem som e em loop."
+    },
+    {
       "type": "image_picker",
       "id": "background_image",
       "label": "Imagem de fundo",
-      "info": "Se vazio, usa a imagem da coleção."
+      "info": "Usada quando não há vídeo. Se ambos estiverem vazios, usa a imagem da coleção."
     },
     {
       "type": "checkbox",
