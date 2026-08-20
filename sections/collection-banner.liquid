@@ -1,3 +1,11 @@
+{%- liquid
+  assign video_collection = section.settings.video_collection
+  assign show_background_video = false
+  if section.settings.background_video != blank and video_collection != blank and video_collection.handle == collection.handle
+    assign show_background_video = true
+  endif
+-%}
+
 {%- comment -%}
   ============================================================
   COLLECTION BANNER — hero da página de coleção
@@ -12,7 +20,7 @@
     class='collection-hero__bg'
     style='--collection-video-position-x: {{ section.settings.video_position_x }}%; --collection-video-position-y: {{ section.settings.video_position_y }}%;'
   >
-    {%- if section.settings.background_video != blank -%}
+    {%- if show_background_video -%}
       {{
         section.settings.background_video
         | video_tag:
@@ -230,7 +238,13 @@
       "type": "video",
       "id": "background_video",
       "label": "Vídeo de fundo",
-      "info": "Quando selecionado, o vídeo tem prioridade sobre a imagem. Reproduz automaticamente, sem som e em loop."
+      "info": "Reproduz automaticamente, sem som e em loop, somente na coleção escolhida abaixo."
+    },
+    {
+      "type": "collection",
+      "id": "video_collection",
+      "label": "Coleção do vídeo",
+      "info": "O vídeo só aparece nesta coleção. Se nenhuma coleção for escolhida, o vídeo não será exibido."
     },
     {
       "type": "range",
