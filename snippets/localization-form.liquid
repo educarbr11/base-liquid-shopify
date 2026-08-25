@@ -21,7 +21,7 @@
 {%- endcomment -%}
 <div class="localization">
   {%- if show_country and localization.available_countries.size > 1 -%}
-    {%- form 'localization', id: 'CountryForm-' | append: section_id, class: 'localization__form' -%}
+    {%- form section_id, class: 'localization__form' -%}
       <label class="visually-hidden" for="Country-{{ section_id }}">{{ 'localization.country_label' | t }}</label>
       <select
         class="localization__select"
@@ -43,7 +43,7 @@
   {%- endif -%}
 
   {%- if show_language and localization.available_languages.size > 1 -%}
-    {%- form 'localization', id: 'LanguageForm-' | append: section_id, class: 'localization__form' -%}
+    {%- form section_id, class: 'localization__form' -%}
       <label class="visually-hidden" for="Language-{{ section_id }}">{{ 'localization.language_label' | t }}</label>
       <select
         class="localization__select"
@@ -79,3 +79,18 @@
     cursor: pointer;
   }
 </style>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- form 'localization', id: 'CountryForm-' | append: section_id, class:
+    'localization__form' -%}"
+  to: "{%- form section_id, class: 'localization__form' -%}"
+  position: 949..1001
+- from: "{%- form 'localization', id: 'LanguageForm-' | append: section_id, class:
+    'localization__form' -%}"
+  to: "{%- form section_id, class: 'localization__form' -%}"
+  position: 1847..1899
+{% endcomment %}
