@@ -6,6 +6,22 @@
   Grade de produtos com paginação.
 {%- endcomment -%}
 
+{%- liquid
+  # Ordenação padrão: mais antigo para mais novo
+  # A Shopify aplica o sort via URL param ?sort_by=
+  # Aqui forçamos o redirect apenas se não houver sort_by definido
+  assign default_sort = 'created-ascending'
+  assign current_sort = collection.sort_by
+-%}
+{%- if current_sort == blank and request.page_type == 'collection' -%}
+  {%- assign redirect_url = collection.url | append: '?sort_by=' | append: default_sort -%}
+  <script>
+    // Redireciona para a ordenação padrão se nenhuma estiver ativa
+    if (!window.location.search.includes('sort_by')) {
+      window.location.replace('{{ redirect_url }}');
+    }
+  </script>
+{%- endif -%}
 {%- paginate collection.products by section.settings.products_per_page -%}
   <div
     class="collection page-width"

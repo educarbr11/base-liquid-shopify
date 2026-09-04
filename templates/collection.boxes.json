@@ -1,0 +1,24 @@
+{
+  "sections": {
+    "boxes-hero": {
+      "type": "collection-boxes-hero",
+      "settings": {
+        "badge_text": "COLEÇÃO COMPLETA",
+        "show_collection_desc": true
+      }
+    },
+    "product-grid": {
+      "type": "main-collection",
+      "settings": {
+        "products_per_page": 12,
+        "columns_desktop": 4,
+        "enable_sorting": true,
+        "enable_filtering": true
+      }
+    }
+  },
+  "order": [
+    "boxes-hero",
+    "product-grid"
+  ]
+}

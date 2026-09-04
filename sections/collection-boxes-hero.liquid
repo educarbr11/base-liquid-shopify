@@ -1,0 +1,308 @@
+{%- comment -%}
+  ============================================================
+  COLLECTION BOXES HERO
+  ============================================================
+  Hero premium exclusivo para a coleção de Box's.
+  Imagem à direita + conteúdo à esquerda com gradiente,
+  ícone configurável, badge e CTA opcional.
+{%- endcomment -%}
+
+<div class="boxes-hero" data-section-id="{{ section.id }}">
+  <div class="boxes-hero__bg">
+    {%- if section.settings.bg_image != blank -%}
+      {{
+        section.settings.bg_image
+        | image_url: width: 1920
+        | image_tag:
+          loading: 'eager',
+          class: 'boxes-hero__bg-img',
+          sizes: '100vw',
+          widths: '540, 720, 1080, 1440, 1920',
+          alt: ''
+      }}
+    {%- elsif collection.image -%}
+      {{
+        collection.image
+        | image_url: width: 1920
+        | image_tag:
+          loading: 'eager',
+          class: 'boxes-hero__bg-img',
+          sizes: '100vw',
+          widths: '540, 720, 1080, 1440, 1920',
+          alt: ''
+      }}
+    {%- endif -%}
+    <div class="boxes-hero__gradient"></div>
+  </div>
+
+  <div class="boxes-hero__content page-width">
+    <div class="boxes-hero__inner">
+      {%- if section.settings.badge_text != blank -%}
+        <span class="boxes-hero__badge">{{ section.settings.badge_text | escape }}</span>
+      {%- endif -%}
+
+      <div class="boxes-hero__heading-row">
+        {%- if section.settings.icon != blank -%}
+          <div class="boxes-hero__icon-wrap">
+            <img
+              src="{{ section.settings.icon | image_url: width: 80 }}"
+              width="48" height="48"
+              alt=""
+              class="boxes-hero__icon-img"
+              loading="eager"
+            >
+          </div>
+        {%- else -%}
+          <div class="boxes-hero__icon-wrap">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.29 7 12 12.01 20.71 7"/>
+              <line x1="12" y1="22" x2="12" y2="12"/>
+            </svg>
+          </div>
+        {%- endif -%}
+
+        <h1 class="boxes-hero__title">
+          {%- if section.settings.title != blank -%}
+            {{ section.settings.title | escape }}
+          {%- else -%}
+            {{ collection.title }}
+          {%- endif -%}
+        </h1>
+      </div>
+
+      {%- if section.settings.description != blank -%}
+        <p class="boxes-hero__desc">{{ section.settings.description | escape }}</p>
+      {%- elsif section.settings.show_collection_desc and collection.description != blank -%}
+        <div class="boxes-hero__desc rte">{{ collection.description }}</div>
+      {%- endif -%}
+
+      <div class="boxes-hero__meta">
+        <span class="boxes-hero__count">
+          {{ collection.products_count }}
+          {%- if collection.products_count == 1 -%} Box disponível{%- else -%} Box's disponíveis{%- endif -%}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="boxes-hero__divider">
+    <svg width="1179" height="25" viewBox="0 0 1179 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1179 45.2028V21.8655C1179 11.7692 1172.09 2.9857 1162.27 0.612593C1160.59 0.205638 1158.87 0 1157.13 0L1014.65 0C1010.9 0 1007.19 0.812675 1003.78 2.38217L966.209 19.6759C962.799 21.2454 959.09 22.058 955.337 22.058L656.496 22.058C653.145 22.058 649.826 21.4103 646.721 20.1504L601.759 1.90761C598.654 0.647752 595.335 0 591.984 0L21.6969 0C20.6315 0 19.5675 0.0784727 18.5137 0.234782C7.87659 1.81245 0 10.9435 0 21.6968V48.8717C0 59.3659 7.09229 68.534 17.2499 71.1705C19.14 71.6611 21.0848 71.9094 23.0377 71.9094L585.721 71.9094L657.519 81L964.575 81C966.443 81 968.305 80.7987 970.13 80.3997L1006.21 72.5097C1008.03 72.1106 1009.89 71.9094 1011.76 71.9094H1148.5C1149.85 71.9094 1151.2 71.8041 1152.53 71.5946L1157.03 70.888C1169.68 68.9018 1179 58.0049 1179 45.2028Z" fill="white"/>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .boxes-hero {
+    position: relative;
+    width: 100%;
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #061A3D;
+  }
+  .boxes-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .boxes-hero__bg-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center right;
+  }
+  /* Gradiente: escurece a esquerda onde fica o texto e some à direita */
+  .boxes-hero__gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      #061A3D 0%,
+      #061A3D 35%,
+      rgba(6, 26, 61, 0.85) 55%,
+      rgba(6, 26, 61, 0.3) 80%,
+      transparent 100%
+    );
+  }
+  .boxes-hero__content {
+    position: relative;
+    z-index: 1;
+    padding-top: 56px;
+    padding-bottom: 80px;
+    width: 100%;
+  }
+  .boxes-hero__inner {
+    max-width: 560px;
+  }
+  .boxes-hero__badge {
+    display: inline-block;
+    background: #E8A817;
+    color: #061A3D;
+    font-family: 'Bungee', cursive;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .boxes-hero__heading-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .boxes-hero__icon-wrap {
+    width: 72px;
+    height: 72px;
+    border: 3px solid #ffcc00;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255, 204, 0, 0.06);
+  }
+  .boxes-hero__icon-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+  .boxes-hero__title {
+    font-family: 'Bungee', cursive;
+    font-size: clamp(1.4rem, 4vw, 3rem);
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #fff;
+    line-height: 1.1;
+    margin: 0;
+  }
+  .boxes-hero__desc {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: var(--f2, 1rem);
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+  .boxes-hero__meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .boxes-hero__count {
+    color: #E8A817;
+    font-family: 'Bungee', cursive;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  /* Entrada suave */
+  .boxes-hero__badge,
+  .boxes-hero__heading-row,
+  .boxes-hero__desc,
+  .boxes-hero__meta {
+    animation: boxesHeroReveal 0.65s ease-out both;
+  }
+  .boxes-hero__heading-row { animation-delay: 0.08s; }
+  .boxes-hero__desc        { animation-delay: 0.16s; }
+  .boxes-hero__meta        { animation-delay: 0.24s; }
+  @keyframes boxesHeroReveal {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  /* Divider SVG */
+  .boxes-hero__divider {
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+    line-height: 0;
+  }
+  .boxes-hero__divider svg {
+    display: block;
+    width: 100%;
+    height: 40px;
+  }
+  @media screen and (max-width: 768px) {
+    .boxes-hero {
+      min-height: 220px;
+    }
+    .boxes-hero__gradient {
+      background: linear-gradient(
+        to bottom,
+        rgba(6, 26, 61, 0.92) 0%,
+        rgba(6, 26, 61, 0.75) 60%,
+        rgba(6, 26, 61, 0.5) 100%
+      );
+    }
+    .boxes-hero__content {
+      padding-top: 36px;
+      padding-bottom: 64px;
+    }
+    .boxes-hero__icon-wrap {
+      width: 56px;
+      height: 56px;
+    }
+    .boxes-hero__icon-img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .boxes-hero__badge,
+    .boxes-hero__heading-row,
+    .boxes-hero__desc,
+    .boxes-hero__meta { animation: none; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Hero Box's",
+  "tag": "section",
+  "class": "section-boxes-hero",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Ícone do título",
+      "info": "Se vazio, usa ícone padrão de caixa."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "info": "Se vazio, usa o título da coleção."
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge (etiqueta)",
+      "default": "COLEÇÃO COMPLETA"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Descrição personalizada",
+      "info": "Se vazio, usa a descrição da coleção (se ativado abaixo)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_desc",
+      "label": "Usar descrição da coleção como fallback",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Imagem de fundo",
+      "info": "Se vazio, usa a imagem da coleção do Shopify."
+    }
+  ]
+}
+{% endschema %}
