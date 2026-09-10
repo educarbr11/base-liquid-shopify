@@ -214,6 +214,15 @@
     },
     "footer": {
       "payment": "Formas de pagamento",
+      "follow_us": "Siga a Editora DoGo Maker",
+      "contact": "Atendimento",
+      "whatsapp": "WhatsApp",
+      "phone": "Telefone",
+      "email": "E-mail",
+      "hours": "Horário de atendimento",
+      "company_data": "Dados da empresa",
+      "cnpj": "CNPJ",
+      "policies": "Políticas da loja",
       "rights": "Todos os direitos reservados.",
       "base_by_html": "Base por <a href=\"{{ link }}\" target=\"_blank\" rel=\"noopener\">Team Lecdt</a>"
     },

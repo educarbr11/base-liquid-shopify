@@ -3,10 +3,52 @@
   "name": "t:section_groups.footer.name",
   "sections": {
     "footer": {
-      "type": "footer"
+      "type": "footer",
+      "blocks": {
+        "brand": {
+          "type": "brand",
+          "settings": {
+            "text": "<p>Soluções educacionais para cultura digital, tecnologia e aprendizagem criativa.</p>"
+          }
+        },
+        "shop_menu": {
+          "type": "menu",
+          "settings": {
+            "heading": "Comprar",
+            "menu": "main-menu"
+          }
+        },
+        "support_menu": {
+          "type": "menu",
+          "settings": {
+            "heading": "Ajuda e informações",
+            "menu": "footer"
+          }
+        }
+      },
+      "block_order": ["brand", "shop_menu", "support_menu"],
+      "settings": {
+        "brand_name": "Editora DoGo Maker",
+        "company_name": "Editora Dogo Maker LTDA",
+        "cnpj": "53.783.765/0001-01",
+        "address": "Rodovia BR-316, nº 186, Km 08, Quadra 201, Lote 4776, Loja 01, Centro, Ananindeua - PA, CEP 67030-007",
+        "phone": "(91) 99259-9654",
+        "whatsapp_number": "5591992599654",
+        "email": "contato@editoradogomaker.com",
+        "service_hours": "Segunda a sexta, das 8h às 18h",
+        "show_social": true,
+        "instagram_url": "https://www.instagram.com/editoradogomaker/",
+        "show_payment_icons": true,
+        "show_policies": true
+      }
     },
     "floating_whatsapp": {
-      "type": "floating-whatsapp"
+      "type": "floating-whatsapp",
+      "settings": {
+        "enabled": true,
+        "phone": "5591992599654",
+        "message": "Olá! Gostaria de mais informações."
+      }
     }
   },
   "order": ["footer", "floating_whatsapp"]
