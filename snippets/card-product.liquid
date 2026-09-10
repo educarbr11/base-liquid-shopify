@@ -190,3 +190,51 @@ Renders a product card with purchase or restock actions.
     syncCards();
   })();
 {% endjavascript %}
+
+{% stylesheet %}
+  .card-product__restock-app {
+    position: relative;
+    width: 100%;
+  }
+
+  /*
+   * SW Back in Stock injects its own button inside this container. Keep that
+   * control available to the app's JavaScript without letting it create a
+   * second, empty row in the product card.
+   */
+  .card-product__restock-app .restore-email-wrapper,
+  .card-product__restock-app .product-restore-email,
+  .card-product__restock-app .email-me-inlineButton {
+    position: absolute !important;
+    inset: auto auto 0 0 !important;
+    width: 1px !important;
+    min-width: 0 !important;
+    height: 1px !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .card-product__add-btn--restock {
+    position: relative;
+    z-index: 1;
+    display: flex !important;
+    min-height: 42px;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  .card-product__add-btn--restock span,
+  .card-product__add-btn--restock svg {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+{% endstylesheet %}

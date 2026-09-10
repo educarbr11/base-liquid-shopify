@@ -332,54 +332,6 @@ textarea.field__input {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.card-product__restock-app,
-.card-product__restock-app .restore-email-wrapper,
-.card-product__restock-app .product-restore-email {
-  width: 100%;
-}
-.card-product__restock-app {
-  position: relative;
-}
-.card-product__restock-app .restore-email-wrapper {
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 2 !important;
-  height: 100% !important;
-}
-.card-product__restock-app .product-restore-email {
-  height: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-}
-.card-product__restock-app .email-me-inlineButton {
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 2 !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 12px !important;
-  opacity: 0 !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-.card-product__add-btn--restock {
-  position: relative;
-  z-index: 1;
-  min-height: 42px;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-.card-product__add-btn--restock span,
-.card-product__add-btn--restock svg {
-  color: #ffffff !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
 #email-me-frame {
   padding: 20px !important;
   background: rgba(11, 29, 58, 0.62) !important;
