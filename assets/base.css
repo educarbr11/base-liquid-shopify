@@ -337,27 +337,47 @@ textarea.field__input {
 .card-product__restock-app .product-restore-email {
   width: 100%;
 }
-.card-product__restock-app .restore-email-wrapper {
-  position: static !important;
+.card-product__restock-app {
+  position: relative;
 }
-.card-product__restock-app .product-restore-email,
-.card-product__restock-app .email-me-inlineButton {
+.card-product__restock-app .restore-email-wrapper {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  height: 100% !important;
+}
+.card-product__restock-app .product-restore-email {
+  height: 100% !important;
   max-width: none !important;
   margin: 0 !important;
 }
-.card-product__restock-app .email-me-inlineButton.card-product__add-btn {
-  min-height: 42px !important;
-  padding: 10px 14px !important;
+.card-product__restock-app .email-me-inlineButton {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
   border: 0 !important;
   border-radius: 12px !important;
-  background: var(--color-accent, #ff0033) !important;
-  color: var(--color-accent-text, #fff) !important;
-  font-family: 'Bungee', sans-serif !important;
-  font-size: 0.78rem !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.5px !important;
-  line-height: 1.25 !important;
-  text-transform: uppercase !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+.card-product__add-btn--restock {
+  position: relative;
+  z-index: 1;
+  min-height: 42px;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+.card-product__add-btn--restock span,
+.card-product__add-btn--restock svg {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 #email-me-frame {

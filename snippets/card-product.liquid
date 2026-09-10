@@ -134,13 +134,15 @@ Renders a product card with purchase or restock actions.
       var label = card.dataset.restockLabel;
       if (button.textContent.trim() !== label) button.textContent = label;
       if (button.getAttribute('aria-label') !== label) button.setAttribute('aria-label', label);
-      if (!button.classList.contains('card-product__add-btn')) button.classList.add('card-product__add-btn');
-      if (button.getAttribute('role') !== 'button') button.setAttribute('role', 'button');
-      if (button.tabIndex !== 0) button.tabIndex = 0;
+      if (button.tabIndex !== -1) button.tabIndex = -1;
+
+      var appControl = button.closest('.product-restore-email');
+      if (appControl && appControl.getAttribute('aria-hidden') !== 'true') {
+        appControl.setAttribute('aria-hidden', 'true');
+      }
 
       var trigger = card.querySelector('[data-restock-card-trigger]');
-      var isReady = window.getComputedStyle(button).display !== 'none';
-      if (trigger && trigger.hidden !== isReady) trigger.hidden = isReady;
+      if (trigger && trigger.hidden) trigger.hidden = false;
     }
 
     function syncCards() {
@@ -160,7 +162,7 @@ Renders a product card with purchase or restock actions.
 
       function openForm() {
         var button = appButton(card);
-        if (button && window.getComputedStyle(button).display !== 'none') {
+        if (button) {
           trigger.removeAttribute('aria-busy');
           if (status) status.textContent = '';
           button.click();
@@ -178,13 +180,6 @@ Renders a product card with purchase or restock actions.
       }
 
       openForm();
-    });
-
-    document.addEventListener('keydown', function (event) {
-      var button = event.target.closest('[data-restock-card] .email-me-inlineButton');
-      if (!button || (event.key !== 'Enter' && event.key !== ' ')) return;
-      event.preventDefault();
-      button.click();
     });
 
     new MutationObserver(syncCards).observe(document.body, {
