@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "footer",
   "name": "t:section_groups.footer.name",
@@ -26,7 +35,11 @@
           }
         }
       },
-      "block_order": ["brand", "shop_menu", "support_menu"],
+      "block_order": [
+        "brand",
+        "shop_menu",
+        "support_menu"
+      ],
       "settings": {
         "brand_name": "Editora DoGo Maker",
         "company_name": "Editora Dogo Maker LTDA",
@@ -37,7 +50,9 @@
         "email": "contato@editoradogomaker.com",
         "service_hours": "Segunda a sexta, das 8h às 18h",
         "show_social": true,
-        "instagram_url": "https://www.instagram.com/editoradogomaker/",
+        "instagram_url": "",
+        "facebook_url": "",
+        "linkedin_url": "",
         "show_payment_icons": true,
         "show_policies": true
       }
@@ -46,10 +61,17 @@
       "type": "floating-whatsapp",
       "settings": {
         "enabled": true,
-        "phone": "5591992599654",
-        "message": "Olá! Gostaria de mais informações."
+        "phone": "5591992021356",
+        "message": "Olá! Gostaria de mais informações.",
+        "background_color": "#25d366",
+        "size": 64,
+        "bottom_offset": 24,
+        "right_offset": 24
       }
     }
   },
-  "order": ["footer", "floating_whatsapp"]
+  "order": [
+    "footer",
+    "floating_whatsapp"
+  ]
 }
