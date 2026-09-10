@@ -4,7 +4,10 @@
   "sections": {
     "footer": {
       "type": "footer"
+    },
+    "floating_whatsapp": {
+      "type": "floating-whatsapp"
     }
   },
-  "order": ["footer"]
+  "order": ["footer", "floating_whatsapp"]
 }

@@ -40,6 +40,12 @@
 {%- comment -%} JSON-LD Product Schema {%- endcomment -%}
 {%- render 'structured-data-product', product: product -%}
 
+{%- comment -%}
+  EcomSend Restock usa este identificador para vincular a inscrição ao produto.
+  O app embed não o inclui em alguns temas personalizados.
+{%- endcomment -%}
+<script id='em_product_id' type='application/json'>{{ product.id | json }}</script>
+
 {%- comment -%} Breadcrumb {%- endcomment -%}
 {%- if section.settings.show_breadcrumb -%}
   <nav class='prod-breadcrumb page-width' aria-label='{{ 'sections.product.breadcrumb' | t | default: 'Você está em' }}'>
@@ -312,7 +318,10 @@
             {%- endunless -%}
 
           {%- when 'buy_buttons' -%}
-            <div class='product__purchase product__buy-buttons' {{ block.shopify_attributes }}>
+            <div
+              class='product__purchase product__buy-buttons{% unless current_variant_can_purchase %} is-unavailable{% endunless %}'
+              data-product-purchase
+              {{ block.shopify_attributes }}>
               {{- '<!-- Row: quantidade + adicionar ao carrinho -->' -}}
               <div class='product__purchase-row product__purchase-row--cart'>
                 <div class='product__quantity product__quantity--inline'>
@@ -399,6 +408,16 @@
                   {%- endif -%}
                 </div>
               {%- endif -%}
+
+              {%- comment -%}
+                Ponto fixo de inserção do EcomSend Restock. O próprio app controla
+                a exibição do botão conforme a disponibilidade da variante.
+              {%- endcomment -%}
+              <div
+                id='sealapps-bis-widget'
+                class='product__restock-widget'
+                data-restock-widget
+                aria-live='polite'></div>
             </div>
 
             <div class='product__desc-under-info'>
@@ -450,17 +469,15 @@
       </span>
     </div>
     <button
-      type='submit'
-      form='{{ product_form_id }}'
+      type='{% if current_variant_can_purchase %}submit{% else %}button{% endif %}'
+      {% if current_variant_can_purchase %}form='{{ product_form_id }}'{% endif %}
       class='button product__mobile-cta-btn'
-      {% if current_variant_can_purchase == false %}
-        disabled
-      {% endif %}
-      aria-disabled='{% if current_variant_can_purchase %}false{% else %}true{% endif %}'>
+      {% unless current_variant_can_purchase %}data-restock-trigger{% endunless %}
+      aria-disabled='false'>
       {%- if current_variant_can_purchase -%}
         {{ 'products.product.add_to_cart' | t }}
       {%- else -%}
-        {{ 'products.product.unavailable' | t }}
+        {{ 'products.product.restock_signup' | t }}
       {%- endif -%}
     </button>
   </div>
@@ -681,6 +698,38 @@
     gap: 10px;
     width: 100%;
   }
+  .product__restock-widget {
+    width: 100%;
+  }
+  .product__purchase.has-restock-button .product__purchase-row--cart {
+    display: none;
+  }
+  .product__restock-widget .product-restore-email,
+  .product__restock-widget .email-me-inlineButton {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .product__restock-widget .email-me-inlineButton {
+    min-height: 52px !important;
+    padding: 12px 18px !important;
+    border: 1px solid var(--color-secondary, #e8a817) !important;
+    border-radius: var(--product-button-radius) !important;
+    background: var(--color-secondary, #e8a817) !important;
+    color: var(--color-secondary-text, #0b1d3a) !important;
+    font-family: 'Bungee', sans-serif !important;
+    font-size: var(--f1) !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1.25 !important;
+    text-transform: none !important;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+  }
+  .product__restock-widget .email-me-inlineButton:hover {
+    background: color-mix(in srgb, var(--color-secondary, #e8a817) 88%, #000) !important;
+    border-color: color-mix(in srgb, var(--color-secondary, #e8a817) 88%, #000) !important;
+    transform: translateY(-1px);
+  }
   .product__quantity--inline {
     margin: 0;
     flex-shrink: 0;
@@ -858,6 +907,50 @@
       )
       observer.observe(buyBtns)
     }
+
+    // Integra o botão de reposição injetado pelo EcomSend ao buy-box do tema.
+    var purchase = document.querySelector('[data-section-id="{{ section.id }}"] [data-product-purchase]')
+    var restockWidget = purchase && purchase.querySelector('[data-restock-widget]')
+    var restockLabel = {{ 'products.product.restock_signup' | t | json }}
+
+    function syncRestockButton() {
+      if (!purchase || !restockWidget) return
+      var appButton = restockWidget.querySelector('.email-me-inlineButton')
+      var isUnavailable = purchase.classList.contains('is-unavailable')
+      var isReady = Boolean(appButton && window.getComputedStyle(appButton).display !== 'none')
+      if (appButton && appButton.textContent.trim() !== restockLabel) {
+        appButton.textContent = restockLabel
+        appButton.setAttribute('aria-label', restockLabel)
+      }
+      purchase.classList.toggle('has-restock-button', isUnavailable && isReady)
+    }
+
+    if (restockWidget) {
+      new MutationObserver(syncRestockButton).observe(restockWidget, {
+        attributes: true,
+        childList: true,
+        subtree: true
+      })
+      syncRestockButton()
+    }
+
+    document.addEventListener('click', function (event) {
+      var trigger = event.target.closest('#ProductMobileCTA-{{ section.id }} [data-restock-trigger]')
+      if (!trigger) return
+      event.preventDefault()
+
+      var attempts = 0
+      function openRestockModal() {
+        var appButton = restockWidget && restockWidget.querySelector('.email-me-inlineButton')
+        if (appButton && window.getComputedStyle(appButton).display !== 'none') {
+          appButton.click()
+          return
+        }
+        attempts += 1
+        if (attempts < 15) window.setTimeout(openRestockModal, 150)
+      }
+      openRestockModal()
+    })
 
     // Wishlist toggle (placeholder — integrates with any wishlist app via data-product-id)
     var wishBtn = document.querySelector('[data-section-id="{{ section.id }}"] .product__wishlist')

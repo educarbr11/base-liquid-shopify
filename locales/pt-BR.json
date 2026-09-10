@@ -31,6 +31,10 @@
     "breadcrumbs": {
       "home": "Início"
     },
+    "whatsapp": {
+      "open_chat": "Falar conosco pelo WhatsApp",
+      "icon_alt": "WhatsApp"
+    },
     "continue_shopping": "Continuar comprando",
     "newsletter_form": {
       "newsletter_email": "E-mail",
@@ -73,6 +77,11 @@
       "add_to_cart": "Adicionar ao carrinho",
       "sold_out": "Esgotado",
       "unavailable": "Indisponível",
+      "restock_signup": "Inscrever na pré-venda",
+      "restock_signup_aria": "Inscrever na pré-venda de {{ product }}",
+      "restock_badge": "Pré-venda",
+      "restock_loading": "Carregando inscrição...",
+      "restock_error": "Não foi possível abrir a inscrição. Tente novamente.",
       "on_sale": "Oferta",
       "quantity": {
         "label": "Quantidade",

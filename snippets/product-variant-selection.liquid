@@ -38,6 +38,7 @@
     var buyNowBtn     = document.getElementById('BuyNowBtn-{{ section_id }}');
     var dynamicPaymentWrap = form.querySelector('.product__buy-now-wrap');
     var quantityControls = form.querySelectorAll('.quantity__button, .quantity__input');
+    var purchase       = form.querySelector('[data-product-purchase]');
 
     // Gallery — new snippet
     var pgActivate   = window['pgActivateMedia_{{ section_id }}'];
@@ -46,6 +47,7 @@
 
     var ADD       = '{{ 'products.product.add_to_cart' | t }}';
     var UNAVAIL   = '{{ 'products.product.unavailable' | t }}';
+    var RESTOCK   = '{{ 'products.product.restock_signup' | t }}';
 
     function selectedOptions() {
       var opts = [];
@@ -80,9 +82,22 @@
 
       var mobileBtn = document.querySelector('#ProductMobileCTA-{{ section_id }} .product__mobile-cta-btn');
       if (mobileBtn) {
-        disabled ? mobileBtn.setAttribute('disabled', 'disabled') : mobileBtn.removeAttribute('disabled');
-        mobileBtn.setAttribute('aria-disabled', String(disabled));
-        mobileBtn.textContent = text;
+        mobileBtn.removeAttribute('disabled');
+        mobileBtn.setAttribute('aria-disabled', 'false');
+        mobileBtn.type = disabled ? 'button' : 'submit';
+        mobileBtn.textContent = disabled ? RESTOCK : text;
+        if (disabled) {
+          mobileBtn.removeAttribute('form');
+          mobileBtn.setAttribute('data-restock-trigger', '');
+        } else {
+          mobileBtn.setAttribute('form', '{{ product_form_id }}');
+          mobileBtn.removeAttribute('data-restock-trigger');
+        }
+      }
+
+      if (purchase) {
+        purchase.classList.toggle('is-unavailable', disabled);
+        if (!disabled) purchase.classList.remove('has-restock-button');
       }
 
       if (buyNowBtn) {
