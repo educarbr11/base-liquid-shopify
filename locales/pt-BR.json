@@ -162,6 +162,11 @@
     }
   },
   "sections": {
+    "product": {
+      "breadcrumb": "Você está em",
+      "rating_label": "Avaliação do produto",
+      "pix_label": "PIX"
+    },
     "main_collection": {
       "empty": "Nenhum produto encontrado",
       "use_fewer_filters": "Use menos filtros ou remova todos"

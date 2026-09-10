@@ -162,6 +162,11 @@
     }
   },
   "sections": {
+    "product": {
+      "breadcrumb": "You are here",
+      "rating_label": "Product rating",
+      "pix_label": "PIX"
+    },
     "main_collection": {
       "empty": "No products found",
       "use_fewer_filters": "Use fewer filters or remove all"

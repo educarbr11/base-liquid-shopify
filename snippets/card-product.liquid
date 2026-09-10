@@ -6,6 +6,7 @@
 {%- endcomment -%}
 {%- liquid
   assign ratio = 1
+  assign purchasable_variant = nil
   case settings.card_image_ratio
     when 'portrait'
       assign ratio = 0.75
@@ -16,6 +17,15 @@
         assign ratio = card_product.featured_media.aspect_ratio
       endif
   endcase
+
+  for variant in card_product.variants
+    if variant.available
+      if variant.inventory_management == blank or variant.inventory_quantity > 0
+        assign purchasable_variant = variant
+        break
+      endif
+    endif
+  endfor
 -%}
 <div class="card-product">
   <a href="{{ card_product.url }}" class="card-product__link">
@@ -49,10 +59,10 @@
         </div>
       {%- endif -%}
 
-      {%- if card_product.compare_at_price > card_product.price and card_product.available -%}
+      {%- if card_product.compare_at_price > card_product.price and purchasable_variant != nil -%}
         <span class="card-product__badge">{{ 'products.product.on_sale' | t }}</span>
-      {%- elsif card_product.available == false -%}
-        <span class="card-product__badge card-product__badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
+      {%- elsif purchasable_variant == nil -%}
+        <span class="card-product__badge card-product__badge--sold-out">{{ 'products.product.unavailable' | t }}</span>
       {%- endif -%}
     </div>
 
@@ -68,18 +78,18 @@
   </a>
 
   <div class="card-product__add-form">
-    {%- if card_product.available -%}
+    {%- if purchasable_variant != nil -%}
       <form method="post" action="{{ routes.cart_add_url }}" style="margin:0;">
-        <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
+        <input type="hidden" name="id" value="{{ purchasable_variant.id }}">
         <input type="hidden" name="quantity" value="1">
-        <button type="submit" class="card-product__add-btn" aria-label="Adicionar {{ card_product.title | escape }} ao carrinho">
-          <span>ADICIONAR</span>
+        <button type="submit" class="card-product__add-btn" aria-label="{{ 'products.product.add_to_cart' | t }}: {{ card_product.title | escape }}">
+          <span>{{ 'products.product.add_to_cart' | t }}</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
         </button>
       </form>
     {%- else -%}
-      <button type="button" class="card-product__add-btn" disabled aria-disabled="true">
-        <span>ESGOTADO</span>
+      <button type="button" class="card-product__add-btn" disabled aria-disabled="true" aria-label="{{ 'products.product.unavailable' | t }}: {{ card_product.title | escape }}">
+        <span>{{ 'products.product.unavailable' | t }}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
       </button>
     {%- endif -%}

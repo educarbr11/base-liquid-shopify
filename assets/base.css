@@ -320,10 +320,10 @@ textarea.field__input {
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 }
-.card-product__add-btn:hover {
+.card-product__add-btn:not(:disabled):hover {
   background: color-mix(in srgb, var(--color-accent, #ff0033) 85%, #000);
 }
-.card-product__add-btn:active {
+.card-product__add-btn:not(:disabled):active {
   transform: scale(0.98);
 }
 .card-product__add-btn[disabled],

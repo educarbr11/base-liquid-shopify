@@ -27,7 +27,14 @@
 {%- liquid
   assign product_form_id = 'product-form-' | append: section.id
   assign current_variant = product.selected_or_first_available_variant
+  assign current_variant_can_purchase = false
   assign section_id = section.id
+
+  if current_variant.available
+    if current_variant.inventory_management == blank or current_variant.inventory_quantity > 0
+      assign current_variant_can_purchase = true
+    endif
+  endif
 -%}
 
 {%- comment -%} JSON-LD Product Schema {%- endcomment -%}
@@ -92,7 +99,7 @@
         type='hidden'
         name='id'
         value='{{ current_variant.id }}'
-        {% if current_variant.available == false %}
+        {% if current_variant_can_purchase == false %}
           disabled
         {% endif %}
         class='product-variant-id'>
@@ -111,7 +118,7 @@
             <h1 class='product__title' {{ block.shopify_attributes }}>{{ product.title | escape }}</h1>
 
           {%- when 'rating' -%}
-            <div class='product__rating' {{ block.shopify_attributes }} aria-label='{{ 'sections.product.rating.label' | t | default: 'Avaliação do produto' }}'>
+            <div class='product__rating' {{ block.shopify_attributes }} aria-label='{{ 'sections.product.rating_label' | t }}'>
               {%- assign rating_val = product.metafields.reviews.rating.value -%}
               {%- assign rating_count = product.metafields.reviews.rating_count.value -%}
               {%- if rating_val != blank -%}
@@ -120,14 +127,14 @@
                   {%- assign half = 0 -%}
                   {%- assign rate_diff = rating_val | minus: full -%}
                   {%- if rate_diff >= 0.4 -%}{%- assign half = 1 -%}{%- endif -%}
-                  {%- assign empty = 5 | minus: full | minus: half -%}
+                  {%- assign empty_stars = 5 | minus: full | minus: half -%}
                   {%- for s in (1..full) -%}
                     <span class='prod-star prod-star--full'>★</span>
                   {%- endfor -%}
                   {%- if half == 1 -%}
                     <span class='prod-star prod-star--half'>★</span>
                   {%- endif -%}
-                  {%- for s in (1..empty) -%}
+                  {%- for s in (1..empty_stars) -%}
                     <span class='prod-star prod-star--empty'>☆</span>
                   {%- endfor -%}
                 </div>
@@ -155,17 +162,12 @@
 
           {%- when 'stock' -%}
             <div class='product__stock' id='ProductStock-{{ section.id }}' {{ block.shopify_attributes }}>
-              {%- if current_variant.available -%}
+              {%- if current_variant_can_purchase -%}
                 {%- assign qty = current_variant.inventory_quantity -%}
                 {%- if current_variant.inventory_management != blank and qty <= block.settings.low_stock_threshold and qty > 0 -%}
                   <span class='prod-stock prod-stock--low'>
                     <span class='prod-stock__dot' aria-hidden='true'></span>
                     {{ block.settings.low_stock_text | default: 'Últimas unidades' | escape }} ({{ qty }})
-                  </span>
-                {%- elsif current_variant.inventory_management != blank and qty <= 0 -%}
-                  <span class='prod-stock prod-stock--out'>
-                    <span class='prod-stock__dot' aria-hidden='true'></span>
-                    {{ 'products.product.sold_out' | t }}
                   </span>
                 {%- else -%}
                   <span class='prod-stock prod-stock--in'>
@@ -176,7 +178,7 @@
               {%- else -%}
                 <span class='prod-stock prod-stock--out'>
                   <span class='prod-stock__dot' aria-hidden='true'></span>
-                  {{ 'products.product.sold_out' | t }}
+                  {{ 'products.product.unavailable' | t }}
                 </span>
               {%- endif -%}
             </div>
@@ -229,8 +231,10 @@
                           assign option_disabled = true
                           for variant in product.variants
                             if variant.available and variant.options[forloop.parentloop.index0] == value
-                              assign option_disabled = false
-                              break
+                              if variant.inventory_management == blank or variant.inventory_quantity > 0
+                                assign option_disabled = false
+                                break
+                              endif
                             endif
                           endfor
                         -%}
@@ -292,7 +296,7 @@
                   {{ 'products.product.quantity.label' | t }}
                 </label>
                 <div class='quantity-selector'>
-                  <button type='button' class='quantity__button' name='minus' aria-label='{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}'>−</button>
+                  <button type='button' class='quantity__button' name='minus' {% unless current_variant_can_purchase %}disabled{% endunless %} aria-label='{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}'>−</button>
                   <input
                     class='quantity__input'
                     type='number'
@@ -300,8 +304,9 @@
                     id='Quantity-{{ section.id }}'
                     min='1'
                     value='1'
+                    {% unless current_variant_can_purchase %}disabled{% endunless %}
                     aria-label='{{ 'products.product.quantity.input_label' | t: product: product.title | escape }}'>
-                  <button type='button' class='quantity__button' name='plus' aria-label='{{ 'products.product.quantity.increase' | t: product: product.title | escape }}'>+</button>
+                  <button type='button' class='quantity__button' name='plus' {% unless current_variant_can_purchase %}disabled{% endunless %} aria-label='{{ 'products.product.quantity.increase' | t: product: product.title | escape }}'>+</button>
                 </div>
               </div>
             {%- endunless -%}
@@ -315,7 +320,7 @@
                     {{ 'products.product.quantity.label' | t }}
                   </label>
                   <div class='quantity-selector'>
-                    <button type='button' class='quantity__button' name='minus' aria-label='{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}'>−</button>
+                    <button type='button' class='quantity__button' name='minus' {% unless current_variant_can_purchase %}disabled{% endunless %} aria-label='{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}'>−</button>
                     <input
                       class='quantity__input'
                       type='number'
@@ -323,8 +328,9 @@
                       id='Quantity-{{ section.id }}'
                       min='1'
                       value='1'
+                      {% unless current_variant_can_purchase %}disabled{% endunless %}
                       aria-label='{{ 'products.product.quantity.input_label' | t: product: product.title | escape }}'>
-                    <button type='button' class='quantity__button' name='plus' aria-label='{{ 'products.product.quantity.increase' | t: product: product.title | escape }}'>+</button>
+                    <button type='button' class='quantity__button' name='plus' {% unless current_variant_can_purchase %}disabled{% endunless %} aria-label='{{ 'products.product.quantity.increase' | t: product: product.title | escape }}'>+</button>
                   </div>
                 </div>
 
@@ -332,18 +338,19 @@
                   type='submit'
                   name='add'
                   class='button product__add-to-cart'
-                  {% if current_variant.available == false %}
+                  {% if current_variant_can_purchase == false %}
                     disabled
                   {% endif %}
+                  aria-disabled='{% if current_variant_can_purchase %}false{% else %}true{% endif %}'
                   aria-label='{{ 'products.product.add_to_cart' | t }}'>
                   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>
                     <path d="M6 6h15l-1.5 9h-12L6 6Zm0 0-.5-3H3"/><circle cx="9" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/>
                   </svg>
                   <span>
-                    {%- if current_variant.available -%}
+                    {%- if current_variant_can_purchase -%}
                       {{ 'products.product.add_to_cart' | t }}
                     {%- else -%}
-                      {{ 'products.product.sold_out' | t }}
+                      {{ 'products.product.unavailable' | t }}
                     {%- endif -%}
                   </span>
                 </button>
@@ -354,7 +361,10 @@
                 <div class='product__purchase-row product__purchase-row--buy'>
                   {%- if block.settings.show_buy_now -%}
                     {%- if block.settings.show_dynamic_checkout -%}
-                      <div class='product__buy-now-wrap'>
+                      <div
+                        class='product__buy-now-wrap{% unless current_variant_can_purchase %} is-disabled{% endunless %}'
+                        {% unless current_variant_can_purchase %}inert{% endunless %}
+                        aria-disabled='{% if current_variant_can_purchase %}false{% else %}true{% endif %}'>
                         {{ form | payment_button }}
                       </div>
                     {%- else -%}
@@ -365,9 +375,10 @@
                         id='BuyNowBtn-{{ section.id }}'
                         formaction='{{ routes.cart_add_url }}'
                         data-buy-now
-                        {% if current_variant.available == false %}
+                        {% if current_variant_can_purchase == false %}
                           disabled
                         {% endif %}
+                        aria-disabled='{% if current_variant_can_purchase %}false{% else %}true{% endif %}'
                         aria-label='{{ block.settings.buy_now_label | default: 'Comprar Agora' | escape }}'>
                         {{ block.settings.buy_now_label | default: 'Comprar Agora' | escape }}
                       </button>
@@ -442,13 +453,14 @@
       type='submit'
       form='{{ product_form_id }}'
       class='button product__mobile-cta-btn'
-      {% if current_variant.available == false %}
+      {% if current_variant_can_purchase == false %}
         disabled
-      {% endif %}>
-      {%- if current_variant.available -%}
+      {% endif %}
+      aria-disabled='{% if current_variant_can_purchase %}false{% else %}true{% endif %}'>
+      {%- if current_variant_can_purchase -%}
         {{ 'products.product.add_to_cart' | t }}
       {%- else -%}
-        {{ 'products.product.sold_out' | t }}
+        {{ 'products.product.unavailable' | t }}
       {%- endif -%}
     </button>
   </div>
@@ -698,8 +710,8 @@
     border-color: var(--color-secondary, #E8A817);
     transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
   }
-  .section-main-product button.product__add-to-cart:hover,
-  .template-product button.product__mobile-cta-btn:hover {
+  .section-main-product button.product__add-to-cart:not(:disabled):hover,
+  .template-product button.product__mobile-cta-btn:not(:disabled):hover {
     background-color: color-mix(in srgb, var(--color-secondary, #E8A817) 88%, #000);
     border-color: color-mix(in srgb, var(--color-secondary, #E8A817) 88%, #000);
     opacity: 1;
@@ -722,6 +734,10 @@
   .product__buy-now-wrap .shopify-payment-button,
   .product__buy-now-wrap .shopify-payment-button__button {
     width: 100%;
+  }
+  .product__buy-now-wrap.is-disabled {
+    pointer-events: none;
+    opacity: 0.5;
   }
   .product__wishlist {
     flex-shrink: 0;
