@@ -63,8 +63,8 @@
         "enabled": true,
         "phone": "5591992021356",
         "message": "Olá! Gostaria de mais informações.",
-        "background_color": "#25d366",
-        "size": 64,
+        "icon": "shopify://shop_images/ChatGPT_Image_10_de_set._de_2026_18_20_37.png",
+        "size": 76,
         "bottom_offset": 24,
         "right_offset": 24
       }
