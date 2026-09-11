@@ -418,6 +418,15 @@
                 class='product__restock-widget'
                 data-restock-widget
                 aria-live='polite'></div>
+              <button
+                type='button'
+                class='button product__restock-trigger'
+                data-restock-trigger
+                aria-label='{{ 'products.product.restock_signup_aria' | t: product: product.title | escape }}'>
+                <span>{{ 'products.product.restock_signup' | t }}</span>
+                <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9'/><path d='M10 21h4'/></svg>
+              </button>
+              <span class='visually-hidden' data-restock-status aria-live='polite'></span>
             </div>
 
             <div class='product__desc-under-info'>
@@ -699,33 +708,50 @@
     width: 100%;
   }
   .product__restock-widget {
-    width: 100%;
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
   }
-  .product__purchase.has-restock-button .product__purchase-row--cart {
+  .product__purchase.is-unavailable .product__purchase-row {
     display: none;
   }
   .product__restock-widget .product-restore-email,
   .product__restock-widget .email-me-inlineButton {
-    width: 100% !important;
-    max-width: none !important;
+    width: 1px !important;
+    min-width: 0 !important;
+    max-width: 1px !important;
+    height: 1px !important;
+    min-height: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
   }
-  .product__restock-widget .email-me-inlineButton {
-    min-height: 52px !important;
-    padding: 12px 18px !important;
-    border: 1px solid var(--color-secondary, #e8a817) !important;
-    border-radius: var(--product-button-radius) !important;
-    background: var(--color-secondary, #e8a817) !important;
-    color: var(--color-secondary-text, #0b1d3a) !important;
-    font-family: 'Bungee', sans-serif !important;
-    font-size: var(--f1) !important;
-    font-weight: 400 !important;
-    letter-spacing: 0.02em !important;
-    line-height: 1.25 !important;
-    text-transform: none !important;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+  .product__restock-trigger {
+    display: none;
+    width: 100%;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-color: var(--color-secondary, #e8a817);
+    background: var(--color-secondary, #e8a817);
+    color: var(--color-secondary-text, #0b1d3a);
+    font-family: 'Bungee', sans-serif;
+    font-size: var(--f1);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.25;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
-  .product__restock-widget .email-me-inlineButton:hover {
+  .product__purchase.is-unavailable .product__restock-trigger {
+    display: flex;
+  }
+  .product__restock-trigger:hover {
     background: color-mix(in srgb, var(--color-secondary, #e8a817) 88%, #000) !important;
     border-color: color-mix(in srgb, var(--color-secondary, #e8a817) 88%, #000) !important;
     transform: translateY(-1px);
@@ -908,21 +934,135 @@
       observer.observe(buyBtns)
     }
 
-    // Integra o botão de reposição injetado pelo EcomSend ao buy-box do tema.
     var purchase = document.querySelector('[data-section-id="{{ section.id }}"] [data-product-purchase]')
     var restockWidget = purchase && purchase.querySelector('[data-restock-widget]')
     var restockLabel = {{ 'products.product.restock_signup' | t | json }}
+    var restockLoading = {{ 'products.product.restock_loading' | t | json }}
+    var restockError = {{ 'products.product.restock_error' | t | json }}
+    var restockProductTitle = {{ product.title | json }}
+    var restockStatus = purchase && purchase.querySelector('[data-restock-status]')
+    var variantDataElement = document.querySelector('[data-section-id="{{ section.id }}"] [data-variant-json]')
 
     function syncRestockButton() {
       if (!purchase || !restockWidget) return
       var appButton = restockWidget.querySelector('.email-me-inlineButton')
       var isUnavailable = purchase.classList.contains('is-unavailable')
-      var isReady = Boolean(appButton && window.getComputedStyle(appButton).display !== 'none')
       if (appButton && appButton.textContent.trim() !== restockLabel) {
         appButton.textContent = restockLabel
         appButton.setAttribute('aria-label', restockLabel)
       }
-      purchase.classList.toggle('has-restock-button', isUnavailable && isReady)
+      purchase.classList.toggle('has-restock-button', isUnavailable)
+    }
+
+    function getUnavailableVariants() {
+      if (!variantDataElement) return []
+      try {
+        return JSON.parse(variantDataElement.textContent).filter(function (variant) {
+          return !variant.available || Boolean(variant.inventory_management && variant.inventory_quantity <= 0)
+        })
+      } catch (error) {
+        return []
+      }
+    }
+
+    var restockAppRuntime = null
+    var previousBisBeforeExecute = window.bisBeforeExecute
+    window.bisBeforeExecute = function (runtime, config) {
+      if (typeof previousBisBeforeExecute === 'function') previousBisBeforeExecute(runtime, config)
+      if (!runtime) return
+      restockAppRuntime = runtime
+      if (!Array.isArray(runtime.productsData)) runtime.productsData = []
+      if (!Array.isArray(runtime.variantData) || !runtime.variantData.length) {
+        runtime.variantData = getUnavailableVariants()
+      }
+    }
+
+    function getCurrentVariantId() {
+      var variantInput = document.getElementById('{{ product_form_id }}')
+      variantInput = variantInput && variantInput.querySelector('.product-variant-id')
+      return variantInput ? String(variantInput.value) : ''
+    }
+
+    function populateRestockModal() {
+      var frame = document.getElementById('email-me-frame')
+      if (!frame) return false
+
+      var variants = getUnavailableVariants()
+      var select = frame.querySelector('.selected-unavailable-variant')
+      if (select && variants.length) {
+        select.replaceChildren()
+        variants.forEach(function (variant) {
+          var option = document.createElement('option')
+          option.value = variant.id
+          option.textContent = variant.options.join(' / ')
+          select.appendChild(option)
+        })
+        select.value = getCurrentVariantId()
+        frame.setAttribute('data-variant-selector-status', variants.length > 1 ? 'show' : 'hidden')
+      }
+
+      var productName = frame.querySelector('.frame-body-content span')
+      if (productName) productName.textContent = restockProductTitle
+      return true
+    }
+
+    function createRestockBridge() {
+      if (!restockWidget) return null
+      var existing = restockWidget.querySelector('[data-restock-app-bridge]')
+      if (existing) return existing
+
+      var wrapper = document.createElement('div')
+      wrapper.className = 'product-restore-email'
+      var bridge = document.createElement('button')
+      bridge.type = 'button'
+      bridge.className = 'email-me-button email-me-inlineButton'
+      bridge.setAttribute('data-restock-app-bridge', '')
+      bridge.textContent = restockLabel
+      wrapper.appendChild(bridge)
+      restockWidget.appendChild(wrapper)
+      return bridge
+    }
+
+    function openRestockModal(onReady, onError) {
+      var frame = document.getElementById('email-me-frame')
+      var appButton = restockWidget && restockWidget.querySelector('.email-me-inlineButton:not([data-restock-app-bridge])')
+
+      if (appButton && frame) {
+        appButton.click()
+        onReady()
+        return
+      }
+
+      if (frame && populateRestockModal()) {
+        frame.style.display = 'flex'
+        onReady()
+        return
+      }
+
+      var attempts = 0
+      function initializeFallback() {
+        if (window.ChannelWillBIS && typeof window.ChannelWillBIS.specialRenderPopup === 'function') {
+          if (restockAppRuntime) {
+            restockAppRuntime.productsData = []
+            restockAppRuntime.variantData = getUnavailableVariants()
+          }
+          var bridge = createRestockBridge()
+          window.ChannelWillBIS.specialRenderPopup()
+          if (bridge && populateRestockModal()) {
+            bridge.click()
+            onReady()
+            return
+          }
+        }
+
+        attempts += 1
+        if (attempts < 40) {
+          window.setTimeout(initializeFallback, 150)
+        } else {
+          onError()
+        }
+      }
+      initializeFallback()
     }
 
     if (restockWidget) {
@@ -935,21 +1075,22 @@
     }
 
     document.addEventListener('click', function (event) {
-      var trigger = event.target.closest('#ProductMobileCTA-{{ section.id }} [data-restock-trigger]')
+      var trigger = event.target.closest('[data-restock-trigger]')
       if (!trigger) return
       event.preventDefault()
+      trigger.setAttribute('aria-busy', 'true')
+      if (restockStatus) restockStatus.textContent = restockLoading
 
-      var attempts = 0
-      function openRestockModal() {
-        var appButton = restockWidget && restockWidget.querySelector('.email-me-inlineButton')
-        if (appButton && window.getComputedStyle(appButton).display !== 'none') {
-          appButton.click()
-          return
+      openRestockModal(
+        function () {
+          trigger.removeAttribute('aria-busy')
+          if (restockStatus) restockStatus.textContent = ''
+        },
+        function () {
+          trigger.removeAttribute('aria-busy')
+          if (restockStatus) restockStatus.textContent = restockError
         }
-        attempts += 1
-        if (attempts < 15) window.setTimeout(openRestockModal, 150)
-      }
-      openRestockModal()
+      )
     })
 
     // Wishlist toggle (placeholder — integrates with any wishlist app via data-product-id)
