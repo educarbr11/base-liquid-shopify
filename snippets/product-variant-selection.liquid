@@ -39,6 +39,7 @@
     var dynamicPaymentWrap = form.querySelector('.product__buy-now-wrap');
     var quantityControls = form.querySelectorAll('.quantity__button, .quantity__input');
     var purchase       = form.querySelector('[data-product-purchase]');
+    var restockTrigger = form.querySelector('[data-product-purchase] .product__restock-trigger');
 
     // Gallery — new snippet
     var pgActivate   = window['pgActivateMedia_{{ section_id }}'];
@@ -66,14 +67,10 @@
     }
 
     function canPurchase(variant) {
-      return Boolean(
-        variant &&
-        variant.available &&
-        (!variant.inventory_management || variant.inventory_quantity > 0)
-      );
+      return Boolean(variant && variant.available);
     }
 
-    function setButton(disabled, text) {
+    function setButton(disabled, text, showRestock) {
       if (addButton) {
         disabled ? addButton.setAttribute('disabled', 'disabled') : addButton.removeAttribute('disabled');
         addButton.setAttribute('aria-disabled', String(disabled));
@@ -82,11 +79,11 @@
 
       var mobileBtn = document.querySelector('#ProductMobileCTA-{{ section_id }} .product__mobile-cta-btn');
       if (mobileBtn) {
-        mobileBtn.removeAttribute('disabled');
-        mobileBtn.setAttribute('aria-disabled', 'false');
-        mobileBtn.type = disabled ? 'button' : 'submit';
-        mobileBtn.textContent = disabled ? RESTOCK : text;
-        if (disabled) {
+        mobileBtn.toggleAttribute('disabled', disabled && !showRestock);
+        mobileBtn.setAttribute('aria-disabled', String(disabled && !showRestock));
+        mobileBtn.type = showRestock ? 'button' : 'submit';
+        mobileBtn.textContent = showRestock ? RESTOCK : text;
+        if (showRestock) {
           mobileBtn.removeAttribute('form');
           mobileBtn.setAttribute('data-restock-trigger', '');
         } else {
@@ -94,6 +91,8 @@
           mobileBtn.removeAttribute('data-restock-trigger');
         }
       }
+
+      if (restockTrigger) restockTrigger.hidden = !showRestock;
 
       if (purchase) {
         purchase.classList.toggle('is-unavailable', disabled);
@@ -145,7 +144,7 @@
       var variant = findVariant(selectedOptions());
 
       if (!variant) {
-        setButton(true, UNAVAIL);
+        setButton(true, UNAVAIL, false);
         if (idInput) idInput.setAttribute('disabled', 'disabled');
         updateStock(null);
         return;
@@ -156,7 +155,7 @@
         idInput.value = variant.id;
         purchasable ? idInput.removeAttribute('disabled') : idInput.setAttribute('disabled', 'disabled');
       }
-      setButton(!purchasable, purchasable ? ADD : UNAVAIL);
+      setButton(!purchasable, purchasable ? ADD : UNAVAIL, !purchasable);
 
       // SKU
       if (skuEl) skuEl.textContent = variant.sku || '';

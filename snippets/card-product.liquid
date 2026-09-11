@@ -19,10 +19,8 @@ Renders a product card with purchase or restock actions.
 
   for variant in card_product.variants
     if variant.available
-      if variant.inventory_management == blank or variant.inventory_quantity > 0
-        assign purchasable_variant = variant
-        break
-      endif
+      assign purchasable_variant = variant
+      break
     endif
   endfor
 -%}
