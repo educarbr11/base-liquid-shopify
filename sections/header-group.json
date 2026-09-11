@@ -109,7 +109,7 @@
         "col_hq": {
           "type": "collection_link",
           "settings": {
-            "collection": "",
+            "collection": "paradidaticos",
             "title": "HQ",
             "stage": "paradidatico",
             "fallback_count": "0"

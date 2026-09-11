@@ -46,7 +46,7 @@
         },
         "hq": {
           "type": "collection_card",
-          "settings": { "collection": "", "title": "HQ", "group": "paradidatico" }
+          "settings": { "collection": "paradidaticos", "title": "HQ", "group": "paradidatico" }
         },
         "oba": {
           "type": "collection_card",
