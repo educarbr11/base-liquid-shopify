@@ -1,4 +1,9 @@
-{% render 'product-related', product: product, block: section, section_id: section.id %}
+{% render 'product-related',
+  product: product,
+  block: section,
+  section_id: section.id,
+  recommendations: recommendations
+%}
 
 {% schema %}
 {

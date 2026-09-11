@@ -183,7 +183,8 @@
     "product": {
       "breadcrumb": "You are here",
       "rating_label": "Product rating",
-      "pix_label": "PIX"
+      "pix_label": "PIX",
+      "error": "Something went wrong. Please try again."
     },
     "main_collection": {
       "empty": "No products found",
@@ -218,6 +219,8 @@
       },
       "subtotal": "Subtotal",
       "new_subtotal": "New subtotal",
+      "adding": "Adding...",
+      "added": "Added!",
       "update": "Update",
       "remove": "Remove"
     },

@@ -1,32 +1,33 @@
-{%- comment -%}
-  ============================================================
-  product-related — produtos relacionados + cross-sell
-  ============================================================
+{% doc %}
+Renders related products returned by Shopify Product Recommendations.
 
-  O QUE FAZ:
-  Seção de produtos relacionados usando a API de recomendações do
-  Shopify. Cards tipados (Livro, Professor, Kit, Software).
-  Botão "Adicionar todos ao carrinho" vía JS vanilla.
+@param {product} product - Current product used to request recommendations.
+@param {object} block - Section or block containing title, limit and action settings.
+@param {string} section_id - Unique section identifier.
+@param {object} recommendations - Shopify recommendations response for this section.
+{% enddoc %}
 
-  COMO USAR:
-  {% render 'product-related', product: product, block: block, section_id: section_id %}
+{%- liquid
+  assign has_recommendations = false
+  if recommendations.performed and recommendations.products_count > 0
+    assign has_recommendations = true
+  endif
+-%}
 
-  PARÂMETROS:
-  - product: objeto product do Shopify
-  - block: bloco do schema com settings (heading, limit)
-  - section_id: id da section para namespacing
-{%- endcomment -%}
-
-<div class="prel" id="ProductRelated-{{ section_id }}" {{ block.shopify_attributes }}>
-  {%- if block.settings.title != blank -%}
-    <h2 class="prel__title">{{ block.settings.title | escape }}</h2>
-  {%- endif -%}
-
+<div
+  class="prel{% if has_recommendations %} has-recommendations{% endif %}"
+  id="ProductRelated-{{ section_id }}"
+  data-product-related
+  {{ block.shopify_attributes }}>
   <product-recommendations
     class="prel__recs"
-    data-url="{{ routes.product_recommendations_url }}?section_id={{ section_id }}&product_id={{ product.id }}&limit={{ block.settings.limit | default: 4 }}"
-  >
-    {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    data-related-products-container
+    data-url="{{ routes.product_recommendations_url }}?section_id={{ section_id }}&product_id={{ product.id }}&limit={{ block.settings.limit | default: 4 }}&intent=related"
+    aria-busy="{% if has_recommendations %}false{% else %}true{% endif %}">
+    {%- if has_recommendations -%}
+      {%- if block.settings.title != blank -%}
+        <h2 class="prel__title">{{ block.settings.title | escape }}</h2>
+      {%- endif -%}
       <ul class="prel__grid" role="list">
         {%- for rec in recommendations.products -%}
           <li class="prel__item">
@@ -53,7 +54,15 @@
 
 <style>
   /* ── Product Related ── */
-  .prel { margin: 40px 0; }
+  .prel {
+    display: block;
+    min-height: 1px;
+    margin: 0;
+  }
+  .prel.has-recommendations {
+    display: block;
+    margin: 40px 0;
+  }
   .prel__title {
     font-size: var(--f4);
     margin: 0 0 20px;
@@ -77,21 +86,66 @@
 
 <script>
   (function () {
-    var btn = document.getElementById('AddAllBtn-{{ section_id }}');
-    if (!btn) return;
+    var related = document.getElementById('ProductRelated-{{ section_id }}');
+    if (!related) return;
+    var recommendationsContainer = related.querySelector('[data-related-products-container]');
+    if (!recommendationsContainer) return;
 
-    btn.addEventListener('click', function () {
-      var container = document.getElementById('ProductRelated-{{ section_id }}');
-      if (!container) return;
+    function loadRecommendations() {
+      if (recommendationsContainer.dataset.loaded === 'true') return;
+      recommendationsContainer.dataset.loaded = 'true';
 
-      var forms = container.querySelectorAll('.card-product__add-form form');
+      fetch(recommendationsContainer.dataset.url)
+        .then(function (response) {
+          if (!response.ok) throw new Error('Unable to load product recommendations');
+          return response.text();
+        })
+        .then(function (text) {
+          var html = document.createElement('div');
+          html.innerHTML = text;
+          var incomingSection = html.querySelector('#ProductRelated-{{ section_id }}');
+          var incoming = incomingSection && incomingSection.querySelector('[data-related-products-container]');
+
+          recommendationsContainer.setAttribute('aria-busy', 'false');
+          if (!incoming || !incoming.querySelector('.prel__grid')) {
+            related.classList.remove('has-recommendations');
+            return;
+          }
+
+          recommendationsContainer.innerHTML = incoming.innerHTML;
+          related.classList.add('has-recommendations');
+        })
+        .catch(function () {
+          recommendationsContainer.setAttribute('aria-busy', 'false');
+          related.classList.remove('has-recommendations');
+        });
+    }
+
+    if (!recommendationsContainer.querySelector('.prel__grid')) {
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          if (!entries[0].isIntersecting) return;
+          observer.disconnect();
+          loadRecommendations();
+        }, { rootMargin: '0px 0px 300px 0px' });
+        observer.observe(related);
+      } else {
+        loadRecommendations();
+      }
+    }
+
+    related.addEventListener('click', function (event) {
+      var btn = event.target.closest('.prel__add-all');
+      if (!btn || !related.contains(btn)) return;
+
+      var forms = related.querySelectorAll('.card-product__add-form form');
       if (!forms.length) return;
 
       btn.disabled = true;
       btn.textContent = '{{ 'sections.cart.adding' | t | default: 'Adicionando...' | escape }}';
 
-      var items = Array.from(forms).map(function (f) {
-        var idInput = f.querySelector('input[name="id"]');
+      var items = Array.from(forms).map(function (form) {
+        var idInput = form.querySelector('input[name="id"]');
         return { id: idInput ? idInput.value : null, quantity: 1 };
       }).filter(function (item) { return item.id; });
 
@@ -100,10 +154,10 @@
         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         body: JSON.stringify({ items: items })
       })
-        .then(function (r) { return r.json(); })
-        .then(function () {
+        .then(function (response) {
+          if (!response.ok) throw new Error('Unable to add recommended products');
           btn.textContent = '✓ {{ 'sections.cart.added' | t | default: 'Adicionados!' | escape }}';
-          setTimeout(function () {
+          window.setTimeout(function () {
             btn.disabled = false;
             btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12L6 6Zm0 0-.5-3H3"/><circle cx="9" cy="20" r="1.5" fill="currentColor"/><circle cx="17" cy="20" r="1.5" fill="currentColor"/></svg> {{ block.settings.add_all_label | default: 'Adicionar todos ao carrinho' | escape }}';
           }, 2000);
@@ -113,24 +167,5 @@
           btn.textContent = '{{ 'sections.product.error' | t | default: 'Erro — tente novamente' | escape }}';
         });
     });
-
-    // Custom element for recommendations fetch (reuses existing if already defined)
-    if (!customElements.get('product-recommendations')) {
-      customElements.define('product-recommendations', class extends HTMLElement {
-        connectedCallback() {
-          var el = this;
-          if (el.querySelector('.prel__grid')) return;
-          fetch(el.dataset.url)
-            .then(function (r) { return r.text(); })
-            .then(function (text) {
-              var html = document.createElement('div');
-              html.innerHTML = text;
-              var recos = html.querySelector('product-recommendations');
-              if (recos && recos.innerHTML.trim().length) { el.innerHTML = recos.innerHTML; }
-            })
-            .catch(function (e) { console.warn('[product-related]', e); });
-        }
-      });
-    }
   })();
 </script>

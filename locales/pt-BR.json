@@ -183,7 +183,8 @@
     "product": {
       "breadcrumb": "Você está em",
       "rating_label": "Avaliação do produto",
-      "pix_label": "PIX"
+      "pix_label": "PIX",
+      "error": "Ocorreu um erro. Tente novamente."
     },
     "main_collection": {
       "empty": "Nenhum produto encontrado",
@@ -218,6 +219,8 @@
       },
       "subtotal": "Subtotal",
       "new_subtotal": "Novo subtotal",
+      "adding": "Adicionando...",
+      "added": "Adicionados!",
       "update": "Atualizar carrinho",
       "remove": "Remover"
     },
