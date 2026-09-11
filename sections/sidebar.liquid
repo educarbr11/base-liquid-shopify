@@ -47,7 +47,7 @@
     </nav>
 
     {%- comment -%} Categorias de ensino e coleções configuráveis no editor {%- endcomment -%}
-    {%- assign education_stages = 'educacao_infantil|Educação Infantil,fundamental_i|Fundamental I,fundamental_ii|Fundamental II,paradidatico|Paradidático' | split: ',' -%}
+    {%- assign education_stages = 'educacao_infantil|Educação Infantil,fundamental_i|Fundamental I,fundamental_ii|Fundamental II,ensino_medio|Ensino Médio,paradidatico|Paradidático' | split: ',' -%}
     <div class='sidebar__stages'>
       {%- for stage_item in education_stages -%}
         {%- assign stage_data = stage_item | split: '|' -%}
@@ -70,11 +70,17 @@
               {%- if block.type == 'collection_link' and block.settings.stage == stage_key -%}
                 {%- assign col = block.settings.collection -%}
                 {%- assign link_title = block.settings.title | default: col.title | default: 'Nova Coleção' -%}
+                {%- assign use_hq_icon = false -%}
+                {%- if col != blank and col.handle == 'paradidaticos' -%}
+                  {%- assign use_hq_icon = true -%}
+                {%- endif -%}
                 <li class='sidebar__collections-item' {{ block.shopify_attributes }}>
                   {%- if col != blank -%}
                     <a href='{{ col.url }}' class='sidebar__collections-link{% if collection and collection.handle == col.handle %} sidebar__collections-link--active{% endif %}'{% if collection and collection.handle == col.handle %} aria-current='page'{% endif %}>
                       <span class='sidebar__icon-box'>
-                        {%- if block.settings.icon != blank -%}
+                        {%- if use_hq_icon -%}
+                          {%- render 'icon-hq' -%}
+                        {%- elsif block.settings.icon != blank -%}
                           {{ block.settings.icon }}
                         {%- elsif block.settings.icon_image != blank -%}
                           {{ block.settings.icon_image | image_url: width: 60 | image_tag: width: 24, height: 24, loading: 'lazy', alt: '' }}
@@ -320,6 +326,11 @@
     color: #0b1d3a;
     background: #042757;
   }
+  .sidebar__collection-icon--standalone {
+    display: block;
+    width: 22px;
+    height: 28px;
+  }
   .sidebar__collections-name {
     flex: 1;
     white-space: nowrap;
@@ -344,7 +355,7 @@
   }
 
   /* Global icon size */
-  .sidebar__icon-box svg {
+  .sidebar__icon-box svg:not(.sidebar__collection-icon--standalone) {
     width: 22px;
     height: 22px;
   }
@@ -561,6 +572,7 @@
             { "value": "educacao_infantil", "label": "Educação Infantil" },
             { "value": "fundamental_i", "label": "Fundamental I" },
             { "value": "fundamental_ii", "label": "Fundamental II" },
+            { "value": "ensino_medio", "label": "Ensino Médio" },
             { "value": "paradidatico", "label": "Paradidático" }
           ]
         },
