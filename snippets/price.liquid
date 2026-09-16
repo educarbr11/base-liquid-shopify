@@ -75,3 +75,100 @@ Renders a regular or promotional product price.
     <span class="price__regular">{{ money_price }}</span>
   {%- endif -%}
 </div>
+
+{% stylesheet %}
+  .price__compare-row,
+  .price__sale-row {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .price__label {
+    color: var(--color-text, #0b1d3a);
+    font-family: var(--font-body-family);
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .price__compare {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .price__compare::after {
+    position: absolute;
+    top: 50%;
+    right: -2px;
+    left: -2px;
+    height: 2px;
+    background: currentcolor;
+    content: '';
+    pointer-events: none;
+    transform: rotate(-3deg);
+    transform-origin: center;
+  }
+
+  .price__discount {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    color: #fff;
+    background: var(--color-sale, #ff0033);
+    border-radius: 999px;
+    font-family: var(--font-body-family);
+    font-size: 0.72em;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .price--card {
+    color: var(--color-secondary, #e8a817);
+    font-family: 'Bungee', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .price--card.price--on-sale {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .price--card .price__compare-row,
+  .price--card .price__sale-row {
+    gap: 6px;
+  }
+
+  .price--card .price__label {
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+  }
+
+  .price--card .price__compare {
+    color: var(--color-text, #0b1d3a);
+    font-family: var(--font-body-family);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    opacity: 0.72;
+  }
+
+  .price--card .price__discount {
+    min-height: 20px;
+    padding: 2px 7px;
+    font-size: 0.68rem;
+  }
+
+  .price--card .price__sale {
+    color: var(--color-secondary, #e8a817);
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+{% endstylesheet %}
