@@ -1,0 +1,315 @@
+{% doc %}
+  Renders the product variant selection modal and its client-side behavior.
+
+  @param {product} product - Product whose variants are shown.
+  @param {string} section_id - Main product section identifier.
+  @param {string} product_form_id - Product form identifier used to continue the purchase action.
+{% enddoc %}
+
+{%- if product.variants.size > 1 -%}
+  {%- assign selected_variant = product.selected_or_first_available_variant -%}
+  <div
+    class='variant-modal'
+    id='VariantModal-{{ section_id }}'
+    data-variant-modal
+    data-product-form-id='{{ product_form_id }}'
+    hidden
+    aria-hidden='true'>
+    <button
+      type='button'
+      class='variant-modal__overlay'
+      data-variant-modal-close
+      tabindex='-1'
+      aria-label='{{ 'products.product.variant_modal.close' | t | escape }}'></button>
+
+    <div
+      class='variant-modal__panel'
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='VariantModalTitle-{{ section_id }}'
+      aria-describedby='VariantModalDescription-{{ section_id }}'
+      tabindex='-1'>
+      <header class='variant-modal__header'>
+        <div>
+          <h2 class='variant-modal__title' id='VariantModalTitle-{{ section_id }}'>
+            {{ 'products.product.variant_modal.title' | t }}
+          </h2>
+          <p class='variant-modal__description' id='VariantModalDescription-{{ section_id }}'>
+            {{ 'products.product.variant_modal.description' | t }}
+          </p>
+        </div>
+        <button
+          type='button'
+          class='variant-modal__close'
+          data-variant-modal-close
+          aria-label='{{ 'products.product.variant_modal.close' | t | escape }}'>
+          <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'>
+            <path d='M6 6l12 12M18 6 6 18'/>
+          </svg>
+        </button>
+      </header>
+
+      <div class='variant-modal__product'>
+        {%- if product.featured_image != blank -%}
+          {{ product.featured_image
+            | image_url: width: 160
+            | image_tag:
+              class: 'variant-modal__image',
+              widths: '80, 120, 160',
+              sizes: '72px',
+              loading: 'lazy',
+              alt: product.featured_image.alt
+          }}
+        {%- endif -%}
+        <div class='variant-modal__product-info'>
+          <p class='variant-modal__product-title'>{{ product.title | escape }}</p>
+          <div class='variant-modal__price' data-variant-modal-price>
+            {% render 'price', product: selected_variant, use_variant: false, show_compare: true %}
+          </div>
+        </div>
+      </div>
+
+      <div class='variant-modal__options'>
+        {%- for option in product.options_with_values -%}
+          <fieldset class='variant-modal__option' data-variant-modal-option>
+            <legend class='variant-modal__option-name'>{{ option.name | escape }}</legend>
+            <div class='variant-modal__values'>
+              {%- for value in option.values -%}
+                <label class='variant-modal__value{% if option.selected_value == value %} is-selected{% endif %}'>
+                  <input
+                    type='radio'
+                    name='VariantModal-{{ section_id }}-{{ option.position }}'
+                    value='{{ value | escape }}'
+                    data-option-index='{{ option.position | minus: 1 }}'
+                    {% if option.selected_value == value %}checked{% endif %}>
+                  <span>{{ value }}</span>
+                </label>
+              {%- endfor -%}
+            </div>
+          </fieldset>
+        {%- endfor -%}
+      </div>
+
+      <p class='variant-modal__status' data-variant-modal-status aria-live='polite'></p>
+      <button type='button' class='button variant-modal__confirm' data-variant-modal-confirm>
+        {{ 'products.product.add_to_cart' | t }}
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var modal = document.getElementById('VariantModal-{{ section_id }}');
+      var section = document.querySelector('[data-section-id="{{ section_id }}"]');
+      var form = document.getElementById('{{ product_form_id }}');
+      if (!modal || !section || !form || modal.dataset.initialized === 'true') return;
+
+      var variantsElement = section.querySelector('[data-variant-json]');
+      if (!variantsElement) return;
+
+      var variants;
+      try { variants = JSON.parse(variantsElement.textContent); } catch (error) { return; }
+
+      modal.dataset.initialized = 'true';
+      var panel = modal.querySelector('.variant-modal__panel');
+      var confirmButton = modal.querySelector('[data-variant-modal-confirm]');
+      var status = modal.querySelector('[data-variant-modal-status]');
+      var price = modal.querySelector('[data-variant-modal-price]');
+      var addButton = form.querySelector('.product__add-to-cart');
+      var buyNowButton = form.querySelector('[data-buy-now]');
+      var mobileButton = document.querySelector('#ProductMobileCTA-{{ section_id }} .product__mobile-cta-btn');
+      var pendingAction = 'add';
+      var pendingTrigger = null;
+      var bypassSubmit = false;
+      var bypassClick = false;
+      var closeTimer;
+      var addLabel = {{ 'products.product.add_to_cart' | t | json }};
+      var buyLabel = {{ 'products.product.variant_modal.buy_now' | t | json }};
+      var unavailableLabel = {{ 'products.product.variant_modal.unavailable' | t | json }};
+
+      function selectedModalOptions() {
+        return Array.prototype.map.call(modal.querySelectorAll('[data-variant-modal-option]'), function (option) {
+          var selected = option.querySelector('input[type="radio"]:checked');
+          return selected ? selected.value : null;
+        });
+      }
+
+      function findVariant(options) {
+        return variants.find(function (variant) {
+          return variant.options.length === options.length && variant.options.every(function (value, index) {
+            return value === options[index];
+          });
+        });
+      }
+
+      function refreshModal() {
+        var variant = findVariant(selectedModalOptions());
+        var available = Boolean(variant && variant.available);
+
+        modal.querySelectorAll('.variant-modal__value').forEach(function (label) {
+          var input = label.querySelector('input');
+          label.classList.toggle('is-selected', Boolean(input && input.checked));
+        });
+
+        confirmButton.disabled = !available;
+        confirmButton.setAttribute('aria-disabled', String(!available));
+        status.textContent = available ? '' : unavailableLabel;
+
+        if (variant && variant.price_html && price) {
+          var wrapper = document.createElement('div');
+          wrapper.innerHTML = variant.price_html;
+          var updatedPrice = wrapper.querySelector('.price');
+          var currentPrice = price.querySelector('.price');
+          if (updatedPrice && currentPrice) currentPrice.replaceWith(updatedPrice);
+        }
+
+        return variant;
+      }
+
+      function copyCurrentSelection() {
+        section.querySelectorAll('.product__option').forEach(function (option, index) {
+          var current = option.querySelector('input[type="radio"]:checked');
+          if (!current) return;
+          modal.querySelectorAll('[data-variant-modal-option]')[index]
+            .querySelectorAll('input[type="radio"]')
+            .forEach(function (input) { input.checked = input.value === current.value; });
+        });
+      }
+
+      function syncSelectionToProduct() {
+        var changed = [];
+        modal.querySelectorAll('[data-variant-modal-option]').forEach(function (modalOption, index) {
+          var selected = modalOption.querySelector('input[type="radio"]:checked');
+          var productOption = section.querySelectorAll('.product__option')[index];
+          if (!selected || !productOption) return;
+
+          Array.prototype.forEach.call(productOption.querySelectorAll('input[type="radio"]'), function (input) {
+            var shouldCheck = input.value === selected.value;
+            if (shouldCheck && !input.checked) changed.push(input);
+            input.checked = shouldCheck;
+            var label = input.closest('.product__swatch');
+            if (label) label.classList.toggle('is-selected', shouldCheck);
+          });
+        });
+
+        changed.forEach(function (input) {
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      }
+
+      function openModal(action, trigger) {
+        window.clearTimeout(closeTimer);
+        pendingAction = action || 'add';
+        pendingTrigger = trigger || document.activeElement;
+        confirmButton.textContent = pendingAction === 'buy' ? buyLabel : addLabel;
+        copyCurrentSelection();
+        refreshModal();
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('variant-modal-open');
+        requestAnimationFrame(function () {
+          modal.classList.add('is-open');
+          panel.focus();
+        });
+      }
+
+      function closeModal(restoreFocus) {
+        if (modal.hidden) return;
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('variant-modal-open');
+        closeTimer = window.setTimeout(function () {
+          modal.hidden = true;
+          if (restoreFocus && pendingTrigger && pendingTrigger.focus) pendingTrigger.focus();
+        }, 220);
+      }
+
+      function continueAction() {
+        if (pendingAction === 'buy') {
+          if (buyNowButton) {
+            bypassSubmit = true;
+            form.requestSubmit(buyNowButton);
+            return;
+          }
+
+          if (pendingTrigger && pendingTrigger.matches('.shopify-payment-button__button')) {
+            bypassClick = true;
+            pendingTrigger.click();
+            return;
+          }
+        }
+
+        if (addButton) {
+          bypassSubmit = true;
+          form.requestSubmit(addButton);
+        }
+      }
+
+      function isPurchaseTrigger(target) {
+        if (!target || !target.closest) return null;
+        var trigger = target.closest('.product__add-to-cart, [data-buy-now], .product__mobile-cta-btn, .shopify-payment-button__button');
+        if (!trigger || trigger.disabled || trigger.hasAttribute('data-restock-trigger')) return null;
+        if (trigger === mobileButton || form.contains(trigger)) return trigger;
+        return null;
+      }
+
+      document.addEventListener('click', function (event) {
+        var trigger = isPurchaseTrigger(event.target);
+        if (!trigger) return;
+        if (bypassClick) { bypassClick = false; return; }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openModal(trigger.hasAttribute('data-buy-now') || trigger.matches('.shopify-payment-button__button') ? 'buy' : 'add', trigger);
+      }, true);
+
+      form.addEventListener('submit', function (event) {
+        if (bypassSubmit) { bypassSubmit = false; return; }
+        if (event.submitter && event.submitter.hasAttribute('data-restock-trigger')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var action = event.submitter && event.submitter.hasAttribute('data-buy-now') ? 'buy' : 'add';
+        openModal(action, event.submitter || addButton);
+      }, true);
+
+      modal.addEventListener('change', function (event) {
+        if (event.target.matches('[data-variant-modal-option] input[type="radio"]')) refreshModal();
+      });
+
+      modal.addEventListener('click', function (event) {
+        if (event.target.closest('[data-variant-modal-close]')) {
+          event.preventDefault();
+          closeModal(true);
+          return;
+        }
+
+        if (!event.target.closest('[data-variant-modal-confirm]')) return;
+        var variant = refreshModal();
+        if (!variant || !variant.available) return;
+        syncSelectionToProduct();
+        closeModal(false);
+        window.setTimeout(continueAction, 240);
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (modal.hidden) return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeModal(true);
+          return;
+        }
+        if (event.key !== 'Tab') return;
+        var focusable = modal.querySelectorAll('button:not([disabled]):not([tabindex="-1"]), input:not([disabled]), [tabindex]:not([tabindex="-1"])');
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+    })();
+  </script>
+{%- endif -%}

@@ -488,6 +488,7 @@
 
 {% render 'product-media-gallery', section_id: section.id %}
 {% render 'product-variant-selection', section_id: section.id, product_form_id: product_form_id %}
+{% render 'product-variant-modal', product: product, section_id: section.id, product_form_id: product_form_id %}
 
 <style>
   /* ── Main Product — layout & buy-box ── */
@@ -1214,13 +1215,13 @@
         {
           "type": "checkbox",
           "id": "show_pix",
-          "default": true,
+          "default": false,
           "label": "Mostrar desconto PIX"
         },
         {
           "type": "text",
           "id": "pix_text",
-          "default": "5% de desconto no PIX",
+          "default": "Pagamento via PIX",
           "label": "Texto do PIX"
         },
         {
@@ -1313,69 +1314,6 @@
           "id": "link_label",
           "default": "Não sei meu CEP",
           "label": "Texto do link de CEP"
-        },
-        {
-          "type": "header",
-          "content": "Opção 1 (PAC)"
-        },
-        {
-          "type": "text",
-          "id": "option_1_name",
-          "default": "PAC",
-          "label": "Nome"
-        },
-        {
-          "type": "text",
-          "id": "option_1_deadline",
-          "default": "5 a 10 dias úteis",
-          "label": "Prazo"
-        },
-        {
-          "type": "text",
-          "id": "option_1_price",
-          "default": "R$ 15,90",
-          "label": "Valor (deixe 'Grátis' para destacar)"
-        },
-        {
-          "type": "header",
-          "content": "Opção 2 (SEDEX)"
-        },
-        {
-          "type": "text",
-          "id": "option_2_name",
-          "default": "SEDEX",
-          "label": "Nome"
-        },
-        {
-          "type": "text",
-          "id": "option_2_deadline",
-          "default": "1 a 3 dias úteis",
-          "label": "Prazo"
-        },
-        {
-          "type": "text",
-          "id": "option_2_price",
-          "default": "R$ 28,90",
-          "label": "Valor"
-        },
-        {
-          "type": "header",
-          "content": "Opção 3 (Transportadora)"
-        },
-        {
-          "type": "text",
-          "id": "option_3_name",
-          "label": "Nome (deixe vazio para não exibir)"
-        },
-        {
-          "type": "text",
-          "id": "option_3_deadline",
-          "label": "Prazo"
-        },
-        {
-          "type": "text",
-          "id": "option_3_price",
-          "label": "Valor"
         }
       ]
     },

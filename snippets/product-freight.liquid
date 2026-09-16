@@ -1,21 +1,9 @@
-{%- comment -%}
-  ============================================================
-  product-freight — calculadora de frete por CEP
-  ============================================================
+{% doc %}
+Renders an inline shipping calculator using the Shopify cart shipping rates API.
 
-  O QUE FAZ:
-  Campo de CEP com máscara, validação e exibição de opções de
-  entrega configuráveis (PAC, SEDEX, Transportadora).
-  Desacoplado de qualquer app — os resultados são configuráveis
-  via Theme Editor para integração futura com carrier de frete.
-
-  COMO USAR:
-  {% render 'product-freight', block: block, section_id: section_id %}
-
-  PARÂMETROS:
-  - block: bloco do schema com settings de frete
-  - section_id: id da section para namespacing
-{%- endcomment -%}
+@param {object} block - Freight block with labels configured in the theme editor.
+@param {string} section_id - Main product section identifier.
+{% enddoc %}
 
 <div class="pf" id="ProductFreight-{{ section_id }}" {{ block.shopify_attributes }}>
   {%- if block.settings.title != blank -%}
@@ -25,7 +13,7 @@
     </p>
   {%- endif -%}
 
-  <form class="pf__form" id="FreightForm-{{ section_id }}" novalidate>
+  <div class="pf__form" id="FreightForm-{{ section_id }}">
     <div class="pf__input-row">
       <label class="visually-hidden" for="FreightCep-{{ section_id }}">{{ 'sections.product.freight.cep_label' | t | default: 'CEP' }}</label>
       <input
@@ -38,12 +26,12 @@
         autocomplete="postal-code"
         aria-describedby="FreightResult-{{ section_id }}"
       >
-      <button type="submit" class="pf__btn button button--small">
+      <button type="button" class="pf__btn button button--small">
         {{ block.settings.button_label | default: 'Calcular' | escape }}
       </button>
     </div>
     <div id="FreightResult-{{ section_id }}" class="pf__result" aria-live="polite" aria-atomic="true"></div>
-  </form>
+  </div>
 
   <a
     href="https://buscacepinter.correios.com.br/app/endereco/index.php"
@@ -105,6 +93,7 @@
   .pf__result-deadline { opacity: 0.7; font-size: var(--f1); flex: 1; text-align: center; }
   .pf__result-price { font-weight: var(--font-heading-weight); color: var(--color-accent); }
   .pf__result-price--free { color: var(--color-sale); }
+  .pf__city { margin: 0 0 8px; font-size: var(--f0); opacity: 0.72; }
   .pf__error { color: var(--color-sale); padding: 8px 0; }
   .pf__loading { opacity: 0.6; padding: 8px 0; }
   .pf__link {
@@ -118,15 +107,204 @@
     text-underline-offset: 2px;
   }
   .pf__link:hover { opacity: 0.8; }
+  @media screen and (max-width: 480px) {
+    .pf__input-row { align-items: stretch; }
+    .pf__input { min-width: 0; }
+    .pf__btn { padding-inline: 16px; }
+    .pf__result-item { align-items: flex-start; }
+    .pf__result-deadline { order: 3; flex-basis: 100%; text-align: left; }
+  }
 </style>
 
 <script>
   (function () {
-    var form = document.getElementById('FreightForm-{{ section_id }}');
-    if (!form) return;
+    var calculator = document.getElementById('FreightForm-{{ section_id }}');
+    if (!calculator) return;
 
-    var input = form.querySelector('.pf__input');
+    var input = calculator.querySelector('.pf__input');
+    var button = calculator.querySelector('.pf__btn');
     var result = document.getElementById('FreightResult-{{ section_id }}');
+    var section = document.querySelector('[data-section-id="{{ section_id }}"]');
+    var rootUrl = {{ routes.root_url | json }};
+    var requestId = 0;
+    var strings = {
+      invalidCep: {{ 'sections.product.freight.invalid_cep' | t | json }},
+      calculating: {{ 'sections.product.freight.calculating' | t | json }},
+      cepNotFound: {{ 'sections.product.freight.cep_not_found' | t | json }},
+      error: {{ 'sections.product.freight.error' | t | json }},
+      unavailable: {{ 'sections.product.freight.unavailable' | t | json }},
+      noRates: {{ 'sections.product.freight.no_rates' | t | json }},
+      deliveryTo: {{ 'sections.product.freight.delivery_to' | t | json }},
+      businessDay: {{ 'sections.product.freight.business_day' | t | json }},
+      businessDays: {{ 'sections.product.freight.business_days' | t | json }},
+      estimatedDate: {{ 'sections.product.freight.estimated_date' | t | json }},
+      deadlineAtCheckout: {{ 'sections.product.freight.deadline_at_checkout' | t | json }},
+      free: {{ 'sections.product.freight.free' | t | json }}
+    };
+
+    if (rootUrl.charAt(rootUrl.length - 1) !== '/') rootUrl += '/';
+
+    function escapeHtml(value) {
+      var element = document.createElement('div');
+      element.textContent = String(value || '');
+      return element.innerHTML;
+    }
+
+    function showError(message) {
+      result.innerHTML = '<p class="pf__error" role="alert">' + escapeHtml(message) + '</p>';
+    }
+
+    function setLoading(loading) {
+      button.disabled = loading;
+      input.disabled = loading;
+      button.setAttribute('aria-busy', String(loading));
+    }
+
+    function selectedVariant() {
+      var variantInput = section && section.querySelector('.product-variant-id');
+      if (!variantInput || variantInput.disabled || !variantInput.value) return null;
+
+      var quantityInput = section.querySelector('.quantity__input');
+      var quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
+      return {
+        id: Number(variantInput.value),
+        quantity: Number.isFinite(quantity) ? Math.max(1, quantity) : 1
+      };
+    }
+
+    function requestJson(url, options) {
+      return fetch(url, options).then(function (response) {
+        if (!response.ok) throw new Error('Request failed: ' + response.status);
+        if (response.status === 202 || response.status === 204) return null;
+        return response.text().then(function (text) { return text ? JSON.parse(text) : null; });
+      });
+    }
+
+    function addTemporaryItem(variant) {
+      return requestJson(rootUrl + 'cart/add.js', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: [{
+            id: variant.id,
+            quantity: variant.quantity,
+            properties: { '_freight_quote': String(Date.now()) }
+          }]
+        })
+      }).then(function (data) {
+        var item = data && data.items && data.items[0];
+        if (!item || !item.key) throw new Error('Temporary cart item was not created');
+        return item.key;
+      });
+    }
+
+    function removeTemporaryItem(itemKey, attempt) {
+      return requestJson(rootUrl + 'cart/change.js', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: itemKey, quantity: 0 })
+      }).catch(function (error) {
+        if (attempt < 2) {
+          return new Promise(function (resolve) { window.setTimeout(resolve, 300); })
+            .then(function () { return removeTemporaryItem(itemKey, attempt + 1); });
+        }
+        throw error;
+      });
+    }
+
+    function shippingParams(cep, address) {
+      var params = new URLSearchParams();
+      params.set('shipping_address[zip]', cep);
+      params.set('shipping_address[country]', 'Brazil');
+      if (address.uf) params.set('shipping_address[province]', address.uf);
+      if (address.localidade) params.set('shipping_address[city]', address.localidade);
+      return params.toString();
+    }
+
+    function pollRates(url, attempt) {
+      return requestJson(url, { headers: { 'Accept': 'application/json' } }).then(function (data) {
+        if (data && Array.isArray(data.shipping_rates)) return data.shipping_rates;
+        if (attempt >= 14) throw new Error('Shipping rates timed out');
+        return new Promise(function (resolve) { window.setTimeout(resolve, 700); })
+          .then(function () { return pollRates(url, attempt + 1); });
+      });
+    }
+
+    function quoteShipping(cep, address, variant) {
+      var temporaryItemKey;
+      var params = shippingParams(cep, address);
+      var prepareUrl = rootUrl + 'cart/prepare_shipping_rates.json?' + params;
+      var ratesUrl = rootUrl + 'cart/async_shipping_rates.json?' + params;
+
+      return addTemporaryItem(variant)
+        .then(function (itemKey) {
+          temporaryItemKey = itemKey;
+          return requestJson(prepareUrl, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: ''
+          });
+        })
+        .then(function () { return pollRates(ratesUrl, 0); })
+        .then(function (rates) {
+          return removeTemporaryItem(temporaryItemKey, 0).then(function () { return rates; });
+        }, function (error) {
+          if (!temporaryItemKey) throw error;
+          return removeTemporaryItem(temporaryItemKey, 0).then(function () { throw error; });
+        });
+    }
+
+    function formatPrice(rate) {
+      var amount = Number(rate.price);
+      if (amount === 0) return strings.free;
+      return new Intl.NumberFormat(document.documentElement.lang || 'pt-BR', {
+        style: 'currency',
+        currency: rate.currency || 'BRL'
+      }).format(amount);
+    }
+
+    function formatDeadline(rate) {
+      if (Array.isArray(rate.delivery_days) && rate.delivery_days.length) {
+        var first = Number(rate.delivery_days[0]);
+        var last = Number(rate.delivery_days[rate.delivery_days.length - 1]);
+        if (first === last) return first + ' ' + (first === 1 ? strings.businessDay : strings.businessDays);
+        return first + '–' + last + ' ' + strings.businessDays;
+      }
+
+      if (rate.delivery_date) {
+        var date = new Date(rate.delivery_date + 'T12:00:00');
+        var formattedDate = new Intl.DateTimeFormat(document.documentElement.lang || 'pt-BR').format(date);
+        return strings.estimatedDate.replace('[date]', formattedDate);
+      }
+
+      return rate.description || strings.deadlineAtCheckout;
+    }
+
+    function showRates(rates, address) {
+      if (!rates.length) {
+        showError(strings.noRates);
+        return;
+      }
+
+      rates.sort(function (a, b) { return Number(a.price) - Number(b.price); });
+      var destination = [address.localidade, address.uf].filter(Boolean).join(' - ');
+      var regionNote = destination
+        ? '<p class="pf__city">' + escapeHtml(strings.deliveryTo) + ' ' + escapeHtml(destination) + '</p>'
+        : '';
+      var items = rates.map(function (rate) {
+        var isFree = Number(rate.price) === 0;
+        return '<li class="pf__result-item">' +
+          '<span class="pf__result-name">' + escapeHtml(rate.presentment_name || rate.name) + '</span>' +
+          '<span class="pf__result-deadline">' + escapeHtml(formatDeadline(rate)) + '</span>' +
+          '<span class="pf__result-price' + (isFree ? ' pf__result-price--free' : '') + '">' + escapeHtml(formatPrice(rate)) + '</span>' +
+          '</li>';
+      }).join('');
+
+      result.innerHTML = regionNote + '<ul class="pf__result-list" role="list">' + items + '</ul>';
+    }
 
     // CEP mask: 00000-000
     input.addEventListener('input', function () {
@@ -136,71 +314,60 @@
       result.innerHTML = '';
     });
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    function calculateShipping() {
       var cep = input.value.replace(/\D/g, '');
+      var variant = selectedVariant();
+      var currentRequest = ++requestId;
 
       if (cep.length !== 8) {
         input.classList.add('pf__input--error');
-        result.innerHTML = '<p class="pf__error" role="alert">{{ 'sections.product.freight.invalid_cep' | t | default: 'CEP inválido. Digite 8 dígitos.' | escape }}</p>';
+        showError(strings.invalidCep);
         input.focus();
         return;
       }
 
-      result.innerHTML = '<p class="pf__loading">{{ 'sections.product.freight.calculating' | t | default: 'Calculando...' | escape }}</p>';
+      if (!variant) {
+        showError(strings.unavailable);
+        return;
+      }
 
-      // Validate CEP via ViaCEP (CORS-friendly, public API)
+      setLoading(true);
+      result.innerHTML = '<p class="pf__loading">' + escapeHtml(strings.calculating) + '</p>';
+
       fetch('https://viacep.com.br/ws/' + cep + '/json/')
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.erro) {
-            input.classList.add('pf__input--error');
-            result.innerHTML = '<p class="pf__error" role="alert">{{ 'sections.product.freight.cep_not_found' | t | default: 'CEP não encontrado.' | escape }}</p>';
-            return;
-          }
-          showOptions(data);
+        .then(function (response) {
+          if (!response.ok) throw new Error('CEP lookup failed');
+          return response.json();
         })
-        .catch(function () {
-          input.classList.add('pf__input--error');
-          result.innerHTML = '<p class="pf__error" role="alert">{{ 'sections.product.freight.error' | t | default: 'Erro ao consultar CEP. Tente novamente.' | escape }}</p>';
+        .then(function (address) {
+          if (address.erro) {
+            input.classList.add('pf__input--error');
+            throw new Error('CEP_NOT_FOUND');
+          }
+          return quoteShipping(cep, address, variant).then(function (rates) {
+            if (currentRequest === requestId) showRates(rates, address);
+          });
+        })
+        .catch(function (error) {
+          if (currentRequest !== requestId) return;
+          showError(error.message === 'CEP_NOT_FOUND' ? strings.cepNotFound : strings.error);
+        })
+        .finally(function () {
+          if (currentRequest === requestId) setLoading(false);
         });
+    }
+
+    button.addEventListener('click', calculateShipping);
+    input.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      calculateShipping();
     });
 
-    function showOptions(address) {
-      // Static shipping options configured in Theme Editor
-      var options = [
-        {
-          name: '{{ block.settings.option_1_name | default: 'PAC' | escape }}',
-          deadline: '{{ block.settings.option_1_deadline | default: '5 a 10 dias úteis' | escape }}',
-          price: '{{ block.settings.option_1_price | default: '' | escape }}'
-        },
-        {
-          name: '{{ block.settings.option_2_name | default: 'SEDEX' | escape }}',
-          deadline: '{{ block.settings.option_2_deadline | default: '1 a 3 dias úteis' | escape }}',
-          price: '{{ block.settings.option_2_price | default: '' | escape }}'
-        },
-        {
-          name: '{{ block.settings.option_3_name | default: '' | escape }}',
-          deadline: '{{ block.settings.option_3_deadline | default: '' | escape }}',
-          price: '{{ block.settings.option_3_price | default: '' | escape }}'
-        }
-      ].filter(function (o) { return o.name.trim() !== ''; });
-
-      var regionNote = address.localidade && address.uf
-        ? '<p class="pf__city" style="font-size:var(--f0);opacity:0.7;margin:0 0 8px;">Entrega para ' + address.localidade + ' - ' + address.uf + '</p>'
-        : '';
-
-      var items = options.map(function (o) {
-        var isFree = o.price.toLowerCase() === 'grátis' || o.price.toLowerCase() === 'gratis' || o.price === '0' || o.price === '';
-        var priceHtml = isFree && o.price !== ''
-          ? '<span class="pf__result-price pf__result-price--free">' + o.price + '</span>'
-          : o.price !== ''
-            ? '<span class="pf__result-price">' + o.price + '</span>'
-            : '<span class="pf__result-price" style="opacity:0.5">—</span>';
-        return '<li class="pf__result-item"><span class="pf__result-name">' + o.name + '</span><span class="pf__result-deadline">' + o.deadline + '</span>' + priceHtml + '</li>';
-      }).join('');
-
-      result.innerHTML = regionNote + '<ul class="pf__result-list" role="list">' + items + '</ul>';
+    if (section) {
+      section.querySelectorAll('.product__option input[type="radio"]').forEach(function (option) {
+        option.addEventListener('change', function () { result.innerHTML = ''; });
+      });
     }
   })();
 </script>

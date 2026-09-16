@@ -86,6 +86,13 @@
       "add_to_cart": "Adicionar ao carrinho",
       "sold_out": "Esgotado",
       "unavailable": "Indisponível",
+      "variant_modal": {
+        "title": "Escolha a versão",
+        "description": "Selecione o modelo ou a versão antes de continuar.",
+        "close": "Fechar seleção de versão",
+        "buy_now": "Comprar agora",
+        "unavailable": "Esta combinação está indisponível. Escolha outra opção."
+      },
       "restock_signup": "Inscreva-se na pré-venda",
       "restock_signup_aria": "Inscrever na pré-venda de {{ product }}",
       "restock_badge": "Pré-venda",
@@ -102,6 +109,9 @@
         "from_price_html": "A partir de {{ price }}",
         "regular_price": "Preço normal",
         "sale_price": "Preço promocional",
+        "was": "De",
+        "now": "Por",
+        "discount_percentage": "{{ percent }}% de desconto",
         "unit_price": "Preço unitário"
       },
       "vendor": "Fornecedor",
@@ -184,7 +194,23 @@
       "breadcrumb": "Você está em",
       "rating_label": "Avaliação do produto",
       "pix_label": "PIX",
-      "error": "Ocorreu um erro. Tente novamente."
+      "error": "Ocorreu um erro. Tente novamente.",
+      "freight": {
+        "cep_label": "CEP",
+        "find_cep_aria": "Não sei meu CEP — abre em uma nova aba",
+        "invalid_cep": "CEP inválido. Digite 8 números.",
+        "calculating": "Calculando frete...",
+        "cep_not_found": "CEP não encontrado.",
+        "error": "Não foi possível calcular o frete. Tente novamente.",
+        "unavailable": "Selecione uma opção disponível do produto antes de calcular o frete.",
+        "no_rates": "Nenhuma opção de entrega foi encontrada para este CEP.",
+        "delivery_to": "Entrega para",
+        "business_day": "dia útil",
+        "business_days": "dias úteis",
+        "estimated_date": "Entrega estimada: [date]",
+        "deadline_at_checkout": "Prazo informado na finalização",
+        "free": "Grátis"
+      }
     },
     "main_collection": {
       "empty": "Nenhum produto encontrado",

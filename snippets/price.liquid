@@ -1,13 +1,11 @@
-{%- comment -%}
-  ============================================================
-  price — exibe preço com opção de preço promocional
-  ============================================================
-  PARÂMETROS:
-  - product: objeto product OU variant.
-  - use_variant (bool): se true, usa selected_or_first_available_variant.
-  - show_compare (bool): se true, mostra o preço riscado quando em promoção.
-  - price_class: classe CSS extra aplicada no wrapper .price.
-{%- endcomment -%}
+{% doc %}
+Renders a regular or promotional product price.
+
+@param product - Product or variant whose price is displayed.
+@param {boolean} [use_variant] - Uses the selected or first available variant.
+@param {boolean} [show_compare] - Shows promotional pricing when available.
+@param {string} [price_class] - Additional class added to the price wrapper.
+{% enddoc %}
 
 {%- liquid
   if use_variant
@@ -15,15 +13,11 @@
   else
     assign target = product
   endif
-
-  assign compare_at = target.compare_at_price
-  if compare_at == nil and product.compare_at_price_max
-    assign compare_at = product.compare_at_price_max
-  endif
 -%}
 
 {%- comment -%} Encontrar o menor preço positivo entre as variantes {%- endcomment -%}
 {%- assign best_price = nil -%}
+{%- assign best_price_variant = nil -%}
 {%- if use_variant -%}
   {%- assign best_price = target.price -%}
 {%- else -%}
@@ -31,6 +25,7 @@
     {%- if v.price > 0 -%}
       {%- if best_price == nil or v.price < best_price -%}
         {%- assign best_price = v.price -%}
+        {%- assign best_price_variant = v -%}
       {%- endif -%}
     {%- endif -%}
   {%- endfor -%}
@@ -41,24 +36,42 @@
 {%- endif -%}
 
 {%- liquid
+  if best_price_variant != nil
+    assign compare_at = best_price_variant.compare_at_price
+  else
+    assign compare_at = target.compare_at_price
+  endif
+
   assign money_price = best_price | money
 
   assign on_sale = false
   if compare_at and compare_at > best_price and best_price > 0
     assign on_sale = true
+    assign discount_amount = compare_at | minus: best_price
+    assign discount_percentage = discount_amount | times: 100.0 | divided_by: compare_at | round: 1
+    assign discount_percentage_text = discount_percentage | append: '' | replace: '.0', ''
+    if localization.language.iso_code contains 'pt'
+      assign discount_percentage_text = discount_percentage_text | replace: '.', ','
+    endif
   endif
 -%}
 
 <div class="price {% if on_sale %}price--on-sale{% endif %} {{ price_class }}">
-  {%- if false -%}{{- '' -}}{%- else -%}
-    {%- if on_sale and show_compare -%}
-      <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+  {%- if on_sale and show_compare -%}
+    <div class="price__compare-row">
+      <span class="price__label">{{ 'products.product.price.was' | t }}</span>
       <s class="price__compare">{{ compare_at | money }}</s>
-      <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+      <span
+        class="price__discount"
+        aria-label="{{ 'products.product.price.discount_percentage' | t: percent: discount_percentage_text }}">
+        -{{ discount_percentage_text }}%
+      </span>
+    </div>
+    <div class="price__sale-row">
+      <span class="price__label">{{ 'products.product.price.now' | t }}</span>
       <span class="price__sale">{{ money_price }}</span>
-      <span class="price__badge">{{ 'products.product.on_sale' | t }}</span>
-    {%- else -%}
-      <span class="price__regular">{{ money_price }}</span>
-    {%- endif -%}
+    </div>
+  {%- else -%}
+    <span class="price__regular">{{ money_price }}</span>
   {%- endif -%}
 </div>

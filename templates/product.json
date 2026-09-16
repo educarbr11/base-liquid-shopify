@@ -45,8 +45,8 @@
         "price": {
           "type": "price",
           "settings": {
-            "show_pix": true,
-            "pix_text": "5% de desconto no PIX",
+            "show_pix": false,
+            "pix_text": "",
             "show_installments": false,
             "installments_text": "ou em até 12x sem juros no cartão"
           }
@@ -75,16 +75,7 @@
             "title": "Calcular frete",
             "placeholder": "00000-000",
             "button_label": "Calcular",
-            "link_label": "Não sei meu CEP",
-            "option_1_name": "PAC",
-            "option_1_deadline": "5 a 10 dias úteis",
-            "option_1_price": "R$ 15,90",
-            "option_2_name": "SEDEX",
-            "option_2_deadline": "1 a 3 dias úteis",
-            "option_2_price": "R$ 28,90",
-            "option_3_name": "",
-            "option_3_deadline": "",
-            "option_3_price": ""
+            "link_label": "Não sei meu CEP"
           }
         },
         "benefits": {

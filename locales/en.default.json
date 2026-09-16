@@ -86,6 +86,13 @@
       "add_to_cart": "Adicionar ao carrinho",
       "sold_out": "Esgotado",
       "unavailable": "Indisponível",
+      "variant_modal": {
+        "title": "Choose a version",
+        "description": "Select a model or version before continuing.",
+        "close": "Close version selection",
+        "buy_now": "Buy now",
+        "unavailable": "This combination is unavailable. Choose another option."
+      },
       "restock_signup": "Join the pre-order list",
       "restock_signup_aria": "Join the pre-order list for {{ product }}",
       "restock_badge": "Pre-order",
@@ -102,6 +109,9 @@
         "from_price_html": "From {{ price }}",
         "regular_price": "Regular price",
         "sale_price": "Sale price",
+        "was": "Was",
+        "now": "Now",
+        "discount_percentage": "{{ percent }}% off",
         "unit_price": "Unit price"
       },
       "vendor": "Vendor",
@@ -184,7 +194,23 @@
       "breadcrumb": "You are here",
       "rating_label": "Product rating",
       "pix_label": "PIX",
-      "error": "Something went wrong. Please try again."
+      "error": "Something went wrong. Please try again.",
+      "freight": {
+        "cep_label": "Postal code",
+        "find_cep_aria": "Find my postal code — opens in a new tab",
+        "invalid_cep": "Invalid postal code. Enter 8 digits.",
+        "calculating": "Calculating shipping...",
+        "cep_not_found": "Postal code not found.",
+        "error": "Shipping could not be calculated. Please try again.",
+        "unavailable": "Select an available product option before calculating shipping.",
+        "no_rates": "No delivery options were found for this postal code.",
+        "delivery_to": "Delivery to",
+        "business_day": "business day",
+        "business_days": "business days",
+        "estimated_date": "Estimated delivery: [date]",
+        "deadline_at_checkout": "Delivery time shown at checkout",
+        "free": "Free"
+      }
     },
     "main_collection": {
       "empty": "No products found",

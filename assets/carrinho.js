@@ -132,11 +132,15 @@
     event.preventDefault();
     var variantInput = form.querySelector('[name="id"]');
     var button = event.submitter || form.querySelector('[type="submit"], [name="add"]');
+    var buyNow = Boolean(button && button.hasAttribute('data-buy-now'));
     if (!variantInput || variantInput.disabled || !variantInput.value || (button && button.disabled)) return;
     if (button) button.setAttribute('aria-busy', 'true');
     fetch(root + 'cart/add.js', { method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(form) })
       .then(function (response) { if (!response.ok) throw new Error('add'); return response.json(); })
-      .then(function () { if (drawer) openDrawer(button); else fetchCart(); })
+      .then(function () {
+        if (buyNow) { window.location.assign(root + 'checkout'); return; }
+        if (drawer) openDrawer(button); else fetchCart();
+      })
       .catch(function () { form.submit(); })
       .finally(function () { if (button) button.removeAttribute('aria-busy'); });
   });
