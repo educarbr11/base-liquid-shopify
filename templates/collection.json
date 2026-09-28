@@ -16,6 +16,7 @@
         "video_collection": "robotica-educacional-copia",
         "video_position_x": 50,
         "video_position_y": 30,
+        "background_image": "shopify://shop_images/banner-sem-texto-para-o-gabs-lindo.png",
         "show_description": false
       }
     },
