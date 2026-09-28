@@ -14,43 +14,90 @@
       "blocks": {
         "launches": {
           "type": "collection_card",
-          "settings": { "collection": "lancamentos", "title": "Lançamentos", "group": "featured" }
+          "settings": {
+            "collection": "lancamentos",
+            "image": "shopify://shop_images/banner_lancamentos.jpg",
+            "title": "Lançamentos",
+            "group": "featured"
+          }
         },
         "opportunities": {
           "type": "collection_card",
-          "settings": { "collection": "", "title": "Oportunidades", "group": "featured" }
+          "settings": {
+            "collection": "",
+            "title": "Oportunidades",
+            "group": "featured"
+          }
         },
         "preschool": {
           "type": "collection_card",
-          "settings": { "collection": "pre-escola-digital", "title": "Pré-Escola", "group": "educacao_infantil" }
+          "settings": {
+            "collection": "pre-escola-digital",
+            "image": "shopify://shop_images/banner_pre_escola_65db49fc-ae4f-4972-a9c6-b31d57d6bba5.jpg",
+            "title": "Pré-Escola",
+            "group": "educacao_infantil"
+          }
         },
         "edu_digital": {
           "type": "collection_card",
-          "settings": { "collection": "pre-escola-digital-copia", "title": "Edu Digital", "group": "fundamental_i" }
+          "settings": {
+            "collection": "pre-escola-digital-copia",
+            "image": "shopify://shop_images/banner_edu_2e6e208e-9e8c-4368-a3d4-8e2782fbbc23.jpg",
+            "title": "Edu Digital",
+            "group": "fundamental_i"
+          }
         },
         "microbit": {
           "type": "collection_card",
-          "settings": { "collection": "", "title": "Kit Microbit", "group": "fundamental_i" }
+          "settings": {
+            "collection": "",
+            "title": "Kit Microbit",
+            "group": "fundamental_i"
+          }
         },
         "computational_thinking": {
           "type": "collection_card",
-          "settings": { "collection": "edu-digital-copia", "title": "Pensamento Computacional", "group": "fundamental_ii" }
+          "settings": {
+            "collection": "edu-digital-copia",
+            "image": "shopify://shop_images/banner_pensamento_0dfa3243-208e-41c6-b483-558407f210f5.jpg",
+            "title": "Pensamento Computacional",
+            "group": "fundamental_ii"
+          }
         },
         "educational_robotics": {
           "type": "collection_card",
-          "settings": { "collection": "pensamento-computacional-copia", "title": "Robótica Educacional", "group": "fundamental_ii" }
+          "settings": {
+            "collection": "pensamento-computacional-copia",
+            "image": "shopify://shop_images/banner_robotica_10c11719-8055-4a77-ac2a-70c7df184690.jpg",
+            "title": "Robótica Educacional",
+            "group": "fundamental_ii"
+          }
         },
         "arduino": {
           "type": "collection_card",
-          "settings": { "collection": "", "title": "Kit Arduino", "group": "fundamental_ii" }
+          "settings": {
+            "collection": "",
+            "title": "Kit Arduino",
+            "group": "fundamental_ii"
+          }
         },
         "hq": {
           "type": "collection_card",
-          "settings": { "collection": "paradidaticos", "title": "HQ", "group": "paradidatico" }
+          "settings": {
+            "collection": "paradidaticos",
+            "image": "shopify://shop_images/banner_hq.jpg",
+            "title": "HQ",
+            "group": "paradidatico"
+          }
         },
         "oba": {
           "type": "collection_card",
-          "settings": { "collection": "robotica-educacional-copia", "title": "OBA", "group": "paradidatico" }
+          "settings": {
+            "collection": "robotica-educacional-copia",
+            "image": "shopify://shop_images/banner_oba_5f803f31-e313-4c47-8273-6f8fbba0c69c.jpg",
+            "title": "OBA",
+            "group": "paradidatico"
+          }
         }
       },
       "block_order": [
@@ -70,5 +117,7 @@
       }
     }
   },
-  "order": ["list"]
+  "order": [
+    "list"
+  ]
 }
