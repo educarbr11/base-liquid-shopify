@@ -130,20 +130,48 @@
       "type": "featured-collection",
       "settings": {
         "heading": "Nossos lançamentos",
+        "products": [],
         "collection": "lancamentos",
+        "sort_order": "collection",
         "products_to_show": 4,
         "columns_desktop": 4,
-        "show_view_all": true
+        "show_view_all": true,
+        "view_all_label": "Ver tudo →"
       }
     },
     "collection_edu_digital": {
       "type": "featured-collection",
       "settings": {
         "heading": "COLEÇÃO EDU DIGITAL",
+        "products": [
+          "edudigital-1º-ano",
+          "edudigital-2º-ano",
+          "edudigital-3º-ano",
+          "edudigital-5º-ano"
+        ],
         "collection": "pre-escola-digital-copia",
+        "sort_order": "collection",
         "products_to_show": 4,
         "columns_desktop": 4,
-        "show_view_all": true
+        "show_view_all": true,
+        "view_all_label": "Ver tudo →"
+      }
+    },
+    "featured_collection_qLynA6": {
+      "type": "featured-collection",
+      "name": "t:sections.featured_collection.name",
+      "settings": {
+        "heading": "KITS de robótica",
+        "products": [
+          "kit-de-robotica-arduino",
+          "kit-de-robotica-micro-bit"
+        ],
+        "collection": "",
+        "sort_order": "collection",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "show_view_all": true,
+        "view_all_label": "Ver tudo →"
       }
     },
     "box_banner": {
@@ -201,6 +229,7 @@
     "category_banners",
     "collection_pre_escola",
     "collection_edu_digital",
+    "featured_collection_qLynA6",
     "box_banner",
     "1785587299d6afe2b4",
     "video_scale_scroll"
