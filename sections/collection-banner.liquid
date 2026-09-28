@@ -4,6 +4,18 @@
   if section.settings.background_video != blank and video_collection != blank and video_collection.handle == collection.handle
     assign show_background_video = true
   endif
+
+  assign banner_background_image = section.settings.background_image
+  assign banner_mobile_image = blank
+  if collection.handle == 'lancamentos'
+    if section.settings.launches_background_image != blank
+      assign banner_background_image = section.settings.launches_background_image
+    endif
+    assign banner_mobile_image = section.settings.launches_mobile_image
+  endif
+  if banner_background_image == blank
+    assign banner_background_image = collection.image
+  endif
 -%}
 
 {%- comment -%}
@@ -33,10 +45,19 @@
           image_size: '1920x',
           class: 'collection-hero__bg-video'
       }}
-    {%- elsif section.settings.background_image != blank -%}
-      {{ section.settings.background_image | image_url: width: 1920 | image_tag: loading: 'eager', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
-    {%- elsif collection.image -%}
-      {{ collection.image | image_url: width: 1920 | image_tag: loading: 'eager', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
+    {%- elsif banner_background_image != blank -%}
+      {%- if banner_mobile_image != blank -%}
+        <picture class='collection-hero__picture'>
+          <source
+            media='(max-width: 768px)'
+            srcset='{{ banner_mobile_image | image_url: width: 480 }} 480w, {{ banner_mobile_image | image_url: width: 720 }} 720w, {{ banner_mobile_image | image_url: width: 960 }} 960w'
+            sizes='100vw'
+          >
+          {{ banner_background_image | image_url: width: 1920 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
+        </picture>
+      {%- else -%}
+        {{ banner_background_image | image_url: width: 1920 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '540, 720, 1080, 1440, 1920', class: 'collection-hero__bg-img', alt: collection.title | escape }}
+      {%- endif -%}
     {%- endif -%}
   </div>
 
@@ -76,6 +97,11 @@
     position: absolute;
     inset: 0;
     z-index: 0;
+  }
+  #shopify-section-{{ section.id }} .collection-hero__picture {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
   #shopify-section-{{ section.id }} .collection-hero__bg-img,
   #shopify-section-{{ section.id }} .collection-hero__bg-video {
@@ -268,10 +294,30 @@
       "info": "0% prioriza o topo e 100% prioriza a parte inferior."
     },
     {
+      "type": "header",
+      "content": "Banner de Lançamentos"
+    },
+    {
+      "type": "image_picker",
+      "id": "launches_background_image",
+      "label": "Imagem para desktop",
+      "info": "Exibida somente na coleção Lançamentos. Recomendado: 1920 x 640 px."
+    },
+    {
+      "type": "image_picker",
+      "id": "launches_mobile_image",
+      "label": "Imagem para mobile (opcional)",
+      "info": "Exibida somente no mobile da coleção Lançamentos. Recomendado: 900 x 600 px."
+    },
+    {
+      "type": "header",
+      "content": "Imagem padrão das coleções"
+    },
+    {
       "type": "image_picker",
       "id": "background_image",
-      "label": "Imagem de fundo",
-      "info": "Usada quando não há vídeo. Se ambos estiverem vazios, usa a imagem da coleção."
+      "label": "Imagem de fundo padrão",
+      "info": "Usada nas demais coleções quando não há vídeo. Se vazia, usa a imagem da coleção."
     },
     {
       "type": "checkbox",
