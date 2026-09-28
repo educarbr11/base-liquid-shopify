@@ -88,7 +88,9 @@
     border: 1px solid var(--color-border, #d9dde5); border-radius: 24px;
     box-shadow: 0 10px 30px rgba(11, 29, 58, .07);
   }
-  #shopify-section-{{ section.id }} .list-collections__group:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  #shopify-section-{{ section.id }} .list-collections__group:last-child:nth-child(odd) {
+    grid-column: 1 / -1; width: calc(50% - 12px); justify-self: center;
+  }
   #shopify-section-{{ section.id }} .list-collections__group-title {
     margin: 0 0 16px; color: var(--color-text, #0B1D3A); font-family: 'Bungee', sans-serif;
     font-size: clamp(1rem, 1.7vw, 1.25rem); font-weight: 400; line-height: 1.25;
@@ -99,12 +101,13 @@
     background: var(--color-secondary, #E8A817);
   }
   #shopify-section-{{ section.id }} .list-collections__grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px;
+    display: flex; flex-direction: column; align-items: stretch; width: 100%; gap: 14px;
     margin: 0; padding: 0; list-style: none;
   }
   #shopify-section-{{ section.id }} .list-collections__item {
     overflow: hidden; background: var(--color-background, #fff); border: 1px solid var(--color-border, #c2c2c2);
-    min-width: 0; border-radius: 18px; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    width: 100%; max-width: none; min-width: 0; flex: 0 0 auto; border-radius: 18px;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   }
   #shopify-section-{{ section.id }} .list-collections__item:hover {
     border-color: var(--color-secondary, #E8A817); box-shadow: 0 10px 28px rgba(11, 29, 58, .12); transform: translateY(-4px);
@@ -118,20 +121,23 @@
   }
   #shopify-section-{{ section.id }} .list-collections__media::after {
     content: ''; position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(90deg, rgba(11, 29, 58, .82) 0%, rgba(11, 29, 58, .35) 58%, rgba(11, 29, 58, .08) 100%);
+    background: linear-gradient(90deg, rgba(4, 39, 87, .58) 0%, rgba(4, 39, 87, .24) 32%, rgba(4, 39, 87, .06) 54%, transparent 72%);
     pointer-events: none;
   }
   #shopify-section-{{ section.id }} .list-collections__image {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1; filter: none;
   }
   #shopify-section-{{ section.id }} .list-collections__title {
     position: absolute; right: 18px; bottom: 16px; left: 18px; z-index: 2; max-width: 14ch; margin: 0;
     color: #fff; font-family: 'Bungee', sans-serif; font-size: var(--f2); font-weight: 400; line-height: 1.25;
-    overflow-wrap: anywhere; text-align: left; text-shadow: 0 2px 8px rgba(11, 29, 58, .4);
+    overflow-wrap: anywhere; text-align: left;
+    text-shadow: 0 2px 6px rgba(4, 39, 87, .95), 0 0 18px rgba(4, 39, 87, .6);
   }
   @media screen and (max-width: 900px) {
     #shopify-section-{{ section.id }} .list-collections__groups { grid-template-columns: 1fr; }
-    #shopify-section-{{ section.id }} .list-collections__group:last-child:nth-child(odd) { grid-column: auto; }
+    #shopify-section-{{ section.id }} .list-collections__group:last-child:nth-child(odd) {
+      grid-column: auto; width: 100%; justify-self: stretch;
+    }
   }
   @media screen and (max-width: 600px) {
     #shopify-section-{{ section.id }} .list-collections { padding-top: 24px; padding-bottom: 40px; }
@@ -139,7 +145,7 @@
     #shopify-section-{{ section.id }} .list-collections__groups { gap: 16px; }
     #shopify-section-{{ section.id }} .list-collections__group { padding: 14px; border-radius: 20px; }
     #shopify-section-{{ section.id }} .list-collections__group-title { margin-bottom: 12px; }
-    #shopify-section-{{ section.id }} .list-collections__grid { grid-template-columns: 1fr; gap: 12px; }
+    #shopify-section-{{ section.id }} .list-collections__grid { gap: 12px; }
   }
   @media (prefers-reduced-motion: reduce) {
     #shopify-section-{{ section.id }} .list-collections__item { transition: none; }
