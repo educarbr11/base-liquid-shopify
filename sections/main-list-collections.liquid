@@ -31,7 +31,10 @@
               {%- if block.type == 'collection_card' and block.settings.group == group_key and block.settings.collection != blank -%}
                 {%- assign category_collection = block.settings.collection -%}
                 {%- assign collection_title = block.settings.title | default: category_collection.title -%}
-                {%- assign collection_image = category_collection.featured_image -%}
+                {%- assign collection_image = block.settings.image -%}
+                {%- if collection_image == blank -%}
+                  {%- assign collection_image = category_collection.featured_image -%}
+                {%- endif -%}
                 {%- if collection_image == blank -%}
                   {%- assign collection_image = category_collection.products.first.featured_image -%}
                 {%- endif -%}
@@ -42,11 +45,11 @@
                       {%- if collection_image != blank -%}
                         {{
                           collection_image
-                          | image_url: width: 720
+                          | image_url: width: 1600
                           | image_tag:
                             loading: 'lazy',
-                            widths: '180, 360, 540, 720',
-                            sizes: '(min-width: 1000px) 33vw, (min-width: 601px) 50vw, 100vw',
+                            widths: '320, 480, 640, 800, 1200, 1600',
+                            sizes: '(min-width: 1200px) 580px, (min-width: 901px) calc((100vw - 72px) / 2), (min-width: 601px) calc((100vw - 64px) / 2), calc(100vw - 48px)',
                             class: 'list-collections__image',
                             alt: collection_title | escape
                         }}
@@ -67,23 +70,41 @@
 </div>
 
 <style>
-  #shopify-section-{{ section.id }} .list-collections { margin-top: 24px; margin-bottom: var(--spacing-sections, 40px); }
+  #shopify-section-{{ section.id }} {
+    background: linear-gradient(180deg, var(--color-background-contrast, #f2f3f8) 0, var(--color-background, #fff) 320px);
+  }
+  #shopify-section-{{ section.id }} .list-collections {
+    margin-top: 0; margin-bottom: 0; padding-top: 32px; padding-bottom: max(56px, var(--spacing-sections, 40px));
+  }
   #shopify-section-{{ section.id }} .list-collections__heading {
-    margin: 0 0 36px; color: var(--color-text, #0B1D3A); font-family: 'Bungee', sans-serif;
+    margin: 0 0 32px; color: var(--color-text, #0B1D3A); font-family: 'Bungee', sans-serif;
     font-size: var(--f6); font-weight: 400; text-align: center;
   }
-  #shopify-section-{{ section.id }} .list-collections__groups { display: grid; gap: 40px; }
+  #shopify-section-{{ section.id }} .list-collections__groups {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch;
+  }
+  #shopify-section-{{ section.id }} .list-collections__group {
+    min-width: 0; padding: 20px; background: color-mix(in srgb, var(--color-background, #fff) 94%, transparent);
+    border: 1px solid var(--color-border, #d9dde5); border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(11, 29, 58, .07);
+  }
+  #shopify-section-{{ section.id }} .list-collections__group:last-child:nth-child(odd) { grid-column: 1 / -1; }
   #shopify-section-{{ section.id }} .list-collections__group-title {
     margin: 0 0 16px; color: var(--color-text, #0B1D3A); font-family: 'Bungee', sans-serif;
-    font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 400;
+    font-size: clamp(1rem, 1.7vw, 1.25rem); font-weight: 400; line-height: 1.25;
+    display: flex; align-items: center; gap: 10px;
+  }
+  #shopify-section-{{ section.id }} .list-collections__group-title::before {
+    content: ''; width: 8px; height: 24px; flex: 0 0 auto; border-radius: 999px;
+    background: var(--color-secondary, #E8A817);
   }
   #shopify-section-{{ section.id }} .list-collections__grid {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px;
     margin: 0; padding: 0; list-style: none;
   }
   #shopify-section-{{ section.id }} .list-collections__item {
     overflow: hidden; background: var(--color-background, #fff); border: 1px solid var(--color-border, #c2c2c2);
-    border-radius: 18px; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    min-width: 0; border-radius: 18px; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
   }
   #shopify-section-{{ section.id }} .list-collections__item:hover {
     border-color: var(--color-secondary, #E8A817); box-shadow: 0 10px 28px rgba(11, 29, 58, .12); transform: translateY(-4px);
@@ -92,7 +113,7 @@
     position: relative; display: block; height: 100%; color: inherit; text-decoration: none;
   }
   #shopify-section-{{ section.id }} .list-collections__media {
-    position: relative; width: 100%; aspect-ratio: 16 / 5; overflow: hidden;
+    position: relative; width: 100%; aspect-ratio: 16 / 7; overflow: hidden;
     background-color: var(--color-background-contrast, #f2f3f8); border-radius: 18px 18px 0 0;
   }
   #shopify-section-{{ section.id }} .list-collections__media::after {
@@ -108,13 +129,17 @@
     color: #fff; font-family: 'Bungee', sans-serif; font-size: var(--f2); font-weight: 400; line-height: 1.25;
     overflow-wrap: anywhere; text-align: left; text-shadow: 0 2px 8px rgba(11, 29, 58, .4);
   }
-  @media screen and (max-width: 1000px) {
-    #shopify-section-{{ section.id }} .list-collections__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media screen and (max-width: 900px) {
+    #shopify-section-{{ section.id }} .list-collections__groups { grid-template-columns: 1fr; }
+    #shopify-section-{{ section.id }} .list-collections__group:last-child:nth-child(odd) { grid-column: auto; }
   }
   @media screen and (max-width: 600px) {
-    #shopify-section-{{ section.id }} .list-collections__groups { gap: 32px; }
-    #shopify-section-{{ section.id }} .list-collections__grid { grid-template-columns: 1fr; gap: 14px; }
-    #shopify-section-{{ section.id }} .list-collections__media { aspect-ratio: 2 / 1; }
+    #shopify-section-{{ section.id }} .list-collections { padding-top: 24px; padding-bottom: 40px; }
+    #shopify-section-{{ section.id }} .list-collections__heading { margin-bottom: 24px; font-size: clamp(1.45rem, 8vw, 2rem); }
+    #shopify-section-{{ section.id }} .list-collections__groups { gap: 16px; }
+    #shopify-section-{{ section.id }} .list-collections__group { padding: 14px; border-radius: 20px; }
+    #shopify-section-{{ section.id }} .list-collections__group-title { margin-bottom: 12px; }
+    #shopify-section-{{ section.id }} .list-collections__grid { grid-template-columns: 1fr; gap: 12px; }
   }
   @media (prefers-reduced-motion: reduce) {
     #shopify-section-{{ section.id }} .list-collections__item { transition: none; }
@@ -135,6 +160,7 @@
       "name": "Coleção",
       "settings": [
         { "type": "collection", "id": "collection", "label": "Coleção" },
+        { "type": "image_picker", "id": "image", "label": "Banner personalizado", "info": "Recomendado: 1600 x 700 px (proporção 16:7). Se vazio, usa a imagem da coleção ou do primeiro produto." },
         { "type": "text", "id": "title", "label": "Título alternativo", "info": "Se vazio, usa o título da coleção." },
         {
           "type": "select", "id": "group", "label": "Grupo", "default": "educacao_infantil",

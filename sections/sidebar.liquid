@@ -55,8 +55,23 @@
         {%- assign stage_title = stage_data[1] -%}
         {%- assign stage_is_active = false -%}
         {%- for block in section.blocks -%}
-          {%- if block.type == 'collection_link' and block.settings.stage == stage_key and collection and block.settings.collection.handle == collection.handle -%}
-            {%- assign stage_is_active = true -%}
+          {%- if block.type == 'collection_link' and block.settings.stage == stage_key -%}
+            {%- assign linked_collection = block.settings.collection -%}
+            {%- assign linked_product = block.settings.product -%}
+            {%- if linked_product == blank -%}
+              {%- assign fallback_link_handle = block.settings.title | handleize -%}
+              {%- case fallback_link_handle -%}
+                {%- when 'kit-microbit' -%}
+                  {%- assign linked_product = all_products['kit-de-robotica-micro-bit'] -%}
+                {%- when 'kit-arduino' -%}
+                  {%- assign linked_product = all_products['kit-de-robotica-arduino'] -%}
+              {%- endcase -%}
+            {%- endif -%}
+            {%- if collection and linked_collection != blank and linked_collection.handle == collection.handle -%}
+              {%- assign stage_is_active = true -%}
+            {%- elsif product and linked_product != blank and linked_product.handle == product.handle -%}
+              {%- assign stage_is_active = true -%}
+            {%- endif -%}
           {%- endif -%}
         {%- endfor -%}
 
@@ -69,14 +84,40 @@
             {%- for block in section.blocks -%}
               {%- if block.type == 'collection_link' and block.settings.stage == stage_key -%}
                 {%- assign col = block.settings.collection -%}
-                {%- assign link_title = block.settings.title | default: col.title | default: 'Nova Coleção' -%}
+                {%- assign linked_product = block.settings.product -%}
+                {%- if linked_product == blank -%}
+                  {%- assign fallback_link_handle = block.settings.title | handleize -%}
+                  {%- case fallback_link_handle -%}
+                    {%- when 'kit-microbit' -%}
+                      {%- assign linked_product = all_products['kit-de-robotica-micro-bit'] -%}
+                    {%- when 'kit-arduino' -%}
+                      {%- assign linked_product = all_products['kit-de-robotica-arduino'] -%}
+                  {%- endcase -%}
+                {%- endif -%}
+                {%- assign link_url = blank -%}
+                {%- assign link_count = block.settings.fallback_count -%}
+                {%- assign link_is_active = false -%}
+                {%- if col != blank -%}
+                  {%- assign link_url = col.url -%}
+                  {%- assign link_count = col.all_products_count -%}
+                  {%- if collection and collection.handle == col.handle -%}
+                    {%- assign link_is_active = true -%}
+                  {%- endif -%}
+                {%- elsif linked_product != blank -%}
+                  {%- assign link_url = linked_product.url -%}
+                  {%- assign link_count = 1 -%}
+                  {%- if product and product.handle == linked_product.handle -%}
+                    {%- assign link_is_active = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+                {%- assign link_title = block.settings.title | default: col.title | default: linked_product.title | default: 'Novo link' -%}
                 {%- assign use_hq_icon = false -%}
                 {%- if col != blank and col.handle == 'paradidaticos' -%}
                   {%- assign use_hq_icon = true -%}
                 {%- endif -%}
                 <li class='sidebar__collections-item' {{ block.shopify_attributes }}>
-                  {%- if col != blank -%}
-                    <a href='{{ col.url }}' class='sidebar__collections-link{% if collection and collection.handle == col.handle %} sidebar__collections-link--active{% endif %}'{% if collection and collection.handle == col.handle %} aria-current='page'{% endif %}>
+                  {%- if link_url != blank -%}
+                    <a href='{{ link_url }}' class='sidebar__collections-link{% if link_is_active %} sidebar__collections-link--active{% endif %}'{% if link_is_active %} aria-current='page'{% endif %}>
                       <span class='sidebar__icon-box'>
                         {%- if use_hq_icon -%}
                           {%- render 'icon-hq' -%}
@@ -87,7 +128,7 @@
                         {%- endif -%}
                       </span>
                       <span class='sidebar__collections-name'>{{ link_title | escape }}</span>
-                      <span class='sidebar__collections-count'>{{ col.all_products_count }}</span>
+                      <span class='sidebar__collections-count'>{{ link_count }}</span>
                     </a>
                   {%- else -%}
                     <span class='sidebar__collections-link sidebar__collections-link--disabled' aria-disabled='true'>
@@ -560,9 +601,10 @@
     },
     {
       "type": "collection_link",
-      "name": "Link de Coleção",
+      "name": "Coleção ou produto",
       "settings": [
-        { "type": "collection", "id": "collection", "label": "Coleção Vinculada" },
+        { "type": "collection", "id": "collection", "label": "Coleção vinculada", "info": "Use uma coleção ou, abaixo, um produto." },
+        { "type": "product", "id": "product", "label": "Produto vinculado", "info": "Usado quando nenhuma coleção estiver selecionada." },
         {
           "type": "select",
           "id": "stage",
@@ -579,7 +621,7 @@
         { "type": "text", "id": "title", "label": "Título alternativo (opcional)", "info": "Se vazio, usa o nome da coleção." },
         { "type": "html", "id": "icon", "label": "Ícone SVG (Recomendado)", "info": "Cole o código do SVG aqui para que as cores troquem automaticamente no hover." },
         { "type": "image_picker", "id": "icon_image", "label": "Ou envie uma imagem (PNG/JPG)" },
-        { "type": "text", "id": "fallback_count", "label": "Contagem Fictícia (se sem coleção)", "default": "0" }
+        { "type": "text", "id": "fallback_count", "label": "Contagem alternativa", "default": "0" }
       ]
     }
   ]
