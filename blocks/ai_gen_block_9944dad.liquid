@@ -21,6 +21,17 @@
     height: {{ block.settings.banner_height }}px;
     overflow: hidden;
     border-radius: {{ block.settings.border_radius }}px;
+    /* Permite scroll vertical da página; o arraste horizontal fica com o carrossel */
+    touch-action: pan-y;
+  }
+
+  .ai-banner-carousel__wrapper-{{ ai_gen_id }}.is-draggable {
+    cursor: grab;
+  }
+
+  .ai-banner-carousel__wrapper-{{ ai_gen_id }}.is-dragging {
+    cursor: grabbing;
+    user-select: none;
   }
 
   .ai-banner-carousel__slides-{{ ai_gen_id }} {
@@ -57,6 +68,9 @@
     height: 100%;
     object-fit: cover;
     border-radius: {{ block.settings.border_radius }}px;
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
   }
 
   .ai-banner-carousel__placeholder-{{ ai_gen_id }} {
@@ -200,6 +214,7 @@
               width="{{ banner_image.width }}"
               height="{{ banner_image.height }}"
               class="ai-banner-carousel__image-{{ ai_gen_id }}"
+              draggable="false"
             >
           </div>
         {% endif %}
@@ -276,6 +291,8 @@
         this.currentSlide = 0;
         this.previousSlide = null;
         this.autoplayInterval = null;
+        this.drag = null;
+        this.isAnimating = false;
       }
 
       connectedCallback() {
@@ -285,6 +302,8 @@
         this.nextButton = this.querySelector('.ai-banner-carousel__arrow--next-{{ ai_gen_id }}');
         this.autoplay = this.dataset.autoplay === 'true';
         this.autoplaySpeed = parseInt(this.dataset.autoplaySpeed) * 1000;
+        this.wrapper = this.querySelector('.ai-banner-carousel__wrapper-{{ ai_gen_id }}');
+        this.transitionMs = {{ block.settings.transition_duration }} * 1000;
 
         this.setupEventListeners();
 
@@ -315,10 +334,170 @@
             this.resetAutoplay();
           });
         });
+
+        this.setupDrag();
+      }
+
+      // ---- Arrastar para trocar de banner (touch + mouse) ----
+      setupDrag() {
+        if (!this.wrapper || this.slides.length < 2) return;
+
+        this.wrapper.classList.add('is-draggable');
+
+        this.wrapper.addEventListener('pointerdown', (e) => this.onDragStart(e));
+        this.wrapper.addEventListener('pointermove', (e) => this.onDragMove(e));
+        this.wrapper.addEventListener('pointerup', (e) => this.onDragEnd(e));
+        this.wrapper.addEventListener('pointercancel', (e) => this.onDragEnd(e, true));
+        this.wrapper.addEventListener('dragstart', (e) => e.preventDefault());
+
+        // Evita clique acidental após arrastar
+        this.wrapper.addEventListener('click', (e) => {
+          if (this.suppressClick) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.suppressClick = false;
+          }
+        }, true);
+      }
+
+      wrapIndex(index) {
+        const total = this.slides.length;
+        return (index + total) % total;
+      }
+
+      onDragStart(e) {
+        if (this.isAnimating) return;
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        if (e.target.closest('button')) return;
+
+        this.drag = {
+          pointerId: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          dx: 0,
+          width: this.wrapper.offsetWidth,
+          active: false,
+          neighbor: null
+        };
+      }
+
+      onDragMove(e) {
+        const drag = this.drag;
+        if (!drag || e.pointerId !== drag.pointerId) return;
+
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+
+        if (!drag.active) {
+          // Só inicia o arraste se o movimento for predominantemente horizontal
+          if (Math.abs(dx) < 6) return;
+          if (Math.abs(dy) > Math.abs(dx)) {
+            this.drag = null;
+            return;
+          }
+          drag.active = true;
+          this.wrapper.setPointerCapture(e.pointerId);
+          this.wrapper.classList.add('is-dragging');
+          clearInterval(this.autoplayInterval);
+        }
+
+        drag.dx = dx;
+
+        const current = this.slides[this.currentSlide];
+        const direction = dx < 0 ? 1 : -1; // 1 = próximo, -1 = anterior
+        const neighborIndex = this.wrapIndex(this.currentSlide + direction);
+        const neighbor = this.slides[neighborIndex];
+
+        // Se trocou de direção, restaura o vizinho anterior
+        if (drag.neighbor && drag.neighbor !== neighbor && drag.neighbor !== current) {
+          this.clearInline(drag.neighbor);
+        }
+        drag.neighbor = neighbor;
+        drag.neighborIndex = neighborIndex;
+        drag.direction = direction;
+
+        current.style.transition = 'none';
+        current.style.transform = `translateX(${dx}px)`;
+
+        if (neighbor !== current) {
+          neighbor.style.transition = 'none';
+          neighbor.style.opacity = '1';
+          neighbor.style.zIndex = '2';
+          neighbor.style.transform = `translateX(${direction * drag.width + dx}px)`;
+        }
+      }
+
+      onDragEnd(e, cancelled = false) {
+        const drag = this.drag;
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        this.drag = null;
+
+        if (!drag.active) return;
+
+        this.wrapper.classList.remove('is-dragging');
+        if (this.wrapper.hasPointerCapture(e.pointerId)) {
+          this.wrapper.releasePointerCapture(e.pointerId);
+        }
+        this.suppressClick = true;
+        setTimeout(() => { this.suppressClick = false; }, 50);
+
+        const threshold = Math.min(80, drag.width * 0.15);
+        const commit = !cancelled && Math.abs(drag.dx) > threshold;
+        const current = this.slides[this.currentSlide];
+        const neighbor = drag.neighbor;
+        const transition = `transform ${this.transitionMs}ms ease-out`;
+
+        this.isAnimating = true;
+        current.style.transition = transition;
+        if (neighbor && neighbor !== current) neighbor.style.transition = transition;
+
+        if (commit) {
+          current.style.transform = `translateX(${-drag.direction * 100}%)`;
+          neighbor.style.transform = 'translateX(0)';
+        } else {
+          current.style.transform = 'translateX(0)';
+          if (neighbor && neighbor !== current) {
+            neighbor.style.transform = `translateX(${drag.direction * 100}%)`;
+          }
+        }
+
+        setTimeout(() => {
+          this.slides.forEach((slide) => {
+            slide.style.transition = 'none';
+            this.clearInline(slide, true);
+          });
+
+          if (commit) this.setActiveSlide(drag.neighborIndex);
+
+          // Força reflow para aplicar as classes sem animar, depois libera as transições
+          void this.wrapper.offsetWidth;
+          this.slides.forEach((slide) => { slide.style.transition = ''; });
+
+          this.isAnimating = false;
+          this.resetAutoplay();
+        }, this.transitionMs + 20);
+      }
+
+      clearInline(slide, keepTransition = false) {
+        slide.style.transform = '';
+        slide.style.opacity = '';
+        slide.style.zIndex = '';
+        if (!keepTransition) slide.style.transition = '';
+      }
+
+      // Define o slide ativo sem animação de classe (usado após o arraste)
+      setActiveSlide(index) {
+        this.slides.forEach((slide) => slide.classList.remove('active', 'previous'));
+        this.dots.forEach((dot) => dot.classList.remove('active'));
+
+        this.previousSlide = null;
+        this.currentSlide = index;
+        this.slides[index].classList.add('active');
+        if (this.dots[index]) this.dots[index].classList.add('active');
       }
 
       goToSlide(index) {
-        if (this.slides.length === 0) return;
+        if (this.slides.length === 0 || this.isAnimating || this.drag) return;
 
         if (index < 0) {
           index = this.slides.length - 1;

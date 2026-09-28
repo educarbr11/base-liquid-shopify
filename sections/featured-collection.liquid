@@ -9,6 +9,38 @@
   assign collection = collections[section.settings.collection]
   assign limit = section.settings.products_to_show | plus: 0
   assign total_products = collection.all_products_count | plus: 0
+
+  # Fonte dos produtos: lista manual (na ordem do editor) ou coleção (com ordenação opcional)
+  assign use_manual = false
+  if section.settings.products != blank and section.settings.products.size > 0
+    assign use_manual = true
+    assign products_source = section.settings.products
+  else
+    case section.settings.sort_order
+      when 'title-ascending'
+        assign products_source = collection.products | sort_natural: 'title'
+      when 'title-descending'
+        assign products_source = collection.products | sort_natural: 'title' | reverse
+      when 'price-ascending'
+        assign products_source = collection.products | sort: 'price'
+      when 'price-descending'
+        assign products_source = collection.products | sort: 'price' | reverse
+      when 'created-descending'
+        assign products_source = collection.products | sort: 'created_at' | reverse
+      when 'created-ascending'
+        assign products_source = collection.products | sort: 'created_at'
+      else
+        assign products_source = collection.products
+    endcase
+  endif
+
+  # "Ver tudo": sempre que houver coleção no modo manual; no modo coleção, só se houver mais produtos que o limite
+  assign show_view_all = false
+  if section.settings.show_view_all and collection != blank
+    if use_manual or total_products > limit
+      assign show_view_all = true
+    endif
+  endif
 -%}
 <div class='featured-collection' data-section-id='{{ section.id }}'>
   <div class='featured-collection__header'>
@@ -18,19 +50,19 @@
         <span>{{ section.settings.heading | escape }}</span>
       </h2>
     {%- endif -%}
-    {%- if section.settings.show_view_all and total_products > limit -%}
+    {%- if show_view_all -%}
       <a
         href='{{ collection.url }}'
         class='featured-collection__view-all'
         aria-label='{{ 'sections.featured_collection.view_all_label' | t: collection_name: collection.title }}'>
-        Ver tudo →
+        {{ section.settings.view_all_label | default: 'Ver tudo →' | escape }}
       </a>
     {%- endif -%}
   </div>
 
-  {%- if collection.products.size > 0 -%}
+  {%- if products_source.size > 0 -%}
     <div class='featured-collection__scroll'>
-      {%- for product in collection.products limit: limit -%}
+      {%- for product in products_source limit: limit -%}
         <div class='featured-collection__item'>
           {% render 'card-product', card_product: product %}
         </div>
@@ -285,10 +317,41 @@
   "tag": "section",
   "settings": [
     { "type": "text", "id": "heading", "default": "COLEÇÃO PRÉ-ESCOLA DIGITAL", "label": "t:sections.featured_collection.settings.heading.label" },
-    { "type": "collection", "id": "collection", "label": "t:sections.featured_collection.settings.collection.label" },
+    { "type": "header", "content": "Produtos" },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "Produtos em destaque",
+      "limit": 12,
+      "info": "Escolha quais produtos aparecem e arraste para definir a ordem. Se ficar vazio, os produtos da coleção abaixo são usados."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:sections.featured_collection.settings.collection.label",
+      "info": "Usada no link \"Ver tudo\" e como fonte dos produtos quando nenhum produto for escolhido acima."
+    },
+    {
+      "type": "select",
+      "id": "sort_order",
+      "label": "Ordem dos produtos da coleção",
+      "info": "Aplicada apenas quando os produtos vêm da coleção.",
+      "default": "collection",
+      "options": [
+        { "value": "collection", "label": "Ordem da coleção" },
+        { "value": "title-ascending", "label": "Alfabética, A-Z" },
+        { "value": "title-descending", "label": "Alfabética, Z-A" },
+        { "value": "price-ascending", "label": "Preço, menor para maior" },
+        { "value": "price-descending", "label": "Preço, maior para menor" },
+        { "value": "created-descending", "label": "Mais recentes primeiro" },
+        { "value": "created-ascending", "label": "Mais antigos primeiro" }
+      ]
+    },
     { "type": "range", "id": "products_to_show", "min": 2, "max": 12, "step": 1, "default": 4, "label": "t:sections.featured_collection.settings.products_to_show.label" },
     { "type": "range", "id": "columns_desktop", "min": 2, "max": 5, "step": 1, "default": 4, "label": "t:sections.featured_collection.settings.columns_desktop.label" },
-    { "type": "checkbox", "id": "show_view_all", "default": true, "label": "t:sections.featured_collection.settings.show_view_all.label" }
+    { "type": "header", "content": "Ver tudo" },
+    { "type": "checkbox", "id": "show_view_all", "default": true, "label": "t:sections.featured_collection.settings.show_view_all.label" },
+    { "type": "text", "id": "view_all_label", "label": "Texto do link", "default": "Ver tudo →" }
   ],
   "presets": [{ "name": "t:sections.featured_collection.name" }]
 }
