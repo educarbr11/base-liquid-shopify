@@ -68,6 +68,9 @@ shopify theme push --store SUA-LOJA.myshopify.com --unpublished
 shopify theme check
 ```
 
+
+
+
 Depois de subir, customize tudo pelo **editor de tema** do Shopify
 (`admin/themes` → *Customize*): logo, cores, fontes, menu, seções da home, etc.
 Nada precisa ser editado no código para uma loja funcionar.
