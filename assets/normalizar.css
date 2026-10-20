@@ -6,8 +6,9 @@
   O QUE FAZ:
   Zera margens, paddings e bordas padrao (reset com box-sizing:
   border-box em tudo), normaliza comportamento de elementos
-  (botoes, inputs, links, imagens) e esconde scrollbars.
-  Tambem define cor de selecao de texto, rolagem suave e estados
+  (botoes, inputs, links, imagens) e esconde scrollbars internas.
+  A barra vertical principal permanece visivel e segue as cores do
+  tema. Tambem define cor de selecao de texto, rolagem suave e estados
   de autofill usando as variaveis de cor do tema.
 
   OBSERVACOES:
@@ -47,6 +48,38 @@ body {
 * {
   scrollbar-width: none;
 }
+
+/* Mantem a barra de rolagem principal visivel sem exibir barras
+   desnecessarias nos componentes internos do tema. */
+html {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text, #0b1d3a) var(--color-background-contrast, #f3f5f8);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: block;
+  width: 12px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: var(--color-background-contrast, #f3f5f8);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: var(--color-text, #0b1d3a);
+  border: 3px solid var(--color-background-contrast, #f3f5f8);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary, #f5be18);
+}
+
 body.bloquear {
   overflow: hidden;
 }
