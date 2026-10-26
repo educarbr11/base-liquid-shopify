@@ -205,6 +205,11 @@
     gap: 8px;
   }
 
+  .cart__summary:has([data-school-coupon-input]:not(:placeholder-shown)) .cart__additional-checkout,
+  .cart__summary:has([data-school-coupon][aria-busy="true"]) .cart__additional-checkout {
+    display: none;
+  }
+
   @media screen and (max-width: 1000px) {
     .cart__contents { flex-direction: column; gap: 32px; }
     .cart__summary { position: static; flex-basis: auto; width: 100%; }
@@ -365,6 +370,8 @@
         </div>
 
         <div class="cart__summary">
+          {% render 'school-coupon', id: 'CartPageSchoolCoupon' %}
+
           {%- if section.settings.show_note -%}
             <label class="cart__note-label" for="Cart-note">{{ 'sections.cart.note' | t }}</label>
             <textarea

@@ -1,0 +1,91 @@
+{% doc %}
+  Código da campanha escolar validado pelo app proxy DoGo Escolas.
+  @param {string} id - Identificador único do campo.
+{% enddoc %}
+
+{%- if settings.cart_show_school_coupon != false -%}
+  <div
+    class="school-coupon"
+    data-school-coupon
+    data-proxy-path="/apps/dogo-escolas/coupon"
+    data-validating-label="{{ 'sections.cart.school_coupon_validating' | t | escape }}"
+    data-saving-label="{{ 'sections.cart.school_coupon_saving' | t | escape }}"
+    data-valid-label="{{ 'sections.cart.school_coupon_valid' | t | escape }}"
+    data-invalid-label="{{ 'sections.cart.school_coupon_invalid' | t | escape }}"
+    data-error-label="{{ 'sections.cart.school_coupon_error' | t | escape }}"
+    data-saved-code="{{ cart.attributes.dogo_school_code | escape }}"
+  >
+    <label class="school-coupon__label" for="{{ id | escape }}">
+      {{ 'sections.cart.school_coupon_label' | t }}
+    </label>
+    <div class="school-coupon__controls">
+      <input
+      class="school-coupon__input field__input"
+      id="{{ id | escape }}"
+      type="text"
+      placeholder="{{ 'sections.cart.school_coupon_placeholder' | t | escape }}"
+      aria-describedby="{{ id | escape }}-help {{ id | escape }}-status"
+      autocomplete="off"
+      autocapitalize="characters"
+      spellcheck="false"
+      maxlength="80"
+      data-school-coupon-input
+    >
+      <button type="button" class="school-coupon__apply" data-school-coupon-apply>{{ 'sections.cart.school_coupon_apply' | t }}</button>
+      <button type="button" class="school-coupon__clear" data-school-coupon-clear hidden>{{ 'sections.cart.school_coupon_clear' | t }}</button>
+    </div>
+    <p class="school-coupon__status" id="{{ id | escape }}-status" data-school-coupon-status role="status" aria-live="polite"></p>
+    <p class="school-coupon__help" id="{{ id | escape }}-help">
+      {{ 'sections.cart.school_coupon_help' | t }}
+    </p>
+    <noscript><p class="school-coupon__help">{{ 'sections.cart.school_coupon_no_script' | t }}</p></noscript>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .school-coupon {
+    margin-block: 0 16px;
+    padding: 16px;
+    color: var(--color-text, #0b1d3a);
+    background: var(--color-background-contrast, #f2f3f8);
+    border: 1px solid var(--color-border, #c2c2c2);
+    border-radius: 16px;
+  }
+
+  .school-coupon__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .school-coupon__input {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    border-radius: 12px;
+    font-size: 1rem;
+  }
+
+  .school-coupon__controls { display: flex; flex-wrap: wrap; gap: 8px; }
+  .school-coupon__controls .school-coupon__input { flex: 1 1 180px; }
+  .school-coupon__apply, .school-coupon__clear { min-height: 48px; padding: 10px 14px; border: 1px solid #0b1d3a; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; transition: background-color .2s ease, color .2s ease; }
+  .school-coupon__apply { color: #0b1d3a; background: #f5be18; }
+  .school-coupon__apply:hover { background: #e8a817; }
+  .school-coupon__clear { color: #0b1d3a; background: transparent; }
+  .school-coupon__clear:hover { background: #fff; }
+  .school-coupon__clear[hidden] { display: none; }
+  .school-coupon__status { margin: 8px 0 0; font-weight: 600; font-size: var(--f0); overflow-wrap: anywhere; }
+  .school-coupon__status:empty { display: none; }
+  .school-coupon[data-state="error"] .school-coupon__status, .school-coupon[data-state="invalid"] .school-coupon__status { color: #c4003b; }
+
+  .school-coupon__input:focus-visible {
+    outline: 2px solid var(--color-accent, #ff004c);
+    outline-offset: 2px;
+  }
+
+  .school-coupon__help {
+    margin: 8px 0 0;
+    font-size: var(--f0);
+    line-height: 1.45;
+  }
+{% endstylesheet %}
