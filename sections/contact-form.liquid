@@ -114,6 +114,8 @@
       >{% if form.body %}{{ form.body }}{% endif %}</textarea>
     </div>
 
+    {% render 'privacy-notice', purpose: 'contact' %}
+
     <button type="submit" class="button contact__submit">
       {{ 'templates.contact.form.send' | t }}
     </button>

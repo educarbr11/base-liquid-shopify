@@ -49,7 +49,16 @@
       "newsletter_email": "E-mail",
       "email_placeholder": "E-mail",
       "confirmation": "Obrigado por se inscrever.",
-      "button_label": "Inscrever-se"
+      "button_label": "Inscrever-se",
+      "consent_label": "Quero receber novidades e ofertas da Editora DoGo Maker por e-mail. Posso cancelar a qualquer momento."
+    },
+    "privacy_notice": {
+      "newsletter": "Usamos seu e-mail para enviar novidades e ofertas. Você pode cancelar a inscrição quando quiser.",
+      "contact": "Usamos seus dados apenas para responder à sua mensagem.",
+      "restock": "Usaremos seu e-mail apenas para avisar sobre este produto.",
+      "school_code": "Usamos o código apenas para identificar a escola e a campanha deste pedido.",
+      "policy_link": "Política de Privacidade",
+      "policy_prefix": "Saiba mais na"
     }
   },
   "accessibility": {
@@ -230,7 +239,7 @@
       "remove_title": "Remover {{ title }}",
       "note": "Observações do pedido",
       "checkout": "Finalizar compra",
-      "school_coupon_label": "Cupom da escola",
+      "school_coupon_label": "Código da escola",
       "school_coupon_placeholder": "Digite o código recebido da escola",
       "school_coupon_help": "Código opcional para identificar sua escola. Confirme o local de retirada no checkout; o código não altera a entrega nem aplica um desconto comercial.",
       "school_coupon_apply": "Validar",

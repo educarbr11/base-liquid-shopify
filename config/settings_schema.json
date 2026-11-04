@@ -301,7 +301,7 @@
       {
         "type": "checkbox",
         "id": "cart_drawer_show_free_shipping",
-        "default": true,
+        "default": false,
         "label": "Mostrar progresso para frete grátis"
       },
       {

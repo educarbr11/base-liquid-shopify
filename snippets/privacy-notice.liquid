@@ -1,0 +1,32 @@
+{% doc %}
+  Aviso curto de privacidade (LGPD, art. 9º) exibido junto a formulários que
+  coletam dados pessoais. Inclui link para a Política de Privacidade quando ela
+  estiver publicada na loja (Configurações → Políticas).
+
+  @param {string} purpose - Chave do texto em general.privacy_notice (newsletter, contact, restock, school_code).
+  @param {string} [id] - Id opcional do elemento (para aria-describedby).
+{% enddoc %}
+
+{%- assign notice_key = 'general.privacy_notice.' | append: purpose -%}
+<p class="privacy-notice"{% if id != blank %} id="{{ id | escape }}"{% endif %}>
+  {{ notice_key | t }}
+  {%- if shop.privacy_policy != blank %}
+    {{ 'general.privacy_notice.policy_prefix' | t }}
+    <a href="{{ shop.privacy_policy.url }}" target="_blank" rel="noopener">{{ 'general.privacy_notice.policy_link' | t }}</a>.
+  {%- endif -%}
+</p>
+
+{% stylesheet %}
+  .privacy-notice {
+    margin: 8px 0 0;
+    font-size: var(--f0, 0.8125rem);
+    line-height: 1.45;
+    opacity: 0.85;
+  }
+
+  .privacy-notice a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+{% endstylesheet %}

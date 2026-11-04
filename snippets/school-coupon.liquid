@@ -38,6 +38,7 @@
     <p class="school-coupon__help" id="{{ id | escape }}-help">
       {{ 'sections.cart.school_coupon_help' | t }}
     </p>
+    {% render 'privacy-notice', purpose: 'school_code' %}
     <noscript><p class="school-coupon__help">{{ 'sections.cart.school_coupon_no_script' | t }}</p></noscript>
   </div>
 {%- endif -%}

@@ -38,7 +38,7 @@
     "cart_drawer_empty_text": "Seu carrinho está vazio.",
     "cart_drawer_continue_label": "Continuar comprando",
     "cart_drawer_checkout_label": "Finalizar compra",
-    "cart_drawer_show_free_shipping": true,
+    "cart_drawer_show_free_shipping": false,
     "cart_drawer_free_shipping_goal": 300,
     "social_instagram_link": "",
     "social_facebook_link": "",
@@ -86,7 +86,7 @@
       "cart_drawer_empty_text": "Seu carrinho está vazio.",
       "cart_drawer_continue_label": "Continuar comprando",
       "cart_drawer_checkout_label": "Finalizar compra",
-      "cart_drawer_show_free_shipping": true,
+      "cart_drawer_show_free_shipping": false,
       "cart_drawer_free_shipping_goal": 300
     }
   }

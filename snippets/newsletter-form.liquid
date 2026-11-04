@@ -21,6 +21,10 @@
 {%- form 'customer', class: 'newsletter-form' -%}
   <input type="hidden" name="contact[tags]" value="newsletter">
   <label class="visually-hidden" for="NewsletterEmail">{{ 'general.newsletter_form.newsletter_email' | t }}</label>
+  <div class="newsletter-form__consent">
+    <input type="checkbox" id="NewsletterConsent" name="contact[accepts_marketing]" value="true" required aria-describedby="NewsletterPrivacy">
+    <label for="NewsletterConsent">{{ 'general.newsletter_form.consent_label' | t }}</label>
+  </div>
   <div class="newsletter-form__field">
     <input
       id="NewsletterEmail"
@@ -39,6 +43,7 @@
       {{ 'general.newsletter_form.button_label' | t }}
     </button>
   </div>
+  {% render 'privacy-notice', purpose: 'newsletter', id: 'NewsletterPrivacy' %}
   {%- if form.errors -%}
     <small class="newsletter-form__message form__message" role="alert">
       {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
@@ -53,5 +58,7 @@
 <style>
   .newsletter-form__field { display: flex; gap: 8px; flex-wrap: wrap; }
   .newsletter-form__field .field__input { flex: 1; min-width: 180px; }
+  .newsletter-form__consent { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: var(--f0, 0.8125rem); line-height: 1.4; }
+  .newsletter-form__consent input { flex-shrink: 0; margin-top: 3px; }
   .newsletter-form__message { display: block; margin-top: 8px; font-size: var(--f1); }
 </style>
