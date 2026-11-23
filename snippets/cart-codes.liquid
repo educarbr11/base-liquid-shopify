@@ -1,0 +1,71 @@
+{% doc %}
+  Códigos do carrinho em dois blocos expansíveis: código da escola e cupom de desconto.
+  @param {string} id - Prefixo único dos campos.
+{% enddoc %}
+
+<div class="cart-codes">
+  {%- if settings.cart_show_school_coupon != false -%}
+    <details class="cart-code" data-cart-code="school">
+      <summary class="cart-code__summary">{{ 'sections.cart.school_coupon_toggle' | t }}</summary>
+      <div class="cart-code__body">
+        {% render 'school-coupon', id: id | append: 'School' %}
+      </div>
+    </details>
+  {%- endif -%}
+
+  <details class="cart-code" data-cart-code="discount">
+    <summary class="cart-code__summary">{{ 'sections.cart.discount_coupon_toggle' | t }}</summary>
+    <div
+      class="cart-code__body discount-coupon"
+      data-discount-coupon
+      data-applied-label="{{ 'sections.cart.discount_coupon_applied' | t | escape }}"
+      data-empty-label="{{ 'sections.cart.discount_coupon_empty' | t | escape }}"
+      data-error-label="{{ 'sections.cart.discount_coupon_error' | t | escape }}"
+    >
+      <label class="discount-coupon__label" for="{{ id | escape }}Discount">{{ 'sections.cart.discount_coupon_label' | t }}</label>
+      <div class="discount-coupon__controls">
+        <input
+          class="discount-coupon__input field__input"
+          id="{{ id | escape }}Discount"
+          type="text"
+          placeholder="{{ 'sections.cart.discount_coupon_placeholder' | t | escape }}"
+          aria-describedby="{{ id | escape }}Discount-status"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          maxlength="60"
+          data-discount-coupon-input
+        >
+        <button type="button" class="discount-coupon__apply" data-discount-coupon-apply>{{ 'sections.cart.discount_coupon_apply' | t }}</button>
+        <button type="button" class="discount-coupon__clear" data-discount-coupon-clear hidden>{{ 'sections.cart.discount_coupon_clear' | t }}</button>
+      </div>
+      <p class="discount-coupon__status" id="{{ id | escape }}Discount-status" data-discount-coupon-status role="status" aria-live="polite"></p>
+      <p class="discount-coupon__help">{{ 'sections.cart.discount_coupon_help' | t }}</p>
+    </div>
+  </details>
+</div>
+
+{% stylesheet %}
+  .cart-codes { display: grid; gap: 8px; margin-block: 0 16px; }
+  .cart-code { background: var(--color-background-contrast, #f2f3f8); border: 1px solid var(--color-border, #c2c2c2); border-radius: 16px; overflow: hidden; }
+  .cart-code__summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 16px; font-weight: 700; color: var(--color-text, #0b1d3a); cursor: pointer; list-style: none; }
+  .cart-code__summary::-webkit-details-marker { display: none; }
+  .cart-code__summary::after { content: '+'; font-size: 1.25rem; line-height: 1; }
+  .cart-code[open] > .cart-code__summary::after { content: '−'; }
+  .cart-code__summary:focus-visible { outline: 2px solid var(--color-accent, #ff004c); outline-offset: -2px; }
+  .cart-code__body { padding: 0 16px 16px; }
+  .cart-code .school-coupon { margin: 0; padding: 0; background: none; border: 0; border-radius: 0; }
+  .discount-coupon__label { display: block; margin-bottom: 8px; font-weight: 700; }
+  .discount-coupon__controls { display: flex; flex-wrap: wrap; gap: 8px; }
+  .discount-coupon__input { flex: 1 1 180px; width: 100%; min-width: 0; min-height: 48px; border-radius: 12px; font-size: 1rem; }
+  .discount-coupon__apply, .discount-coupon__clear { min-height: 48px; padding: 10px 14px; border: 1px solid #0b1d3a; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; transition: background-color .2s ease; }
+  .discount-coupon__apply { color: #0b1d3a; background: #f5be18; }
+  .discount-coupon__apply:hover { background: #e8a817; }
+  .discount-coupon__clear { color: #0b1d3a; background: transparent; }
+  .discount-coupon__clear:hover { background: #fff; }
+  .discount-coupon__clear[hidden] { display: none; }
+  .discount-coupon__status { margin: 8px 0 0; font-weight: 600; font-size: var(--f0); overflow-wrap: anywhere; }
+  .discount-coupon__status:empty { display: none; }
+  .discount-coupon[data-state="error"] .discount-coupon__status { color: #c4003b; }
+  .discount-coupon__help { margin: 8px 0 0; font-size: var(--f0); line-height: 1.45; }
+{% endstylesheet %}
