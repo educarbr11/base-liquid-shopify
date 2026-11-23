@@ -3,12 +3,13 @@
   @param {string} id - Prefixo único dos campos.
 {% enddoc %}
 
+{%- assign school_field_id = id | append: 'School' -%}
 <div class="cart-codes">
   {%- if settings.cart_show_school_coupon != false -%}
     <details class="cart-code" data-cart-code="school">
       <summary class="cart-code__summary">{{ 'sections.cart.school_coupon_toggle' | t }}</summary>
       <div class="cart-code__body">
-        {% render 'school-coupon', id: id | append: 'School' %}
+        {% render 'school-coupon', id: school_field_id %}
       </div>
     </details>
   {%- endif -%}
